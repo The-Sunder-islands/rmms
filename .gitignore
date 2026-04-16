@@ -1,5 +1,6 @@
-/build/
+/build*/
 /target/
+/buildtools/
 .*.sw?
 .DS_Store
 *~
@@ -12,3 +13,4 @@
 Brewfile.lock.json
 /.cache/
 compile_commands.json
+RMMS_DEVELOPMENT_PLAN.md
