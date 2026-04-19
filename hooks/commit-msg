@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+COMMIT_MSG_FILE="$1"
+COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
+
+if echo "$COMMIT_MSG" | head -1 | grep -qE '^Merge '; then
+    exit 0
+fi
+
+if echo "$COMMIT_MSG" | head -1 | grep -qE '^Revert '; then
+    exit 0
+fi
+
+FIRST_LINE=$(echo "$COMMIT_MSG" | head -1)
+
+PATTERN='^(新功能|修复|重构|样式|文档|测试|构建|性能|CI|杂项|回退|重命名|国际化|插件|核心|UI|AI)(\(.+\))?: .+'
+
+if ! echo "$FIRST_LINE" | grep -qE "$PATTERN"; then
+    echo ""
+    echo "❌ 提交信息格式不正确！"
+    echo ""
+    echo "格式: <类型>(<范围>): <描述>"
+    echo ""
+    echo "类型:"
+    echo "  新功能    新增功能"
+    echo "  修复      修复缺陷"
+    echo "  重构      代码重构（不改变行为）"
+    echo "  样式      界面/代码风格调整"
+    echo "  文档      文档变更"
+    echo "  测试      测试相关"
+    echo "  构建      构建系统/依赖变更"
+    echo "  性能      性能优化"
+    echo "  CI        CI/CD 配置"
+    echo "  杂项      其他杂项"
+    echo "  回退      回退提交"
+    echo "  重命名    重命名相关"
+    echo "  国际化    国际化/翻译"
+    echo "  插件      插件相关"
+    echo "  核心      核心引擎"
+    echo "  UI        界面相关"
+    echo "  AI        AI 功能"
+    echo ""
+    echo "范围（可选）: core|ui|ai|plugin|build|rename|docs|test|i18n"
+    echo ""
+    echo "示例:"
+    echo "  新功能: 添加AI音频分轨对话框"
+    echo "  修复(ui): 修复钢琴卷帘音符颜色不生效"
+    echo "  重构(core): 提取DesignSystem颜色管理"
+    echo "  构建: 升级vcpkg依赖版本"
+    echo ""
+    exit 1
+fi
+
+FIRST_LINE_LEN=${#FIRST_LINE}
+if [ "$FIRST_LINE_LEN" -gt 72 ]; then
+    echo ""
+    echo "❌ 提交信息首行过长（${FIRST_LINE_LEN}字符，上限72）"
+    echo ""
+    exit 1
+fi

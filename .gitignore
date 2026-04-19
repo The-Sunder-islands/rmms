@@ -3,8 +3,10 @@
 /buildtools/
 .*.sw?
 .DS_Store
+Thumbs.db
 *~
 /CMakeLists.txt.user
+CMakeUserPresets.json
 /plugins/ZynAddSubFx/zynaddsubfx/ExternalPrograms/Controller/Makefile
 /plugins/ZynAddSubFx/zynaddsubfx/ExternalPrograms/Spliter/Makefile
 /plugins/ZynAddSubFx/zynaddsubfx/doc/Makefile
@@ -14,3 +16,8 @@ Brewfile.lock.json
 /.cache/
 compile_commands.json
 RMMS_DEVELOPMENT_PLAN.md
+.vs/
+.vscode/
+*.user
+.ai_config
+rmms_ai_local.xml

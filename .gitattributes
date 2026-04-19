@@ -1,5 +1,15 @@
 .gitattributes export-ignore
 .gitignore export-ignore
+.editorconfig export-ignore
+.clang-format export-ignore
+.clang-tidy export-ignore
+RMMS_DEVELOPMENT_PLAN.md export-ignore
+hooks/ export-ignore
+.github/ export-ignore
+
 data/locale/* linguist-documentation
+
 * text=auto eol=lf
 *.{bin,bmp,flac,icns,ico,mmpz,ogg,png,xiz,xmz,wav} binary
+*.{sf2,sf3,mid,midi,mp3,aac,flp,xpt} binary
+*.{zip,gz,tar,tgz,rpm,deb,AppImage,exe,msi,dmg} binary
