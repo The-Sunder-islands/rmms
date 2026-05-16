@@ -49,13 +49,20 @@
 #include "AudioAlsa.h"
 #include "AudioAlsaSetupWidget.h"
 #include "AudioDummy.h"
+#include "AudioDummySetupWidget.h"
 #include "AudioJack.h"
+#include "AudioJackSetupWidget.h"
 #include "AudioOss.h"
+#include "AudioOssSetupWidget.h"
 #include "AudioPortAudio.h"
 #include "AudioPulseAudio.h"
+#include "AudioPulseAudioSetupWidget.h"
 #include "AudioSdl.h"
+#include "AudioSdlSetupWidget.h"
 #include "AudioSndio.h"
+#include "AudioSndioSetupWidget.h"
 #include "AudioSoundIo.h"
+#include "AudioSoundIoSetupWidget.h"
 
 // Platform-specific midi-interface classes.
 #include "MidiAlsaRaw.h"
@@ -509,7 +516,7 @@ SetupDialog::SetupDialog(ConfigTab tab_to_open) :
 
 #ifdef LMMS_HAVE_JACK
 	m_audioIfaceSetupWidgets[AudioJack::name()] =
-			new AudioJack::setupWidget(as_w);
+			new AudioJackSetupWidget(as_w);
 #endif
 
 #ifdef LMMS_HAVE_ALSA
@@ -519,7 +526,7 @@ SetupDialog::SetupDialog(ConfigTab tab_to_open) :
 
 #ifdef LMMS_HAVE_PULSEAUDIO
 	m_audioIfaceSetupWidgets[AudioPulseAudio::name()] =
-			new AudioPulseAudio::setupWidget(as_w);
+			new AudioPulseAudioSetupWidget(as_w);
 #endif
 
 #ifdef LMMS_HAVE_PORTAUDIO
@@ -529,26 +536,26 @@ SetupDialog::SetupDialog(ConfigTab tab_to_open) :
 
 #ifdef LMMS_HAVE_SOUNDIO
 	m_audioIfaceSetupWidgets[AudioSoundIo::name()] =
-			new AudioSoundIo::setupWidget(as_w);
+			new AudioSoundIoSetupWidget(as_w);
 #endif
 
 #ifdef LMMS_HAVE_SDL
 	m_audioIfaceSetupWidgets[AudioSdl::name()] =
-			new AudioSdl::setupWidget(as_w);
+			new AudioSdlSetupWidget(as_w);
 #endif
 
 #ifdef LMMS_HAVE_OSS
 	m_audioIfaceSetupWidgets[AudioOss::name()] =
-			new AudioOss::setupWidget(as_w);
+			new AudioOssSetupWidget(as_w);
 #endif
 
 #ifdef LMMS_HAVE_SNDIO
 	m_audioIfaceSetupWidgets[AudioSndio::name()] =
-			new AudioSndio::setupWidget(as_w);
+			new AudioSndioSetupWidget(as_w);
 #endif
 
 	m_audioIfaceSetupWidgets[AudioDummy::name()] =
-			new AudioDummy::setupWidget(as_w);
+			new AudioDummySetupWidget(as_w);
 
 
 	for(AswMap::iterator it = m_audioIfaceSetupWidgets.begin();

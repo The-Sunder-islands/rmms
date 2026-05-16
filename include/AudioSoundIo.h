@@ -27,36 +27,17 @@
 
 
 #include "lmmsconfig.h"
-#include "ComboBoxModel.h"  // IWYU pragma: keep
 
 #ifdef LMMS_HAVE_SOUNDIO
 
 #include <soundio/soundio.h>
 
 #include "AudioDevice.h"
-#include "AudioDeviceSetupWidget.h"
 
 namespace lmms
 {
 
-namespace gui
-{
-class ComboBox;
-class LcdSpinBox;
-}
 
-// Exists only to work around "Error: Meta object features not supported for nested classes"
-class AudioSoundIoSetupUtil : public QObject
-{
-	Q_OBJECT
-public:
-	virtual ~AudioSoundIoSetupUtil() = default;
-
-	void *m_setupWidget;
-public slots:
-	void updateDevices();
-	void reconnectSoundIo();
-};
 
 class AudioSoundIo : public AudioDevice
 {
@@ -68,39 +49,6 @@ public:
 	{
 		return QT_TRANSLATE_NOOP( "AudioDeviceSetupWidget", "soundio" );
 	}
-
-	class setupWidget : public gui::AudioDeviceSetupWidget
-	{
-	public:
-		setupWidget( QWidget * _parent );
-		virtual ~setupWidget();
-
-		virtual void saveSettings();
-
-		void updateDevices();
-		void reconnectSoundIo();
-
-	private:
-
-		AudioSoundIoSetupUtil m_setupUtil;
-		gui::ComboBox * m_backend;
-		gui::ComboBox * m_device;
-
-		ComboBoxModel m_backendModel;
-		ComboBoxModel m_deviceModel;
-
-		SoundIo * m_soundio;
-
-		struct DeviceId {
-			QString id;
-			bool is_raw;
-		};
-		QList<DeviceId> m_deviceList;
-
-		int m_defaultOutIndex;
-		bool m_isFirst;
-
-	} ;
 
 private:
 	void startProcessingImpl() override;

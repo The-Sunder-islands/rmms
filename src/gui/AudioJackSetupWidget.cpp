@@ -1,7 +1,7 @@
 /*
- * AudioOss.h - device-class that implements OSS-PCM-output
+ * AudioJackSetupWidget.cpp - setup widget for JACK audio output
  *
- * Copyright (c) 2004-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2005-2024 Tobias Doerffel <tobydox/at/users.sourceforge.net>
  *
  * This file is part of LMMS - https://lmms.io
  *
@@ -22,47 +22,19 @@
  *
  */
 
-#ifndef LMMS_AUDIO_OSS_H
-#define LMMS_AUDIO_OSS_H
+#include "AudioJackSetupWidget.h"
+#include "AudioJack.h"
 
-#include "lmmsconfig.h"
-
-#ifdef LMMS_HAVE_OSS
-
-#include <QThread>
-
-#include "AudioDevice.h"
-
-namespace lmms
+namespace lmms::gui
 {
 
-
-class AudioOss : public QThread, public AudioDevice
+AudioJackSetupWidget::AudioJackSetupWidget(QWidget* parent)
+	: AudioDeviceSetupWidget(AudioJack::name(), parent)
 {
-	Q_OBJECT
-public:
-	AudioOss( bool & _success_ful, AudioEngine* audioEngine );
-	~AudioOss() override;
+}
 
-	inline static QString name()
-	{
-		return QT_TRANSLATE_NOOP( "AudioDeviceSetupWidget", "OSS (Open Sound System)" );
-	}
+void AudioJackSetupWidget::saveSettings()
+{
+}
 
-	static QString probeDevice();
-
-
-
-private:
-	void startProcessingImpl() override;
-	void stopProcessingImpl() override;
-	void run() override;
-
-	int m_audioFD;
-};
-
-} // namespace lmms
-
-#endif // LMMS_HAVE_OSS
-
-#endif // LMMS_AUDIO_OSS_H
+} // namespace lmms::gui

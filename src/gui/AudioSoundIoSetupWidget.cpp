@@ -1,7 +1,7 @@
 /*
- * AudioOss.h - device-class that implements OSS-PCM-output
+ * AudioSoundIoSetupWidget.cpp - setup widget for SoundIO audio output
  *
- * Copyright (c) 2004-2009 Tobias Doerffel <tobydox/at/users.sourceforge.net>
+ * Copyright (c) 2015-2024 Andrew Kelley <superjoe30@gmail.com>
  *
  * This file is part of LMMS - https://lmms.io
  *
@@ -22,47 +22,19 @@
  *
  */
 
-#ifndef LMMS_AUDIO_OSS_H
-#define LMMS_AUDIO_OSS_H
+#include "AudioSoundIoSetupWidget.h"
+#include "AudioSoundIo.h"
 
-#include "lmmsconfig.h"
-
-#ifdef LMMS_HAVE_OSS
-
-#include <QThread>
-
-#include "AudioDevice.h"
-
-namespace lmms
+namespace lmms::gui
 {
 
-
-class AudioOss : public QThread, public AudioDevice
+AudioSoundIoSetupWidget::AudioSoundIoSetupWidget(QWidget* parent)
+	: AudioDeviceSetupWidget(AudioSoundIo::name(), parent)
 {
-	Q_OBJECT
-public:
-	AudioOss( bool & _success_ful, AudioEngine* audioEngine );
-	~AudioOss() override;
+}
 
-	inline static QString name()
-	{
-		return QT_TRANSLATE_NOOP( "AudioDeviceSetupWidget", "OSS (Open Sound System)" );
-	}
+void AudioSoundIoSetupWidget::saveSettings()
+{
+}
 
-	static QString probeDevice();
-
-
-
-private:
-	void startProcessingImpl() override;
-	void stopProcessingImpl() override;
-	void run() override;
-
-	int m_audioFD;
-};
-
-} // namespace lmms
-
-#endif // LMMS_HAVE_OSS
-
-#endif // LMMS_AUDIO_OSS_H
+} // namespace lmms::gui

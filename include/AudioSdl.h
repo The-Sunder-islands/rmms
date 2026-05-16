@@ -32,9 +32,6 @@
 #include <SDL2/SDL_audio.h>
 
 #include "AudioDevice.h"
-#include "AudioDeviceSetupWidget.h"
-
-class QComboBox;
 
 namespace lmms
 {
@@ -51,25 +48,6 @@ public:
 					"SDL (Simple DirectMedia Layer)" );
 	}
 
-
-	class setupWidget : public gui::AudioDeviceSetupWidget
-	{
-	public:
-		setupWidget( QWidget * _parent );
-		~setupWidget() override = default;
-
-		void saveSettings() override;
-	
-	private:
-		void populatePlaybackDeviceComboBox();
-		void populateInputDeviceComboBox();
-
-	private:
-		QComboBox* m_playbackDeviceComboBox = nullptr;
-		QComboBox* m_inputDeviceComboBox = nullptr;
-
-		static QString s_systemDefaultDevice;
-	} ;
 
 
 private:

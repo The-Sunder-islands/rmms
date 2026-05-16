@@ -26,7 +26,6 @@
 #define LMMS_AUDIO_DUMMY_H
 
 #include "AudioDevice.h"
-#include "AudioDeviceSetupWidget.h"
 #include "AudioEngine.h"
 #include "MicroTimer.h"
 
@@ -53,28 +52,6 @@ public:
 		return QT_TRANSLATE_NOOP( "AudioDeviceSetupWidget", "Dummy (no sound output)" );
 	}
 
-
-	class setupWidget : public gui::AudioDeviceSetupWidget
-	{
-	public:
-		setupWidget( QWidget * _parent ) :
-			gui::AudioDeviceSetupWidget( AudioDummy::name(), _parent )
-		{
-		}
-
-		~setupWidget() override = default;
-
-		void saveSettings() override
-		{
-		}
-
-		void show() override
-		{
-			parentWidget()->hide();
-			QWidget::show();
-		}
-
-	} ;
 
 
 private:

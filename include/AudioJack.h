@@ -41,14 +41,11 @@
 #endif
 
 #include "AudioDevice.h"
-#include "AudioDeviceSetupWidget.h"
 #ifdef AUDIO_BUS_HANDLE_SUPPORT
 #include "AudioBusHandle.h"
 #endif
 
-class QLineEdit;
-class QMenu;
-class QToolButton;
+
 
 namespace lmms
 {
@@ -74,27 +71,6 @@ public:
 	{
 		return QT_TRANSLATE_NOOP("AudioDeviceSetupWidget", "JACK (JACK Audio Connection Kit)");
 	}
-
-	class setupWidget : public gui::AudioDeviceSetupWidget
-	{
-	public:
-		setupWidget(QWidget* parent);
-		void saveSettings() override;
-
-	private:
-		std::vector<std::string> getAudioPortNames(JackPortFlags portFlags) const;
-		std::vector<std::string> getAudioInputNames() const;
-		std::vector<std::string> getAudioOutputNames() const;
-		static QMenu* buildMenu(QToolButton* toolButton, const std::vector<std::string>& names, const QString& filteredLMMSClientName);
-
-	private:
-		QLineEdit* m_clientName;
-		// Because we do not have access to a JackAudio driver instance we have to be our own client to display inputs and outputs...
-		jack_client_t* m_client;
-
-		std::vector<QToolButton*> m_outputDevices;
-		std::vector<QToolButton*> m_inputDevices;
-	};
 
 private slots:
 	void restartAfterZombified();
