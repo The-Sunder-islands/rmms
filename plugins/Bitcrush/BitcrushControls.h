@@ -54,7 +54,7 @@ public:
 		return( 9 );
 	}
 
-	gui::EffectControlDialog * createView() override
+	QWidget* createView() override
 	{
 		return( new gui::BitcrushControlDialog( this ) );
 	}

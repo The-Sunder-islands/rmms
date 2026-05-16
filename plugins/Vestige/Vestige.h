@@ -72,7 +72,7 @@ public:
 
 	virtual bool handleMidiEvent( const MidiEvent& event, const TimePos& time, f_cnt_t offset = 0 );
 
-	virtual gui::PluginView* instantiateView( QWidget * _parent );
+	virtual QWidget* instantiateView( QWidget * _parent );
 
 protected slots:
 	void setParameter( lmms::Model * action );

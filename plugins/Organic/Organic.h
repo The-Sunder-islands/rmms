@@ -166,7 +166,7 @@ private:
 	FloatModel  m_fx1Model;
 	FloatModel  m_volModel;
 
-	gui::PluginView* instantiateView( QWidget * _parent ) override;
+	QWidget* instantiateView( QWidget * _parent ) override;
 
 
 private slots:

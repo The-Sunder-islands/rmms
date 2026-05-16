@@ -71,7 +71,7 @@ public:
 	LadspaBrowser();
 	~LadspaBrowser() override = default;
 
-	gui::PluginView* instantiateView( QWidget * ) override
+	QWidget* instantiateView( QWidget * ) override
 	{
 		return new gui::LadspaBrowserView( this );
 	}

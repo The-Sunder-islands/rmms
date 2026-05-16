@@ -33,6 +33,7 @@
 #include "MidiClipView.h"
 #include "PatternStore.h"
 #include "PianoRoll.h"
+#include "TrackView.h"
 
 
 
@@ -622,9 +623,9 @@ void MidiClip::removeSteps()
 
 
 
-gui::ClipView * MidiClip::createView( gui::TrackView * _tv )
+QWidget * MidiClip::createView( QWidget * _tv )
 {
-	return new gui::MidiClipView( this, _tv );
+	return new gui::MidiClipView( this, static_cast<gui::TrackView*>( _tv ) );
 }
 
 

@@ -384,7 +384,7 @@ QString OpulenzInstrument::nodeName() const
         return( opulenz_plugin_descriptor.name );
 }
 
-gui::PluginView* OpulenzInstrument::instantiateView( QWidget * _parent )
+QWidget* OpulenzInstrument::instantiateView( QWidget * _parent )
 {
         return( new gui::OpulenzInstrumentView( this, _parent ) );
 }

@@ -474,7 +474,7 @@ void VestigeInstrument::closePlugin( void )
 
 
 
-gui::PluginView * VestigeInstrument::instantiateView( QWidget * _parent )
+QWidget* VestigeInstrument::instantiateView( QWidget * _parent )
 {
 	return new gui::VestigeInstrumentView( this, _parent );
 }

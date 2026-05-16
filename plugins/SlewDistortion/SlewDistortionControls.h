@@ -69,7 +69,7 @@ public:
 	{
 		return "SlewDistortionControls";
 	}
-	gui::EffectControlDialog* createView() override
+	QWidget* createView() override
 	{
 		return new gui::SlewDistortionControlDialog(this);
 	}

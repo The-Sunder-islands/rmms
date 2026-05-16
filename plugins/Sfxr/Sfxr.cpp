@@ -485,7 +485,7 @@ void SfxrInstrument::deleteNotePluginData( NotePlayHandle * _n )
 
 
 
-gui::PluginView * SfxrInstrument::instantiateView( QWidget * _parent )
+QWidget* SfxrInstrument::instantiateView( QWidget * _parent )
 {
 	return( new gui::SfxrInstrumentView( this, _parent ) );
 }

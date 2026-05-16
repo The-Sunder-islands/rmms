@@ -62,7 +62,7 @@ public:
 
 	QString nodeName() const override;
 
-	gui::PluginView* instantiateView(QWidget* parent) override;
+	QWidget* instantiateView(QWidget* parent) override;
 
 private:
 	class StringContainer;

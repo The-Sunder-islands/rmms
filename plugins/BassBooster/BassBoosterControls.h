@@ -53,7 +53,7 @@ public:
 		return 3;
 	}
 
-	gui::EffectControlDialog* createView() override
+	QWidget* createView() override
 	{
 		return new gui::BassBoosterControlDialog( this );
 	}

@@ -28,8 +28,7 @@
 
 #include "AudioEngine.h"
 #include "ConfigManager.h"
-#include "GuiApplication.h"
-#include "MainWindow.h"
+#include "GuiMode.h"
 #include "MidiJack.h"
 
 #include <QMessageBox>
@@ -131,7 +130,7 @@ void AudioJack::restartAfterZombified()
 	{
 		m_active = false;
 		startProcessing();
-		QMessageBox::information(gui::getGUI()->mainWindow(), tr("JACK client restarted"),
+		QMessageBox::information(nullptr, tr("JACK client restarted"),
 			tr(	"LMMS was kicked by JACK for some reason. "
 				"Therefore the JACK backend of LMMS has been "
 				"restarted. You will have to make manual "
@@ -139,7 +138,7 @@ void AudioJack::restartAfterZombified()
 	}
 	else
 	{
-		QMessageBox::information(gui::getGUI()->mainWindow(), tr("JACK server down"),
+		QMessageBox::information(nullptr, tr("JACK server down"),
 			tr(	"The JACK server seems to have been shutdown "
 				"and starting a new instance failed. "
 				"Therefore LMMS is unable to proceed. "

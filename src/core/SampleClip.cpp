@@ -31,6 +31,7 @@
 #include "SampleClipView.h"
 #include "SampleTrack.h"
 #include "Song.h"
+#include "TrackView.h"
 
 namespace lmms
 {

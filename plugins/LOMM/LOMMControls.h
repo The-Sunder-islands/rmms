@@ -51,7 +51,7 @@ public:
 		return 49;
 	}
 
-	gui::EffectControlDialog* createView() override
+	QWidget* createView() override
 	{
 		m_view = new gui::LOMMControlDialog(this);
 		return m_view;

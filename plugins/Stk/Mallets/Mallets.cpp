@@ -421,7 +421,7 @@ void MalletsInstrument::deleteNotePluginData( NotePlayHandle * _n )
 
 
 
-gui::PluginView * MalletsInstrument::instantiateView( QWidget * _parent )
+QWidget* MalletsInstrument::instantiateView( QWidget * _parent )
 {
 	return( new gui::MalletsInstrumentView( this, _parent ) );
 }

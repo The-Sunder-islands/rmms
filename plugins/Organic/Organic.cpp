@@ -359,7 +359,7 @@ void OrganicInstrument::updateAllDetuning()
 }
 
 
-gui::PluginView * OrganicInstrument::instantiateView( QWidget * _parent )
+QWidget* OrganicInstrument::instantiateView( QWidget * _parent )
 {
 	return( new gui::OrganicInstrumentView( this, _parent ) );
 }

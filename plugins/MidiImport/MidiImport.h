@@ -41,7 +41,7 @@ class MidiImport : public ImportFilter
 public:
 	MidiImport(const QString& file);
 	~MidiImport() override = default;
-	gui::PluginView* instantiateView(QWidget*) override { return nullptr; }
+	QWidget* instantiateView(QWidget*) override { return nullptr; }
 
 private:
 	bool tryImport(TrackContainer* tc) override;

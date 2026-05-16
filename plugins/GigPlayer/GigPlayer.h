@@ -259,7 +259,7 @@ public:
 
 	QString nodeName() const override;
 
-	gui::PluginView* instantiateView( QWidget * _parent ) override;
+	QWidget* instantiateView( QWidget * _parent ) override;
 
 	QString getCurrentPatchName();
 

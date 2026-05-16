@@ -50,7 +50,7 @@ public:
 	{
 		return 7;
 	}
-	gui::EffectControlDialog* createView() override
+	QWidget* createView() override
 	{
 		return new gui::FlangerControlsDialog( this );
 	}

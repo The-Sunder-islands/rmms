@@ -47,7 +47,7 @@ public:
 	{
 		return "GranularPitchShifterControls";
 	}
-	gui::EffectControlDialog* createView() override
+	QWidget* createView() override
 	{
 		return new gui::GranularPitchShifterControlDialog(this);
 	}

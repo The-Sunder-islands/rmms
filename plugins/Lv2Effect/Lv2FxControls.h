@@ -57,7 +57,7 @@ public:
 	}
 
 	int controlCount() override;
-	gui::EffectControlDialog* createView() override;
+	QWidget* createView() override;
 
 private slots:
 	void changeControl();

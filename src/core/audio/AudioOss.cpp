@@ -27,11 +27,8 @@
 #ifdef LMMS_HAVE_OSS
 
 #include <QFileInfo>
-#include <QFormLayout>
-#include <QLineEdit>
 
 #include "endian_handling.h"
-#include "LcdSpinBox.h"
 #include "AudioEngine.h"
 
 #ifdef LMMS_HAVE_UNISTD_H
@@ -236,49 +233,6 @@ void AudioOss::run()
 
 		if (write(m_audioFD, pcmBuf.data(), bytesToWrite) != bytesToWrite) { break; }
 	}
-}
-
-
-
-
-AudioOss::setupWidget::setupWidget( QWidget * _parent ) :
-	AudioDeviceSetupWidget( AudioOss::name(), _parent )
-{
-	QFormLayout * form = new QFormLayout(this);
-
-	m_device = new QLineEdit( probeDevice(), this );
-
-	form->addRow(tr("Device"), m_device);
-
-	auto m = new gui::LcdSpinBoxModel(/* this */);
-	m->setRange(DEFAULT_CHANNELS, DEFAULT_CHANNELS);
-	m->setStep( 2 );
-	m->setValue( ConfigManager::inst()->value( "audiooss",
-							"channels" ).toInt() );
-
-	m_channels = new gui::LcdSpinBox( 1, this );
-	m_channels->setModel( m );
-
-	form->addRow(tr("Channels"), m_channels);
-}
-
-
-
-
-AudioOss::setupWidget::~setupWidget()
-{
-	delete m_channels->model();
-}
-
-
-
-
-void AudioOss::setupWidget::saveSettings()
-{
-	ConfigManager::inst()->setValue( "audiooss", "device",
-							m_device->text() );
-	ConfigManager::inst()->setValue( "audiooss", "channels",
-				QString::number( m_channels->value<int>() ) );
 }
 
 

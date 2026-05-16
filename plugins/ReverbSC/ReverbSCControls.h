@@ -54,7 +54,7 @@ public:
 		return 4;
 	}
 
-	gui::EffectControlDialog* createView() override
+	QWidget* createView() override
 	{
 		return new gui::ReverbSCControlDialog( this );
 	}

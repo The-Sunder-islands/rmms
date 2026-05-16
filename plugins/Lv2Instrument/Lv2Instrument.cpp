@@ -200,7 +200,7 @@ void Lv2Instrument::play(SampleFrame* buf)
 
 
 
-gui::PluginView* Lv2Instrument::instantiateView(QWidget *parent)
+QWidget* Lv2Instrument::instantiateView(QWidget *parent)
 {
 	return new gui::Lv2InsView(this, parent);
 }

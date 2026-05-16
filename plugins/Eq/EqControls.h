@@ -60,7 +60,7 @@ public:
 		return 42;
 	}
 
-	gui::EffectControlDialog* createView() override;
+	QWidget* createView() override;
 
 	float m_inPeakL;
 	float m_inPeakR;

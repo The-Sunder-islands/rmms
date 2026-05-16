@@ -237,7 +237,7 @@ void Xpressive::deleteNotePluginData(NotePlayHandle* nph) {
 	delete static_cast<ExprSynth *>(nph->m_pluginData);
 }
 
-gui::PluginView* Xpressive::instantiateView(QWidget* parent) {
+QWidget* Xpressive::instantiateView(QWidget* parent) {
 	return (new gui::XpressiveView(this, parent));
 }
 

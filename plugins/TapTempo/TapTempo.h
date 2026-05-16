@@ -46,7 +46,7 @@ public:
 	void saveSettings(QDomDocument&, QDomElement&) override {}
 	void loadSettings(const QDomElement&) override {}
 
-	gui::PluginView* instantiateView(QWidget*) override { return new gui::TapTempoView(this); }
+	QWidget* instantiateView(QWidget*) override { return new gui::TapTempoView(this); }
 
 private:
 	static constexpr auto MaxIntervals = 3;

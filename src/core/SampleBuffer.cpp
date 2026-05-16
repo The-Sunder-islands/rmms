@@ -28,7 +28,7 @@
 #include <QMessageBox>
 #include <cstring>
 
-#include "GuiApplication.h"
+#include "GuiMode.h"
 #include "PathUtil.h"
 #include "SampleDecoder.h"
 
@@ -83,7 +83,7 @@ std::shared_ptr<const SampleBuffer> SampleBuffer::fromFile(const QString& filePa
 	{
 		// TODO: Improve error handling. We dont always want to show a message box on failure when there is a GUI (e.g.
 		// when loading the project), and this function also shouldn't be concerned with handling the error.
-		if (gui::getGUI())
+		if (isGuiMode())
 		{
 			QMessageBox::warning(nullptr, QObject::tr("Failed to load sample"),
 				QObject::tr("The sample may be corrupted or unsupported."));
@@ -112,7 +112,7 @@ std::shared_ptr<const SampleBuffer> SampleBuffer::fromBase64(const QString& str,
 	{
 		// TODO: Improve error handling. We dont always want to show a message box on failure when there is a GUI (e.g.
 		// when loading the project), and this function also shouldn't be concerned with handling the error.
-		if (gui::getGUI())
+		if (isGuiMode())
 		{
 			QMessageBox::warning(
 				nullptr, QObject::tr("Failed to load sample"), QObject::tr("The sample size is invalid."));

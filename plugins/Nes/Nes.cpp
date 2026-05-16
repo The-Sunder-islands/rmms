@@ -689,7 +689,7 @@ QString NesInstrument::nodeName() const
 }
 
 
-gui::PluginView* NesInstrument::instantiateView( QWidget * parent )
+QWidget* NesInstrument::instantiateView( QWidget * parent )
 {
 	return( new gui::NesInstrumentView( this, parent ) );
 }

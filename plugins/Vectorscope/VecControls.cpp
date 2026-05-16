@@ -44,7 +44,7 @@ VecControls::VecControls(Vectorscope *effect) :
 
 
 // Create the VecControlDialog widget which handles display of GUI elements.
-gui::EffectControlDialog* VecControls::createView()
+QWidget* VecControls::createView()
 {
 	return new gui::VecControlsDialog(this);
 }

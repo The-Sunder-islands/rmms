@@ -28,11 +28,8 @@
 #ifdef LMMS_HAVE_SNDIO
 
 #include <cstdlib>
-#include <QFormLayout>
-#include <QLineEdit>
 
 #include "endian_handling.h"
-#include "LcdSpinBox.h"
 #include "AudioEngine.h"
 
 #include "ConfigManager.h"
@@ -138,38 +135,6 @@ void AudioSndio::run()
 		sio_write(m_hdl, buf.data(), buf.size() * sizeof(float));
 	}
 }
-
-
-AudioSndio::setupWidget::setupWidget( QWidget * _parent ) :
-	AudioDeviceSetupWidget( AudioSndio::name(), _parent )
-{
-	QFormLayout * form = new QFormLayout(this);
-
-	m_device = new QLineEdit( "", this );
-	form->addRow(tr("Device"), m_device);
-
-	gui::LcdSpinBoxModel * m = new gui::LcdSpinBoxModel( /* this */ );
-	m->setRange(DEFAULT_CHANNELS, DEFAULT_CHANNELS);
-	m->setStep( 2 );
-	m->setValue( ConfigManager::inst()->value( "audiosndio",
-	    "channels" ).toInt() );
-
-	m_channels = new gui::LcdSpinBox( 1, this );
-	m_channels->setModel( m );
-
-	form->addRow(tr("Channels"), m_channels);
-}
-
-
-void AudioSndio::setupWidget::saveSettings()
-{
-	ConfigManager::inst()->setValue( "audiosndio", "device",
-	    m_device->text() );
-	ConfigManager::inst()->setValue( "audiosndio", "channels",
-	    QString::number( m_channels->value<int>() ) );
-}
-
-
 } // namespace lmms
 
 #endif	// LMMS_HAVE_SNDIO

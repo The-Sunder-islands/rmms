@@ -17,7 +17,7 @@ public:
 
 	~HydrogenImport() override = default;
 
-	gui::PluginView* instantiateView( QWidget * ) override
+	QWidget* instantiateView( QWidget * ) override
 	{
 		return( nullptr );
 	}

@@ -34,6 +34,9 @@
 #include <weak_libjack.h>
 #endif
 
+#include <QObject>
+#include <QString>
+
 #include <atomic>
 #include <vector>
 #ifdef AUDIO_BUS_HANDLE_SUPPORT

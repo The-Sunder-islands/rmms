@@ -482,7 +482,7 @@ void ZynAddSubFxInstrument::sendControlChange( MidiControllers midiCtl, float va
 
 
 
-gui::PluginView* ZynAddSubFxInstrument::instantiateView( QWidget * _parent )
+QWidget* ZynAddSubFxInstrument::instantiateView( QWidget * _parent )
 {
 	return new gui::ZynAddSubFxView( this, _parent );
 }

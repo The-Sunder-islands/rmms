@@ -37,6 +37,7 @@
 #include "SampleRecordHandle.h"
 #include "SampleTrackView.h"
 #include "Song.h"
+#include "TrackContainerView.h"
 #include "volume.h"
 
 

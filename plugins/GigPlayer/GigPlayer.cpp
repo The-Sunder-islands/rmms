@@ -684,7 +684,7 @@ void GigInstrument::deleteNotePluginData( NotePlayHandle * _n )
 
 
 
-gui::PluginView* GigInstrument::instantiateView( QWidget * _parent )
+QWidget* GigInstrument::instantiateView( QWidget * _parent )
 {
 	return new gui::GigInstrumentView( this, _parent );
 }

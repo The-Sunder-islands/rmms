@@ -54,7 +54,7 @@ public:
 	{
 		return 1;
 	}
-	gui::EffectControlDialog * createView() override
+	QWidget* createView() override
 	{
 		return new gui::PeakControllerEffectControlDialog( this );
 	}

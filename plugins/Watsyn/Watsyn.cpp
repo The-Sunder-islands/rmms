@@ -586,7 +586,7 @@ QString WatsynInstrument::nodeName() const
 }
 
 
-gui::PluginView* WatsynInstrument::instantiateView( QWidget * _parent )
+QWidget* WatsynInstrument::instantiateView( QWidget * _parent )
 {
 	return( new gui::WatsynView( this, _parent ) );
 }

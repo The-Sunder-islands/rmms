@@ -148,7 +148,7 @@ public:
 	void saveSettings(QDomDocument& doc, QDomElement& el) override;
 	void loadSettings(const QDomElement& el) override;
 	QString nodeName() const override;
-	gui::PluginView* instantiateView(QWidget* parent) override;
+	QWidget* instantiateView(QWidget* parent) override;
 
 public slots:
 	void filterChanged();

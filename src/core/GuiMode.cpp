@@ -1,7 +1,7 @@
 /*
- * AudioSoundIoSetupWidget.cpp - setup widget for SoundIO audio output
+ * GuiMode.cpp - check if the application is running in GUI mode
  *
- * Copyright (c) 2015-2024 Andrew Kelley <superjoe30@gmail.com>
+ * Copyright (c) 2024 LMMS Contributors
  *
  * This file is part of LMMS - https://lmms.io
  *
@@ -22,23 +22,16 @@
  *
  */
 
-#include "AudioSoundIoSetupWidget.h"
-#include "AudioSoundIo.h"
+#include "GuiMode.h"
 
-#ifdef LMMS_HAVE_SOUNDIO
+#include <QApplication>
+#include <QCoreApplication>
 
-namespace lmms::gui
+namespace lmms {
+
+bool isGuiMode()
 {
-
-AudioSoundIoSetupWidget::AudioSoundIoSetupWidget(QWidget* parent)
-	: AudioDeviceSetupWidget(AudioSoundIo::name(), parent)
-{
+	return qobject_cast<QApplication*>(QCoreApplication::instance()) != nullptr;
 }
 
-void AudioSoundIoSetupWidget::saveSettings()
-{
-}
-
-} // namespace lmms::gui
-
-#endif
+} // namespace lmms

@@ -1329,7 +1329,7 @@ float MonstroInstrument::desiredReleaseTimeMs() const
 	return std::max(1.5f, maxEnvelope);
 }
 
-gui::PluginView* MonstroInstrument::instantiateView( QWidget * _parent )
+QWidget* MonstroInstrument::instantiateView( QWidget * _parent )
 {
 	return( new gui::MonstroView( this, _parent ) );
 }

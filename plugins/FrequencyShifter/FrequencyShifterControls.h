@@ -45,7 +45,7 @@ public:
 	{
 		return "FrequencyShifterControls";
 	}
-	gui::EffectControlDialog* createView() override
+	QWidget* createView() override
 	{
 		return new gui::FrequencyShifterControlDialog(this);
 	}

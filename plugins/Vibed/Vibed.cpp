@@ -256,7 +256,7 @@ void Vibed::deleteNotePluginData(NotePlayHandle* n)
 	delete static_cast<StringContainer*>(n->m_pluginData);
 }
 
-gui::PluginView* Vibed::instantiateView(QWidget* parent)
+QWidget* Vibed::instantiateView(QWidget* parent)
 {
 	return new gui::VibedView(this, parent);
 }

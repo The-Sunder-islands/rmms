@@ -31,6 +31,7 @@
 
 #include "EffectView.h"
 #include "DummyEffect.h"
+#include "EffectControlDialog.h"
 #include "CaptionMenu.h"
 #include "embed.h"
 #include "GuiApplication.h"

@@ -417,7 +417,7 @@ void FreeBoyInstrument::deleteNotePluginData(NotePlayHandle* nph)
 
 
 
-gui::PluginView * FreeBoyInstrument::instantiateView( QWidget * _parent )
+QWidget* FreeBoyInstrument::instantiateView( QWidget * _parent )
 {
 	return( new gui::FreeBoyInstrumentView( this, _parent ) );
 }

@@ -30,6 +30,7 @@
 #include "PatternClipView.h"
 #include "PatternStore.h"
 #include "PatternTrack.h"
+#include "TrackView.h"
 
 namespace lmms
 {

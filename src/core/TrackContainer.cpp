@@ -37,8 +37,7 @@
 #include "PatternTrack.h"
 #include "Song.h"
 
-#include "GuiApplication.h"
-#include "MainWindow.h"
+#include "GuiMode.h"
 #include "TextFloat.h"
 
 namespace lmms
@@ -91,14 +90,14 @@ void TrackContainer::loadSettings( const QDomElement & _this )
 
 	static QProgressDialog * pd = nullptr;
 	bool was_null = ( pd == nullptr );
-	if (!journalRestore && gui::getGUI() != nullptr)
+	if (!journalRestore && isGuiMode())
 	{
 		if( pd == nullptr )
 		{
 			pd = new QProgressDialog( tr( "Loading project..." ),
 						tr( "Cancel" ), 0,
 						Engine::getSong()->getLoadingTrackCount(),
-						gui::getGUI()->mainWindow());
+						nullptr);
 			pd->setWindowModality( Qt::ApplicationModal );
 			pd->setWindowTitle( tr( "Please wait..." ) );
 			pd->show();
@@ -115,7 +114,7 @@ void TrackContainer::loadSettings( const QDomElement & _this )
 						QEventLoop::AllEvents, 100 );
 			if( pd->wasCanceled() )
 			{
-				if (gui::getGUI() != nullptr)
+				if (isGuiMode())
 				{
 					gui::TextFloat::displayMessage( tr( "Loading cancelled" ),
 					tr( "Project loading was cancelled." ),

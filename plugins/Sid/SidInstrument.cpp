@@ -433,7 +433,7 @@ void SidInstrument::deleteNotePluginData( NotePlayHandle * _n )
 
 
 
-gui::PluginView* SidInstrument::instantiateView( QWidget * _parent )
+QWidget* SidInstrument::instantiateView( QWidget * _parent )
 {
 	return( new gui::SidInstrumentView( this, _parent ) );
 }

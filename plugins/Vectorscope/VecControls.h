@@ -47,7 +47,7 @@ public:
 	explicit VecControls(Vectorscope *effect);
 	~VecControls() override = default;
 
-	gui::EffectControlDialog* createView() override;
+	QWidget* createView() override;
 
 	void saveSettings (QDomDocument &document, QDomElement &element) override;
 	void loadSettings (const QDomElement &element) override;

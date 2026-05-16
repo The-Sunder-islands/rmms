@@ -85,7 +85,7 @@ public:
 	/*
 		misc
 	*/
-	gui::PluginView* instantiateView(QWidget *parent) override;
+	QWidget* instantiateView(QWidget *parent) override;
 
 private slots:
 	void updatePitchRange();

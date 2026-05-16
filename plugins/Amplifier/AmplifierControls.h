@@ -47,7 +47,7 @@ public:
 	{
 		return "AmplifierControls";
 	}
-	gui::EffectControlDialog* createView() override
+	QWidget* createView() override
 	{
 		return new gui::AmplifierControlDialog(this);
 	}

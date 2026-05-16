@@ -389,7 +389,7 @@ QString SlicerT::nodeName() const
 	return slicert_plugin_descriptor.name;
 }
 
-gui::PluginView* SlicerT::instantiateView(QWidget* parent)
+QWidget* SlicerT::instantiateView(QWidget* parent)
 {
 	return new gui::SlicerTView(this, parent);
 }

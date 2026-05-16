@@ -88,7 +88,7 @@ int Lv2FxControls::controlCount()
 
 
 
-gui::EffectControlDialog *Lv2FxControls::createView()
+QWidget* Lv2FxControls::createView()
 {
 	return new gui::Lv2FxControlDialog(this);
 }

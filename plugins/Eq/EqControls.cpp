@@ -151,7 +151,7 @@ void EqControls::loadSettings( const QDomElement &_this )
 	m_analyseOutModel.loadSettings( _this, "AnalyseOut" );
 }
 
-gui::EffectControlDialog* EqControls::createView()
+QWidget* EqControls::createView()
 {
 	return new gui::EqControlsDialog( this );
 }

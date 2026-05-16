@@ -48,6 +48,7 @@
 #include "Instrument.h"
 #include "InstrumentFunctions.h"
 #include "InstrumentFunctionViews.h"
+#include "InstrumentView.h"
 #include "InstrumentMidiIOView.h"
 #include "InstrumentTuningView.h"
 #include "InstrumentSoundShapingView.h"

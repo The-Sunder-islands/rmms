@@ -41,6 +41,7 @@
 #include "PianoRoll.h"
 #include "Pitch.h"
 #include "Song.h"
+#include "TrackContainerView.h"
 
 namespace lmms
 {

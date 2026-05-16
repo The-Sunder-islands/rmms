@@ -35,6 +35,7 @@
 #include "PatternStore.h"
 #include "ProjectJournal.h"
 #include "Song.h"
+#include "TrackView.h"
 
 
 namespace lmms

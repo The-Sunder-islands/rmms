@@ -155,7 +155,7 @@ int VstEffectControls::controlCount()
 
 
 
-gui::EffectControlDialog* VstEffectControls::createView()
+QWidget* VstEffectControls::createView()
 {
 	auto dialog = new gui::VstEffectControlDialog( this );
 	dialog->togglePluginUI( m_vstGuiVisible );

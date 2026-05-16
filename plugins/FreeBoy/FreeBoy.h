@@ -64,7 +64,7 @@ public:
 
 	float desiredReleaseTimeMs() const override;
 
-	gui::PluginView* instantiateView( QWidget * _parent ) override;
+	QWidget* instantiateView( QWidget * _parent ) override;
 
 
 /*public slots:

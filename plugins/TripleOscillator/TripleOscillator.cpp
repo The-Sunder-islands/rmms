@@ -396,7 +396,7 @@ void TripleOscillator::deleteNotePluginData( NotePlayHandle * _n )
 
 
 
-gui::PluginView* TripleOscillator::instantiateView( QWidget * _parent )
+QWidget* TripleOscillator::instantiateView( QWidget * _parent )
 {
 	return new gui::TripleOscillatorView( this, _parent );
 }

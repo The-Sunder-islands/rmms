@@ -76,7 +76,7 @@ public:
 
 	QString nodeName() const override;
 
-	gui::PluginView* instantiateView( QWidget * parent ) override;
+	QWidget* instantiateView( QWidget * parent ) override;
 
 	graphModel& graphO1() { return m_graphO1; }
 	graphModel& graphO2() { return m_graphO2; }

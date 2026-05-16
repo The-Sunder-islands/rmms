@@ -61,7 +61,7 @@ public:
 	QString getSampleName() { return m_originalSample.sampleFile(); }
 
 	QString nodeName() const override;
-	gui::PluginView* instantiateView(QWidget* parent) override;
+	QWidget* instantiateView(QWidget* parent) override;
 
 	std::vector<Note> getMidi();
 

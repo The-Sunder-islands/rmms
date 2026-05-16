@@ -62,7 +62,7 @@ void OscilloscopeControls::saveSettings(QDomDocument& doc, QDomElement& parent)
 }
 
 
-gui::EffectControlDialog* OscilloscopeControls::createView()
+QWidget* OscilloscopeControls::createView()
 {
 	return new gui::OscilloscopeControlDialog(this);
 }

@@ -219,7 +219,7 @@ void KickerInstrument::deleteNotePluginData( NotePlayHandle * _n )
 
 
 
-gui::PluginView * KickerInstrument::instantiateView( QWidget * _parent )
+QWidget* KickerInstrument::instantiateView( QWidget * _parent )
 {
 	return new gui::KickerInstrumentView( this, _parent );
 }

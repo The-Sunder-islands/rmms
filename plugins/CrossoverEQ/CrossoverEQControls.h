@@ -54,7 +54,7 @@ public:
 		return( 11 );
 	}
 
-	gui::EffectControlDialog * createView() override
+	QWidget* createView() override
 	{
 		return( new gui::CrossoverEQControlDialog( this ) );
 	}

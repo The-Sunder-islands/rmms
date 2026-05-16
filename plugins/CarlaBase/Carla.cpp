@@ -571,7 +571,7 @@ bool CarlaInstrument::handleMidiEvent(const MidiEvent& event, const TimePos&, f_
     return true;
 }
 
-gui::PluginView* CarlaInstrument::instantiateView(QWidget* parent)
+QWidget* CarlaInstrument::instantiateView(QWidget* parent)
 {
 // Disable plugin focus per https://bugreports.qt.io/browse/QTBUG-30181
 #ifndef CARLA_OS_MAC

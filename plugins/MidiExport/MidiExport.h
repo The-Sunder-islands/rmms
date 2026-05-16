@@ -74,7 +74,7 @@ public:
 	// not even considered during the generation of the MIDI.
 	static constexpr int DefaultBeatLength = 1500;
 
-	gui::PluginView* instantiateView(QWidget *) override
+	QWidget* instantiateView(QWidget *) override
 	{
 		return nullptr;
 	}

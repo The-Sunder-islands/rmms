@@ -51,7 +51,7 @@ public:
 	explicit SaControls(Analyzer* effect);
 	~SaControls() override = default;
 
-	gui::EffectControlDialog* createView() override;
+	QWidget* createView() override;
 
 	void saveSettings (QDomDocument& doc, QDomElement& parent) override;
 	void loadSettings (const QDomElement &_this) override;

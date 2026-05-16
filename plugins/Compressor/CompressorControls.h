@@ -53,7 +53,7 @@ public:
 		return 28;
 	}
 
-	gui::EffectControlDialog* createView() override
+	QWidget* createView() override
 	{
 		return new gui::CompressorControlDialog(this);
 	}

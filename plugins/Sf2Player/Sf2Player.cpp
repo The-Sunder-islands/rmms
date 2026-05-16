@@ -926,7 +926,7 @@ void Sf2Instrument::deleteNotePluginData( NotePlayHandle * _n )
 
 
 
-gui::PluginView * Sf2Instrument::instantiateView( QWidget * _parent )
+QWidget* Sf2Instrument::instantiateView( QWidget * _parent )
 {
 	return new gui::Sf2InstrumentView( this, _parent );
 }

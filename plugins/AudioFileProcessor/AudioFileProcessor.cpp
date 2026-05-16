@@ -300,7 +300,7 @@ auto AudioFileProcessor::beatLen(NotePlayHandle* note) const -> f_cnt_t
 
 
 
-gui::PluginView* AudioFileProcessor::instantiateView( QWidget * _parent )
+QWidget* AudioFileProcessor::instantiateView( QWidget * _parent )
 {
 	return new gui::AudioFileProcessorView( this, _parent );
 }

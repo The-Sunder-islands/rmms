@@ -415,7 +415,7 @@ void PatmanInstrument::selectSample( NotePlayHandle * _n )
 
 
 
-gui::PluginView * PatmanInstrument::instantiateView( QWidget * _parent )
+QWidget* PatmanInstrument::instantiateView( QWidget * _parent )
 {
 	return( new gui::PatmanView( this, _parent ) );
 }

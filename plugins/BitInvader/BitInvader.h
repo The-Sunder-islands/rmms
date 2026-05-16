@@ -90,7 +90,7 @@ public:
 		return 1.5f;
 	}
 
-	gui::PluginView * instantiateView( QWidget * _parent ) override;
+	QWidget* instantiateView( QWidget * _parent ) override;
 
 protected slots:
 	void lengthChanged();

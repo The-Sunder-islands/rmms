@@ -31,6 +31,8 @@
 
 #include <SDL2/SDL_audio.h>
 
+#include <QString>
+
 #include "AudioDevice.h"
 
 namespace lmms

@@ -290,7 +290,7 @@ void BitInvader::deleteNotePluginData( NotePlayHandle * _n )
 
 
 
-gui::PluginView * BitInvader::instantiateView( QWidget * _parent )
+QWidget* BitInvader::instantiateView( QWidget * _parent )
 {
 	return( new gui::BitInvaderView( this, _parent ) );
 }

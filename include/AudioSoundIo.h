@@ -32,6 +32,8 @@
 
 #include <soundio/soundio.h>
 
+#include <QString>
+
 #include "AudioDevice.h"
 
 namespace lmms

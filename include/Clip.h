@@ -159,6 +159,7 @@ signals:
 	void positionChanged();
 	void destroyedClip();
 	void colorChanged();
+	void automationClipIdsResolved();
 
 protected:
 	Clip(const Clip& other);

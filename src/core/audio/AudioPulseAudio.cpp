@@ -22,15 +22,11 @@
  *
  */
 
-#include <QFormLayout>
-#include <QLineEdit>
-
 #include "AudioPulseAudio.h"
 
 #ifdef LMMS_HAVE_PULSEAUDIO
 
 #include "ConfigManager.h"
-#include "LcdSpinBox.h"
 #include "AudioEngine.h"
 #include "Engine.h"
 
@@ -248,47 +244,6 @@ void AudioPulseAudio::signalConnected( bool connected )
 	}
 }
 
-
-
-
-AudioPulseAudio::setupWidget::setupWidget( QWidget * _parent ) :
-	AudioDeviceSetupWidget( AudioPulseAudio::name(), _parent )
-{
-	QFormLayout * form = new QFormLayout(this);
-
-	m_device = new QLineEdit( AudioPulseAudio::probeDevice(), this );
-	form->addRow(tr("Device"), m_device);
-
-	auto m = new gui::LcdSpinBoxModel();
-	m->setRange(DEFAULT_CHANNELS, DEFAULT_CHANNELS);
-	m->setStep( 2 );
-	m->setValue( ConfigManager::inst()->value( "audiopa",
-										 "channels" ).toInt() );
-
-	m_channels = new gui::LcdSpinBox( 1, this );
-	m_channels->setModel( m );
-
-	form->addRow(tr("Channels"), m_channels);
-}
-
-
-
-
-AudioPulseAudio::setupWidget::~setupWidget()
-{
-	delete m_channels->model();
-}
-
-
-
-
-void AudioPulseAudio::setupWidget::saveSettings()
-{
-	ConfigManager::inst()->setValue( "audiopa", "device",
-							m_device->text() );
-	ConfigManager::inst()->setValue( "audiopa", "channels",
-				QString::number( m_channels->value<int>() ) );
-}
 
 } // namespace lmms
 

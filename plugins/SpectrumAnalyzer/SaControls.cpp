@@ -124,7 +124,7 @@ SaControls::SaControls(Analyzer *effect) :
 
 
 // Create the SaControlDialog widget which handles display of GUI elements.
-gui::EffectControlDialog* SaControls::createView()
+QWidget* SaControls::createView()
 {
 	return new gui::SaControlsDialog(this, m_effect->getProcessor());
 }

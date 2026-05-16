@@ -27,7 +27,7 @@
 
 #include "AudioFileDevice.h"
 #include "ExportProjectDialog.h"
-#include "GuiApplication.h"
+#include "GuiMode.h"
 
 namespace lmms
 {
@@ -56,7 +56,7 @@ AudioFileDevice::AudioFileDevice( OutputSettings const & outputSettings,
 						"file and try again!"
 								).arg( _file );
 
-		if (gui::getGUI() != nullptr)
+		if (isGuiMode())
 		{
 			QMessageBox::critical( nullptr, title, message,
 						QMessageBox::Ok,

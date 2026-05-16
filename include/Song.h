@@ -443,7 +443,7 @@ private:
 	bool m_loopMidiClip;
 
 	VstSyncController m_vstSyncController;
-    
+
 	int m_loopRenderCount;
 	int m_loopRenderRemaining;
 	TimePos m_exportSongBegin;
@@ -477,6 +477,12 @@ signals:
 	void projectFileNameChanged();
 	void scaleListChanged(int index);
 	void keymapListChanged(int index);
+
+	// Signals emitted during project operations for GUI coordination
+	void projectCleared();
+	void mixerStateRestored();
+	void guiStateSaveRequired(QDomDocument& doc, QDomElement& element);
+	void guiStateNode(const QDomElement& element);
 } ;
 
 

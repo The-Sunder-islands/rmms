@@ -219,7 +219,7 @@ public:
 		return 0.2f;
 	}
 	
-	gui::PluginView* instantiateView( QWidget * parent ) override;
+	QWidget* instantiateView( QWidget * parent ) override;
 	
 public slots:
 	void updateFreq1();

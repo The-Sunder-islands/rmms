@@ -30,7 +30,7 @@
 
 #include "embed.h"
 #include "Engine.h"
-#include "GuiApplication.h"
+#include "GuiMode.h"
 #include "DummyPlugin.h"
 #include "AutomatableModel.h"
 #include "Song.h"
@@ -213,7 +213,7 @@ Plugin * Plugin::instantiate(const QString& pluginName, Model * parent,
 	Plugin* inst;
 	if( pi.isNull() )
 	{
-		if (gui::getGUI() != nullptr)
+		if (isGuiMode())
 		{
 			QMessageBox::information( nullptr,
 				tr( "Plugin not found" ),
@@ -235,7 +235,7 @@ Plugin * Plugin::instantiate(const QString& pluginName, Model * parent,
 		}
 		else
 		{
-			if (gui::getGUI() != nullptr)
+			if (isGuiMode())
 			{
 				QMessageBox::information( nullptr,
 					tr( "Error while loading plugin" ),

@@ -601,7 +601,7 @@ void Lb302Synth::deleteNotePluginData(NotePlayHandle* nph)
 }
 
 
-gui::PluginView* Lb302Synth::instantiateView(QWidget* parent)
+QWidget* Lb302Synth::instantiateView(QWidget* parent)
 {
 	return new gui::Lb302SynthView(this, parent);
 }

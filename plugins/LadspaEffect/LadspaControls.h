@@ -59,7 +59,7 @@ public:
 		return "ladspacontrols";
 	}
 
-	gui::EffectControlDialog* createView() override
+	QWidget* createView() override
 	{
 		return new gui::LadspaMatrixControlDialog( this );
 	}

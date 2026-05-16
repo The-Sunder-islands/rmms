@@ -27,6 +27,7 @@
 #include "AutomationTrack.h"
 
 #include "AutomationTrackView.h"
+#include "TrackContainerView.h"
 #include "AutomationClip.h"
 
 namespace lmms

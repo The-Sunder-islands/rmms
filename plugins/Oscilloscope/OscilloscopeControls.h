@@ -47,7 +47,7 @@ public:
 	void saveSettings(QDomDocument& doc, QDomElement& parent) override;
 	void loadSettings(const QDomElement& parent) override;
 	QString nodeName() const override { return "OscilloscopeControls"; }
-	gui::EffectControlDialog* createView() override;
+	QWidget* createView() override;
 	int controlCount() override { return 5; }
 
 private:

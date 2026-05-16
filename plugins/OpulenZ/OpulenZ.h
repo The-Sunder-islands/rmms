@@ -61,7 +61,7 @@ public:
 	~OpulenzInstrument() override;
 
 	QString nodeName() const override;
-	gui::PluginView* instantiateView( QWidget * _parent ) override;
+	QWidget* instantiateView( QWidget * _parent ) override;
 
 	bool handleMidiEvent( const MidiEvent& event, const TimePos& time, f_cnt_t offset = 0 ) override;
 	void play( SampleFrame* _working_buffer ) override;

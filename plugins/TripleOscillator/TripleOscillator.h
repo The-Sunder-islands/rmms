@@ -125,7 +125,7 @@ public:
 		return 3.f;
 	}
 
-	gui::PluginView* instantiateView( QWidget * _parent ) override;
+	QWidget* instantiateView( QWidget * _parent ) override;
 
 
 protected slots:
