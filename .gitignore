@@ -1,5 +1,6 @@
 /build/
 /src/build/
+/lmms/
 /target/
 .*.sw?
 .DS_Store
