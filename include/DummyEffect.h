@@ -29,28 +29,10 @@
 
 #include "Effect.h"
 #include "EffectControls.h"
-#include "EffectControlDialog.h"
+class QWidget;
 
 namespace lmms
 {
-
-namespace gui
-{
-
-class Knob;
-
-
-class DummyEffectControlDialog : public EffectControlDialog
-{
-public:
-	DummyEffectControlDialog( EffectControls * _controls ) :
-		EffectControlDialog( _controls )
-	{
-	}
-
-} ;
-
-} // namespace gui
 
 class DummyEffectControls : public EffectControls
 {
@@ -80,9 +62,9 @@ public:
 		return "DummyControls";
 	}
 
-	gui::EffectControlDialog * createView() override
+	QWidget * createView() override
 	{
-		return new gui::DummyEffectControlDialog( this );
+		return nullptr;
 	}
 } ;
 

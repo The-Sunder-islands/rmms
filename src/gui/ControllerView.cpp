@@ -75,7 +75,7 @@ ControllerView::ControllerView(Controller* model, QWidget* parent)
 	vBoxLayout->addWidget(m_nameLabel);
 
 
-	m_controllerDlg = getController()->createDialog(getGUI()->mainWindow()->workspace());
+	m_controllerDlg = static_cast<ControllerDialog*>(getController()->createDialog(getGUI()->mainWindow()->workspace()));
 
 	m_subWindow = getGUI()->mainWindow()->addWindowedWidget(m_controllerDlg);
 	m_subWindow->setWindowFlag(Qt::WindowMaximizeButtonHint, false);

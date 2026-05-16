@@ -115,7 +115,7 @@ public:
 	bool empty();
 
 
-	gui::ClipView * createView( gui::TrackView * _tv ) override;
+	QWidget * createView( QWidget * _tv ) override;
 
 	MidiClip* clone() override
 	{

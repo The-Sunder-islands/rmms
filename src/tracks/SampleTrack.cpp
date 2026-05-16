@@ -168,9 +168,9 @@ bool SampleTrack::play( const TimePos & _start, const f_cnt_t _frames,
 
 
 
-gui::TrackView * SampleTrack::createView( gui::TrackContainerView* tcv )
+QWidget * SampleTrack::createView( QWidget* tcv )
 {
-	return new gui::SampleTrackView( this, tcv );
+	return new gui::SampleTrackView( this, static_cast<gui::TrackContainerView*>( tcv ) );
 }
 
 

@@ -72,7 +72,7 @@ public:
 	TimePos sampleLength() const;
 	void setSampleStartFrame( f_cnt_t startFrame );
 	void setSamplePlayLength( f_cnt_t length );
-	gui::ClipView * createView( gui::TrackView * _tv ) override;
+	QWidget * createView( QWidget * _tv ) override;
 
 
 	bool isPlaying() const;

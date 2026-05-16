@@ -818,9 +818,9 @@ Clip* InstrumentTrack::createClip(const TimePos & pos)
 
 
 
-gui::TrackView* InstrumentTrack::createView( gui::TrackContainerView* tcv )
+QWidget* InstrumentTrack::createView( QWidget* tcv )
 {
-	return new gui::InstrumentTrackView( this, tcv );
+	return new gui::InstrumentTrackView( this, static_cast<gui::TrackContainerView*>( tcv ) );
 }
 
 

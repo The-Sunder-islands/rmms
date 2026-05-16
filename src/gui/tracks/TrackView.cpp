@@ -425,7 +425,7 @@ void TrackView::paintEvent( QPaintEvent * pe )
  */
 void TrackView::createClipView( Clip * clip )
 {
-	ClipView * tv = clip->createView( this );
+	auto tv = static_cast<ClipView*>(clip->createView( this ));
 	if( clip->getSelectViewOnCreate() == true )
 	{
 		tv->setSelected( true );

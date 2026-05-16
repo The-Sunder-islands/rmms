@@ -167,7 +167,7 @@ protected:
 	virtual void processBypassedImpl() {}
 
 
-	gui::PluginView* instantiateView( QWidget * ) override;
+	QWidget* instantiateView( QWidget * ) override;
 
 	void goToSleep()
 	{

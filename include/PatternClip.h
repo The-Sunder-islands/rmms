@@ -49,7 +49,7 @@ public:
 
 	int patternIndex();
 
-	gui::ClipView * createView( gui::TrackView * _tv ) override;
+	QWidget * createView( QWidget * _tv ) override;
 
 	PatternClip* clone() override
 	{

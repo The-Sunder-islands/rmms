@@ -463,7 +463,7 @@ void InstrumentTrackWindow::updateInstrumentView()
 	delete m_instrumentView;
 	if( m_track->m_instrument != nullptr )
 	{
-		m_instrumentView = m_track->m_instrument->createView( m_tabWidget );
+		m_instrumentView = static_cast<InstrumentView*>(m_track->m_instrument->createView( m_tabWidget ));
 		m_tabWidget->addTab( m_instrumentView, tr( "Plugin" ), "plugin_tab", 0 );
 		m_tabWidget->setActiveTab( 0 );
 

@@ -27,7 +27,7 @@
 #define LMMS_DUMMY_INSTRUMENT_H
 
 #include "Instrument.h"
-#include "InstrumentView.h"
+class QWidget;
 #include "Engine.h"
 
 #include <cstring>
@@ -67,9 +67,9 @@ public:
 		return "dummyinstrument";
 	}
 
-	gui::PluginView * instantiateView( QWidget * _parent ) override
+	QWidget * instantiateView( QWidget * _parent ) override
 	{
-		return new gui::InstrumentViewFixedSize( this, _parent );
+		return nullptr;
 	}
 } ;
 

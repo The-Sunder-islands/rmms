@@ -290,11 +290,11 @@ public:
 	static Plugin * instantiate(const QString& pluginName, Model * parent, void *data);
 
 	//! Create a view for the model
-	gui::PluginView * createView( QWidget * parent );
+	QWidget * createView( QWidget * parent );
 
 protected:
 	//! Create a view for the model
-	virtual gui::PluginView* instantiateView( QWidget * ) = 0;
+	virtual QWidget* instantiateView( QWidget * ) = 0;
 	void collectErrorForUI( QString errMsg );
 
 

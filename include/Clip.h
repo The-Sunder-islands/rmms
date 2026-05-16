@@ -123,7 +123,7 @@ public:
 	virtual void changeLength( const TimePos & length );
 	virtual void updateLength() {};
 
-	virtual gui::ClipView * createView( gui::TrackView * tv ) = 0;
+	virtual QWidget * createView( QWidget * tv ) = 0;
 
 	inline void selectViewOnCreate( bool select )
 	{

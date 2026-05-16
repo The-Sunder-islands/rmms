@@ -343,9 +343,9 @@ void SampleClip::loadSettings( const QDomElement & _this )
 
 
 
-gui::ClipView * SampleClip::createView( gui::TrackView * _tv )
+QWidget * SampleClip::createView( QWidget * _tv )
 {
-	return new gui::SampleClipView( this, _tv );
+	return new gui::SampleClipView( this, static_cast<gui::TrackView*>( _tv ) );
 }
 
 

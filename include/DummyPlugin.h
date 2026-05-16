@@ -27,7 +27,7 @@
 #define LMMS_DUMMY_PLUGIN_H
 
 #include "Plugin.h"
-#include "PluginView.h"
+class QWidget;
 
 
 namespace lmms
@@ -58,9 +58,9 @@ public:
 
 
 protected:
-	gui::PluginView * instantiateView( QWidget * _parent ) override
+	QWidget * instantiateView( QWidget * _parent ) override
 	{
-		return new gui::PluginView( this, _parent );
+		return nullptr;
 	}
 
 } ;

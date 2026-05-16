@@ -279,7 +279,7 @@ TrackView * TrackContainerView::createTrackView( Track * _t )
 		if (trackView->getTrack() == _t) { return trackView; }
 	}
 
-	return _t->createView( this );
+	return static_cast<TrackView*>(_t->createView( this ));
 }
 
 

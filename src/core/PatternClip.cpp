@@ -110,9 +110,9 @@ int PatternClip::patternIndex()
 
 
 
-gui::ClipView* PatternClip::createView(gui::TrackView* tv)
+QWidget* PatternClip::createView(QWidget* tv)
 {
-	return new gui::PatternClipView(this, tv);
+	return new gui::PatternClipView(this, static_cast<gui::TrackView*>(tv));
 }
 
 

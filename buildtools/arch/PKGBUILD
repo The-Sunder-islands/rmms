@@ -1,0 +1,66 @@
+# Maintainer: Your Name <you@example.com>
+
+pkgname=lmms-git
+pkgver=1.3.0.alpha.r0.g$(git -C "$srcdir" rev-parse --short HEAD 2>/dev/null || echo "unknown")
+pkgrel=1
+pkgdesc="Cross-platform music production software (development build)"
+arch=('x86_64')
+url="https://lmms.io/"
+license=('GPL')
+depends=(
+  qt5-base qt5-svg qt5-x11extras
+  alsa-lib jack libpulse
+  libogg libvorbis flac
+  libsndfile libsamplerate fftw fluidsynth
+  lilv suil
+  lame sdl2
+  stk zlib
+)
+makedepends=(
+  cmake qt5-tools perl
+)
+optdepends=(
+  'carla: Carla plugin host'
+  'portaudio: PortAudio audio backend'
+  'sndio: sndio audio backend'
+  'libsoundio: libsoundio audio backend'
+)
+source=("lmms::git+file:///run/media/starlight/1/rmms")
+sha256sums=('SKIP')
+
+build() {
+  cmake -B build -S "$srcdir/lmms" \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+    -DUSE_COMPILE_CACHE=OFF \
+    -DWANT_QT6=OFF \
+    -DWANT_ALSA=ON \
+    -DWANT_JACK=ON \
+    -DWANT_PULSEAUDIO=ON \
+    -DWANT_PORTAUDIO=ON \
+    -DWANT_SDL=ON \
+    -DWANT_SNDIO=ON \
+    -DWANT_SOUNDIO=ON \
+    -DWANT_OGGVORBIS=ON \
+    -DWANT_FLAC=ON \
+    -DWANT_MP3LAME=ON \
+    -DWANT_LV2=ON \
+    -DWANT_SUIL=ON \
+    -DWANT_VST=ON \
+    -DWANT_SF2=ON \
+    -DWANT_GIG=ON \
+    -DWANT_SID=ON \
+    -DWANT_STK=ON \
+    -DWANT_CALF=ON \
+    -DWANT_CAPS=ON \
+    -DWANT_CMT=ON \
+    -DWANT_SWH=ON \
+    -DWANT_TAP=ON \
+    -DWANT_CARLA=ON
+  cmake --build build -j$(nproc)
+}
+
+package() {
+  DESTDIR="$pkgdir" cmake --install build
+  install -Dm644 "$srcdir/lmms/LICENSE.txt" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

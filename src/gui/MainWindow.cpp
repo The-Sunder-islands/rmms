@@ -355,8 +355,8 @@ void MainWindow::finalize()
 	for( const Plugin::Descriptor* desc : getPluginFactory()->descriptors(Plugin::Type::Tool) )
 	{
 		m_toolsMenu->addAction( desc->logo->pixmap(), desc->displayName );
-		m_tools.push_back( ToolPlugin::instantiate( desc->name, /*this*/nullptr )
-						   ->createView(this) );
+		m_tools.push_back( static_cast<gui::PluginView*>( ToolPlugin::instantiate( desc->name, /*this*/nullptr )
+						   ->createView(this) ) );
 	}
 	if( !m_toolsMenu->isEmpty() )
 	{

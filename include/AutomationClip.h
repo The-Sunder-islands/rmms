@@ -178,7 +178,7 @@ public:
 	static const QString classNodeName() { return "automationclip"; }
 	QString nodeName() const override { return classNodeName(); }
 
-	gui::ClipView * createView( gui::TrackView * _tv ) override;
+	QWidget * createView( QWidget * _tv ) override;
 
 
 	static bool isAutomated( const AutomatableModel * _m );

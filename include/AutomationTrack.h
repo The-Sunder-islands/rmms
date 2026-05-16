@@ -47,7 +47,7 @@ public:
 		return "automationtrack";
 	}
 
-	gui::TrackView * createView( gui::TrackContainerView* ) override;
+	QWidget * createView( QWidget * ) override;
 	Clip* createClip(const TimePos & pos) override;
 
 	void saveTrackSpecificSettings(QDomDocument& doc, QDomElement& parent, bool presetMode) override;

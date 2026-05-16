@@ -260,14 +260,9 @@ void Plugin::collectErrorForUI( QString errMsg )
 
 
 
-gui::PluginView * Plugin::createView( QWidget * parent )
+QWidget * Plugin::createView( QWidget * parent )
 {
-	gui::PluginView * pv = instantiateView( parent );
-	if( pv != nullptr )
-	{
-		pv->setModel( this );
-	}
-	return pv;
+	return instantiateView( parent );
 }
 
 

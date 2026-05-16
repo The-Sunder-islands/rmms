@@ -136,9 +136,9 @@ bool PatternTrack::play( const TimePos & _start, const f_cnt_t _frames,
 
 
 
-gui::TrackView* PatternTrack::createView(gui::TrackContainerView* tcv)
+QWidget* PatternTrack::createView(QWidget* tcv)
 {
-	return new gui::PatternTrackView(this, tcv);
+	return new gui::PatternTrackView(this, static_cast<gui::TrackContainerView*>( tcv ));
 }
 
 

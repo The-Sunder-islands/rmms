@@ -199,7 +199,7 @@ void Effect::handleAutoQuit(bool silentOutput)
 
 
 
-gui::PluginView * Effect::instantiateView( QWidget * _parent )
+QWidget * Effect::instantiateView( QWidget * _parent )
 {
 	return new gui::EffectView( this, _parent );
 }

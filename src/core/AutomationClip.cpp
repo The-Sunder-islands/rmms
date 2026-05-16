@@ -919,11 +919,11 @@ QString AutomationClip::name() const
 
 
 
-gui::ClipView * AutomationClip::createView( gui::TrackView * _tv )
+QWidget * AutomationClip::createView( QWidget * _tv )
 {
 	QMutexLocker m(&m_clipMutex);
 
-	return new gui::AutomationClipView( this, _tv );
+	return new gui::AutomationClipView( this, static_cast<gui::TrackView*>( _tv ) );
 }
 
 

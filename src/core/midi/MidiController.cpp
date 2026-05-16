@@ -140,7 +140,7 @@ QString MidiController::nodeName() const
 
 
 
-gui::ControllerDialog* MidiController::createDialog( QWidget * _parent )
+QWidget* MidiController::createDialog( QWidget * _parent )
 {
 	return nullptr;
 }
