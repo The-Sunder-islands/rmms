@@ -28,14 +28,14 @@
 #include <algorithm>
 #include <QDomElement>
 
-#include "GuiApplication.h"
 #include "InstrumentTrack.h"
 #include "MidiClipView.h"
 #include "PatternStore.h"
-#include "PianoRoll.h"
 #include "TrackView.h"
 
 
+
+int MidiClip::s_quantization = 0;
 
 namespace lmms
 {
@@ -181,9 +181,9 @@ TimePos MidiClip::beatClipLength() const
 Note * MidiClip::addNote( const Note & _new_note, const bool _quant_pos )
 {
 	auto new_note = _new_note.clone();
-	if (_quant_pos && gui::getGUI()->pianoRoll())
+	if (_quant_pos)
 	{
-		new_note->quantizePos(gui::getGUI()->pianoRoll()->quantization());
+		new_note->quantizePos(s_quantization);
 	}
 
 	instrumentTrack()->lock();
@@ -638,12 +638,7 @@ void MidiClip::updatePatternTrack()
 		Engine::patternStore()->updatePatternTrack(this);
 	}
 
-	if (gui::getGUI() != nullptr
-		&& gui::getGUI()->pianoRoll()
-		&& gui::getGUI()->pianoRoll()->currentMidiClip() == this)
-	{
-		gui::getGUI()->pianoRoll()->update();
-	}
+	emit pianoRollUpdateRequired();
 }
 
 

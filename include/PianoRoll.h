@@ -598,6 +598,7 @@ public:
 
 signals:
 	void currentMidiClipChanged();
+	void recordingStateChanged(bool recording);
 
 
 private slots:

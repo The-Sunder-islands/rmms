@@ -130,6 +130,9 @@ public:
 	int steps() const { return m_steps; }
 	void setSteps(int s) { m_steps = s; }
 
+	static int quantization() { return s_quantization; }
+	static void setQuantization(int q) { s_quantization = q; }
+
 public slots:
 	void addSteps();
 	void cloneSteps();
@@ -162,9 +165,11 @@ private:
 
 	MidiClip * adjacentMidiClipByOffset(int offset) const;
 
+	static int s_quantization;
 
 signals:
 	void destroyedMidiClip( lmms::MidiClip* );
+	void pianoRollUpdateRequired();
 } ;
 
 

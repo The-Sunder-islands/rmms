@@ -5542,6 +5542,7 @@ void PianoRollWindow::play()
 void PianoRollWindow::stop()
 {
 	m_editor->stop();
+	emit recordingStateChanged(false);
 }
 
 
@@ -5552,6 +5553,7 @@ void PianoRollWindow::record()
 	stopStepRecording(); //step recording mode is mutually exclusive with other record modes
 
 	m_editor->record();
+	emit recordingStateChanged(true);
 }
 
 
@@ -5562,6 +5564,7 @@ void PianoRollWindow::recordAccompany()
 	stopStepRecording(); //step recording mode is mutually exclusive with other record modes
 
 	m_editor->recordAccompany();
+	emit recordingStateChanged(true);
 }
 
 

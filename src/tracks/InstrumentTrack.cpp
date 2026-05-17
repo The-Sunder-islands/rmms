@@ -28,7 +28,6 @@
 #include "ConfigManager.h"
 #include "ControllerConnection.h"
 #include "DataFile.h"
-#include "GuiApplication.h"
 #include "Mixer.h"
 #include "InstrumentTrackView.h"
 #include "Instrument.h"
@@ -38,10 +37,11 @@
 #include "MixHelpers.h"
 #include "PatternStore.h"
 #include "PatternTrack.h"
-#include "PianoRoll.h"
 #include "Pitch.h"
 #include "Song.h"
 #include "TrackContainerView.h"
+
+bool InstrumentTrack::s_pianoRollRecording = false;
 
 namespace lmms
 {
@@ -725,7 +725,7 @@ bool InstrumentTrack::play( const TimePos & _start, const f_cnt_t _frames,
 	for (const auto& processHandle : m_processHandles)
 	{
 		processHandle->processTimePos(
-			_start, m_pitchModel.value(), gui::getGUI() && gui::getGUI()->pianoRoll()->isRecording());
+			_start, m_pitchModel.value(), s_pianoRollRecording);
 	}
 
 	if ( clips.size() == 0 )

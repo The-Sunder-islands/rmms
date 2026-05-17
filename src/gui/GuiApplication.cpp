@@ -32,6 +32,8 @@
 #include "AutomationEditor.h"
 #include "ConfigManager.h"
 #include "ControllerRackView.h"
+#include "InstrumentTrack.h"
+#include "MidiClip.h"
 #include "MixerView.h"
 #include "MainWindow.h"
 #include "MicrotunerConfig.h"
@@ -191,6 +193,11 @@ GuiApplication::GuiApplication()
 	displayInitProgress(tr("Preparing automation editor"));
 	m_automationEditor = new AutomationEditorWindow;
 	connect(m_automationEditor, SIGNAL(destroyed(QObject*)), this, SLOT(childDestroyed(QObject*)));
+
+	// Sync static state for core → GUI coordination
+	MidiClip::setQuantization(m_pianoRoll->quantization());
+	connect(m_pianoRoll, &PianoRollWindow::recordingStateChanged,
+		[](bool r) { InstrumentTrack::setPianoRollRecording(r); });
 
 	// Connect Song signals for GUI coordination
 	auto* song = Engine::getSong();

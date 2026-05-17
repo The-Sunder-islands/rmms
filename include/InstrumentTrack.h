@@ -323,6 +323,11 @@ private:
 
 	friend class NotePlayHandle;
 
+	static bool s_pianoRollRecording;
+
+	static bool pianoRollRecording() { return s_pianoRollRecording; }
+	static void setPianoRollRecording(bool r) { s_pianoRollRecording = r; }
+
 } ;
 
 
