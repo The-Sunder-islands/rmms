@@ -219,8 +219,6 @@ private:
 	float m_maxValue;
 	float m_step;
 
-	friend class gui::Graph;
-
 };
 
 

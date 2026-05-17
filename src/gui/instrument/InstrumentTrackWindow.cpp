@@ -137,14 +137,14 @@ InstrumentTrackWindow::InstrumentTrackWindow( InstrumentTrackView * _itv ) :
 	soloMuteLayout->setSpacing(2);
 
 	m_muteBtn = new AutomatableButton(this, tr("Mute"));
-	m_muteBtn->setModel(&m_track->m_mutedModel);
+	m_muteBtn->setModel(&m_track->mutedModel());
 	m_muteBtn->setCheckable(true);
 	m_muteBtn->setObjectName("btn-mute");
 	m_muteBtn->setToolTip(tr("Mute this instrument"));
 	soloMuteLayout->addWidget(m_muteBtn, 0, widgetAlignment);
 
 	m_soloBtn = new AutomatableButton(this, tr("Solo"));
-	m_soloBtn->setModel(&m_track->m_soloModel);
+	m_soloBtn->setModel(&m_track->soloModel());
 	m_soloBtn->setCheckable(true);
 	m_soloBtn->setObjectName("btn-solo");
 	m_soloBtn->setToolTip(tr("Solo this instrument"));
@@ -245,8 +245,8 @@ InstrumentTrackWindow::InstrumentTrackWindow( InstrumentTrackView * _itv ) :
 	m_instrumentFunctionsView = new QWidget(m_tabWidget);
 	auto instrumentFunctionsLayout = new QVBoxLayout(m_instrumentFunctionsView);
 	instrumentFunctionsLayout->setContentsMargins(5, 5, 5, 5);
-	m_noteStackingView = new InstrumentFunctionNoteStackingView( &m_track->m_noteStacking );
-	m_arpeggioView = new InstrumentFunctionArpeggioView( &m_track->m_arpeggio );
+	m_noteStackingView = new InstrumentFunctionNoteStackingView( &m_track->noteStacking() );
+	m_arpeggioView = new InstrumentFunctionArpeggioView( &m_track->arpeggio() );
 
 	instrumentFunctionsLayout->addWidget( m_noteStackingView );
 	instrumentFunctionsLayout->addWidget( m_arpeggioView );
@@ -350,8 +350,8 @@ void InstrumentTrackWindow::modelChanged()
 	connect( m_track, SIGNAL(instrumentChanged()),
 			this, SLOT(updateInstrumentView()));
 
-	m_volumeKnob->setModel( &m_track->m_volumeModel );
-	m_panningKnob->setModel( &m_track->m_panningModel );
+	m_volumeKnob->setModel( m_track->volumeModel() );
+	m_panningKnob->setModel( m_track->panningModel() );
 	m_mixerChannelNumber->setModel( &m_track->m_mixerChannelModel );
 	m_pianoView->setModel( &m_track->m_piano );
 
@@ -385,9 +385,9 @@ void InstrumentTrackWindow::modelChanged()
 		m_tuningView->microtunerGroupBox()->show();
 	}
 
-	m_ssView->setModel(&m_track->m_soundShaping);
-	m_noteStackingView->setModel(&m_track->m_noteStacking);
-	m_arpeggioView->setModel(&m_track->m_arpeggio);
+	m_ssView->setModel(&m_track->soundShaping());
+	m_noteStackingView->setModel(&m_track->noteStacking());
+	m_arpeggioView->setModel(&m_track->arpeggio());
 	m_midiView->setModel(&m_track->m_midiPort);
 	m_effectView->setModel(m_track->m_audioBusHandle.effects());
 	m_tuningView->pitchGroupBox()->setModel(&m_track->m_useMasterPitchModel);

@@ -308,6 +308,11 @@ public:
 		return m_tempoModel;
 	}
 
+	IntModel& masterVolumeModel() { return m_masterVolumeModel; }
+	const IntModel& masterVolumeModel() const { return m_masterVolumeModel; }
+	IntModel& masterPitchModel() { return m_masterPitchModel; }
+	const IntModel& masterPitchModel() const { return m_masterPitchModel; }
+
 	void exportProjectMidi(QString const & exportFileName) const;
 
 	inline void setLoadOnLaunch(bool value) { m_loadOnLaunch = value; }
@@ -460,8 +465,6 @@ private:
 	Metronome m_metronome;
 
 	friend class Engine;
-	friend class gui::SongEditor;
-	friend class gui::ControllerRackView;
 
 signals:
 	void projectLoaded();

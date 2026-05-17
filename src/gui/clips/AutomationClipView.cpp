@@ -110,8 +110,8 @@ void AutomationClipView::disconnectObject( QAction * _a )
 		float oldMin = m_clip->getMin();
 		float oldMax = m_clip->getMax();
 
-		m_clip->m_objects.erase( std::find( m_clip->m_objects.begin(),
-					m_clip->m_objects.end(),
+		m_clip->objects().erase( std::find( m_clip->objects().begin(),
+					m_clip->objects().end(),
 				dynamic_cast<AutomatableModel *>( j ) ) );
 		update();
 
@@ -122,7 +122,7 @@ void AutomationClipView::disconnectObject( QAction * _a )
 		}
 
 		//if there is no more connection connected to the AutomationClip
-		if( m_clip->m_objects.size() == 0 )
+		if( m_clip->objects().size() == 0 )
 		{
 			//scale the points to fit the new min. and max. value
 			this->scaleTimemapToFit( oldMin, oldMax );
@@ -186,11 +186,11 @@ void AutomationClipView::constructContextMenu( QMenu * _cm )
 						tr( "Flip Horizontally (Visible)" ),
 						this, SLOT(flipX()));
 	
-	if (!m_clip->m_objects.empty())
+	if (!m_clip->objects().empty())
 	{
 		_cm->addSeparator();
-		auto m = new QMenu(tr("%1 Connections").arg(m_clip->m_objects.size()), _cm);
-		for (const auto& object : m_clip->m_objects)
+		auto m = new QMenu(tr("%1 Connections").arg(m_clip->objects().size()), _cm);
+		for (const auto& object : m_clip->objects())
 		{
 			if (object)
 			{
@@ -475,8 +475,8 @@ void AutomationClipView::scaleTimemapToFit( float oldMin, float oldMax )
 	// only the inValue is being considered and the outValue is being reset to the inValue (so discrete jumps
 	// are discarded). Possibly later we will want discrete jumps to be maintained so we will need to upgrade
 	// the logic to account for them.
-	for( AutomationClip::timeMap::iterator it = m_clip->m_timeMap.begin();
-		it != m_clip->m_timeMap.end(); ++it )
+	for( AutomationClip::timeMap::iterator it = m_clip->getTimeMap().begin();
+		it != m_clip->getTimeMap().end(); ++it )
 	{
 		// If the values are out of the previous range, fix them so they are
 		// between oldMin and oldMax.

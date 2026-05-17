@@ -141,6 +141,10 @@ public:
 	gui::MidiPortMenu* m_readablePortsMenu;
 	gui::MidiPortMenu* m_writablePortsMenu;
 
+	IntModel& inputChannelModel() { return m_inputChannelModel; }
+	const IntModel& inputChannelModel() const { return m_inputChannelModel; }
+	IntModel& inputControllerModel() { return m_inputControllerModel; }
+	const IntModel& inputControllerModel() const { return m_inputControllerModel; }
 
 public slots:
 	void updateMidiPortMode();
@@ -172,10 +176,6 @@ private:
 
 	Map m_readablePorts;
 	Map m_writablePorts;
-
-
-	friend class gui::ControllerConnectionDialog;
-	friend class gui::InstrumentMidiIOView;
 
 
 signals:

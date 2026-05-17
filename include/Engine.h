@@ -147,7 +147,6 @@ private:
 	// even though most methods are static, an instance is needed for Qt slots/signals
 	static Engine* s_instanceOfMe;
 
-	friend class gui::GuiApplication;
 };
 
 

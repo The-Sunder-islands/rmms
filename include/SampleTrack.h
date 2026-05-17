@@ -62,6 +62,11 @@ public:
 		return &m_mixerChannelModel;
 	}
 
+	FloatModel& volumeModel() { return m_volumeModel; }
+	const FloatModel& volumeModel() const { return m_volumeModel; }
+	FloatModel& panningModel() { return m_panningModel; }
+	const FloatModel& panningModel() const { return m_panningModel; }
+
 	inline AudioBusHandle* audioBusHandle()
 	{
 		return &m_audioBusHandle;
@@ -99,9 +104,6 @@ private:
 	bool m_isPlaying;
 
 
-
-	friend class gui::SampleTrackView;
-	friend class gui::SampleTrackWindow;
 
 } ;
 

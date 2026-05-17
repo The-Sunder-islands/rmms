@@ -160,13 +160,17 @@ public:
 	};
 
 
+	BoolModel& chordsEnabledModel() { return m_chordsEnabledModel; }
+	const BoolModel& chordsEnabledModel() const { return m_chordsEnabledModel; }
+	ComboBoxModel& chordsModel() { return m_chordsModel; }
+	const ComboBoxModel& chordsModel() const { return m_chordsModel; }
+	FloatModel& chordRangeModel() { return m_chordRangeModel; }
+	const FloatModel& chordRangeModel() const { return m_chordRangeModel; }
+
 private:
 	BoolModel m_chordsEnabledModel;
 	ComboBoxModel m_chordsModel;
 	FloatModel m_chordRangeModel;
-
-
-	friend class gui::InstrumentFunctionNoteStackingView;
 
 } ;
 
@@ -201,6 +205,29 @@ public:
 	}
 
 
+	BoolModel& arpEnabledModel() { return m_arpEnabledModel; }
+	const BoolModel& arpEnabledModel() const { return m_arpEnabledModel; }
+	ComboBoxModel& arpModel() { return m_arpModel; }
+	const ComboBoxModel& arpModel() const { return m_arpModel; }
+	FloatModel& arpRangeModel() { return m_arpRangeModel; }
+	const FloatModel& arpRangeModel() const { return m_arpRangeModel; }
+	FloatModel& arpRepeatsModel() { return m_arpRepeatsModel; }
+	const FloatModel& arpRepeatsModel() const { return m_arpRepeatsModel; }
+	FloatModel& arpCycleModel() { return m_arpCycleModel; }
+	const FloatModel& arpCycleModel() const { return m_arpCycleModel; }
+	FloatModel& arpSkipModel() { return m_arpSkipModel; }
+	const FloatModel& arpSkipModel() const { return m_arpSkipModel; }
+	FloatModel& arpMissModel() { return m_arpMissModel; }
+	const FloatModel& arpMissModel() const { return m_arpMissModel; }
+	TempoSyncKnobModel& arpTimeModel() { return m_arpTimeModel; }
+	const TempoSyncKnobModel& arpTimeModel() const { return m_arpTimeModel; }
+	FloatModel& arpGateModel() { return m_arpGateModel; }
+	const FloatModel& arpGateModel() const { return m_arpGateModel; }
+	ComboBoxModel& arpDirectionModel() { return m_arpDirectionModel; }
+	const ComboBoxModel& arpDirectionModel() const { return m_arpDirectionModel; }
+	ComboBoxModel& arpModeModel() { return m_arpModeModel; }
+	const ComboBoxModel& arpModeModel() const { return m_arpModeModel; }
+
 private:
 	enum class ArpMode
 	{
@@ -223,7 +250,6 @@ private:
 
 
 	friend class InstrumentTrack;
-	friend class gui::InstrumentFunctionArpeggioView;
 
 } ;
 

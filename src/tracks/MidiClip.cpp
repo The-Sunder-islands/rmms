@@ -101,7 +101,7 @@ void MidiClip::resizeToFirstTrack()
 				const auto currentClipIt = std::find(instrumentTrackClips.begin(), instrumentTrackClips.end(), this);
 				unsigned int currentClip = currentClipIt != instrumentTrackClips.end() ?
 					std::distance(instrumentTrackClips.begin(), currentClipIt) : -1;
-				m_steps = static_cast<MidiClip*>(track->getClip(currentClip))->m_steps;
+				m_steps = static_cast<MidiClip*>(track->getClip(currentClip))->steps();
 			}
 			break;
 		}

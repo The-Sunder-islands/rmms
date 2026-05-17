@@ -58,6 +58,7 @@ public:
 	ValueBuffer * valueBuffer();
 	void setValue( LADSPA_Data _value );
 	void setLink( bool _state );
+	bool link() const { return m_link; }
 
 	void linkControls( LadspaControl * _control );
 	void unlinkControls( LadspaControl * _control );
@@ -81,6 +82,9 @@ public:
 	{
 		return m_port;
 	}
+
+	BoolModel& linkEnabledModel() { return m_linkEnabledModel; }
+	const BoolModel& linkEnabledModel() const { return m_linkEnabledModel; }
 
 	virtual void saveSettings( QDomDocument & _doc, QDomElement & _parent, const QString & _name );
 	virtual void loadSettings( const QDomElement & _this, const QString & _name );
@@ -124,9 +128,6 @@ private:
 	FloatModel m_knobModel;
 	TempoSyncKnobModel m_tempoSyncKnobModel;
 
-
-	friend class gui::LadspaControlView;
-	friend class gui::LadspaMatrixControlDialog;
 
 } ;
 

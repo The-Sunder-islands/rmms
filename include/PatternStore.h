@@ -107,7 +107,6 @@ private:
 
 
 	// Where the pattern selection combo box is
-	friend class gui::PatternEditorWindow;
 
 } ;
 

@@ -197,6 +197,11 @@ public:
 	
 	BoolModel* getMutedModel();
 
+	BoolModel& mutedModel() { return m_mutedModel; }
+	const BoolModel& mutedModel() const { return m_mutedModel; }
+	BoolModel& soloModel() { return m_soloModel; }
+	const BoolModel& soloModel() const { return m_soloModel; }
+
 public slots:
 	virtual void setName(const QString& newName);
 
@@ -229,8 +234,6 @@ private:
 	QMutex m_processingLock;
 	
 	std::optional<QColor> m_color;
-
-	friend class gui::TrackView;
 
 
 signals:

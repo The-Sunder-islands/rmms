@@ -380,7 +380,7 @@ void MidiClipView::clearNotesOutOfBounds()
 	TimePos startBound = -m_clip->startTimeOffset();
 	TimePos endBound = m_clip->length() - m_clip->startTimeOffset();
 
-	for (Note const* note: m_clip->m_notes)
+	for (Note const* note: m_clip->notes())
 	{
 		const TimePos newNoteStart = std::max(note->pos(), startBound) - startBound;
 		const TimePos newNoteEnd = std::min(note->endPos(), endBound) - startBound;
@@ -424,7 +424,7 @@ void MidiClipView::mousePressEvent( QMouseEvent * _me )
 	const auto pos = position(_me);
 
 	bool displayPattern = fixedClips() || (pixelsPerBar() >= 96 && m_legacySEPattern);
-	if (_me->button() == Qt::LeftButton && m_clip->m_clipType == MidiClip::Type::BeatClip && displayPattern
+	if (_me->button() == Qt::LeftButton && m_clip->type() == MidiClip::Type::BeatClip && displayPattern
 		&& pos.y() > BeatStepButtonOffset && pos.y() < BeatStepButtonOffset + m_stepBtnOff.height())
 
 	// when mouse button is pressed in pattern mode
@@ -433,14 +433,14 @@ void MidiClipView::mousePressEvent( QMouseEvent * _me )
 //	get the step number that was clicked on and
 //	do calculations in floats to prevent rounding errors...
 		float tmp = ((static_cast<float>(pos.x()) - BORDER_WIDTH)
-			* static_cast<float>(m_clip->m_steps)) / static_cast<float>(width() - BORDER_WIDTH * 2);
+			* static_cast<float>(m_clip->steps())) / static_cast<float>(width() - BORDER_WIDTH * 2);
 
 		int step = int( tmp );
 
 //	debugging to ensure we get the correct step...
 //		qDebug( "Step (%f) %d", tmp, step );
 
-		if( step >= m_clip->m_steps )
+		if( step >= m_clip->steps() )
 		{
 			qDebug( "Something went wrong in clip.cpp: step %d doesn't exist in clip!", step );
 			return;
@@ -484,7 +484,7 @@ void MidiClipView::mouseDoubleClickEvent(QMouseEvent *_me)
 		_me->ignore();
 		return;
 	}
-	if( m_clip->m_clipType == MidiClip::Type::MelodyClip || !fixedClips() )
+	if( m_clip->type() == MidiClip::Type::MelodyClip || !fixedClips() )
 	{
 		openInPianoRoll();
 	}
@@ -496,18 +496,18 @@ void MidiClipView::mouseDoubleClickEvent(QMouseEvent *_me)
 void MidiClipView::wheelEvent(QWheelEvent * we)
 {
 	const auto pos = we->position().toPoint();
-	if(m_clip->m_clipType == MidiClip::Type::BeatClip &&
+	if(m_clip->type() == MidiClip::Type::BeatClip &&
 				(fixedClips() || pixelsPerBar() >= 96) &&
 				pos.y() > height() - m_stepBtnOff.height())
 	{
 //	get the step number that was wheeled on and
 //	do calculations in floats to prevent rounding errors...
 		float tmp = ((float(pos.x()) - BORDER_WIDTH) *
-				float(m_clip -> m_steps)) / float(width() - BORDER_WIDTH*2);
+				float(m_clip->steps())) / float(width() - BORDER_WIDTH*2);
 
 		int step = int( tmp );
 
-		if( step >= m_clip->m_steps )
+		if( step >= m_clip->steps() )
 		{
 			return;
 		}
@@ -571,7 +571,7 @@ void MidiClipView::paintEvent( QPaintEvent * )
 	QColor c;
 	bool const muted = m_clip->getTrack()->isMuted() || m_clip->isMuted();
 	bool current = getGUI()->pianoRoll()->currentMidiClip() == m_clip;
-	bool beatClip = m_clip->m_clipType == MidiClip::Type::BeatClip;
+	bool beatClip = m_clip->type() == MidiClip::Type::BeatClip;
 
 	if( beatClip )
 	{
@@ -630,7 +630,7 @@ void MidiClipView::paintEvent( QPaintEvent * )
 	const int x_base = BORDER_WIDTH;
 
 	bool displayPattern = fixedClips() || (pixelsPerBar >= 96 && m_legacySEPattern);
-	NoteVector const & noteCollection = m_clip->m_notes;
+	NoteVector const & noteCollection = m_clip->notes();
 
 	// Beat clip paint event (on BB Editor)
 	if (beatClip && displayPattern)
@@ -640,7 +640,7 @@ void MidiClipView::paintEvent( QPaintEvent * )
 		QPixmap stepoff;
 		QPixmap stepoffl;
 		QPixmap stephighlight;
-		const int steps = std::max(1, m_clip->m_steps);
+		const int steps = std::max(1, m_clip->steps());
 		const int w = width() - 2 * BORDER_WIDTH;
 
 		// scale step graphics to fit the beat clip length
@@ -701,8 +701,8 @@ void MidiClipView::paintEvent( QPaintEvent * )
 	else if
 	(
 		!noteCollection.empty() &&
-			(m_clip->m_clipType == MidiClip::Type::MelodyClip ||
-			m_clip->m_clipType == MidiClip::Type::BeatClip)
+			(m_clip->type() == MidiClip::Type::MelodyClip ||
+			m_clip->type() == MidiClip::Type::BeatClip)
 	)
 	{
 		// Compute the minimum and maximum key in the clip
@@ -889,7 +889,7 @@ bool MidiClipView::destructiveSplitClip(const TimePos pos)
 	auto rightClip =  m_clip->clone();
 	rightClip->clearNotes();
 
-	for (Note const* note : m_clip->m_notes)
+	for (Note const* note : m_clip->notes())
 	{
 		if (note->pos() >= internalSplitPos)
 		{
@@ -906,7 +906,7 @@ bool MidiClipView::destructiveSplitClip(const TimePos pos)
 		}
 	}
 
-	for (Note const* note : m_clip->m_notes)
+	for (Note const* note : m_clip->notes())
 	{
 		if (note->endPos() <= internalSplitPos)
 		{

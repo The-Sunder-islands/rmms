@@ -167,7 +167,7 @@ void InstrumentMidiIOView::modelChanged()
 	auto mp = castModel<MidiPort>();
 
 	m_midiInputGroupBox->setModel( &mp->m_readableModel );
-	m_inputChannelSpinBox->setModel( &mp->m_inputChannelModel );
+	m_inputChannelSpinBox->setModel( &mp->inputChannelModel() );
 	m_fixedInputVelocitySpinBox->setModel( &mp->m_fixedInputVelocityModel );
 
 	m_midiOutputGroupBox->setModel( &mp->m_writableModel );

@@ -249,12 +249,12 @@ void LfoControllerDialog::modelChanged()
 {
 	m_lfo = castModel<LfoController>();
 
-	m_baseKnob->setModel( &m_lfo->m_baseModel );
-	m_speedKnob->setModel( &m_lfo->m_speedModel );
-	m_amountKnob->setModel( &m_lfo->m_amountModel );
-	m_phaseKnob->setModel( &m_lfo->m_phaseModel );
-	m_waveBtnGrp->setModel( &m_lfo->m_waveModel );
-	m_multiplierBtnGrp->setModel( &m_lfo->m_multiplierModel );
+	m_baseKnob->setModel( &m_lfo->baseModel() );
+	m_speedKnob->setModel( &m_lfo->speedModel() );
+	m_amountKnob->setModel( &m_lfo->amountModel() );
+	m_phaseKnob->setModel( &m_lfo->phaseModel() );
+	m_waveBtnGrp->setModel( &m_lfo->waveModel() );
+	m_multiplierBtnGrp->setModel( &m_lfo->multiplierModel() );
 }
 
 

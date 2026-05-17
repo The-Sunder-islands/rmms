@@ -99,8 +99,6 @@ private:
 	BoolModel m_recordModel;
 	bool m_isPlaying;
 
-	friend class gui::SampleClipView;
-
 
 signals:
 	void sampleChanged();

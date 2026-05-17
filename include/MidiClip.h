@@ -125,6 +125,11 @@ public:
 
 	using Model::dataChanged;
 
+	void setClipType(Type t) { m_clipType = t; }
+	NoteVector& notes() { return m_notes; }
+	int steps() const { return m_steps; }
+	void setSteps(int s) { m_steps = s; }
+
 public slots:
 	void addSteps();
 	void cloneSteps();
@@ -156,8 +161,6 @@ private:
 	int m_steps;
 
 	MidiClip * adjacentMidiClipByOffset(int offset) const;
-
-	friend class gui::MidiClipView;
 
 
 signals:

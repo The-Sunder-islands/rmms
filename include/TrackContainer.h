@@ -114,7 +114,6 @@ private:
 	Type m_TrackContainerType;
 
 
-	friend class gui::TrackContainerView;
 	friend class Track;
 
 } ;

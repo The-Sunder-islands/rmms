@@ -93,7 +93,8 @@ private:
 	using infoMap = QMap<PatternTrack*, int>;
 	static infoMap s_infoMap;
 
-	friend class gui::PatternTrackView;
+	static infoMap& patternInfoMap() { return s_infoMap; }
+	static const infoMap& patternInfoMap() { return s_infoMap; }
 } ;
 
 

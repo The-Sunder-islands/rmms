@@ -64,6 +64,19 @@ public:
 public slots:
 	QWidget * createDialog( QWidget * _parent ) override;
 
+	FloatModel& baseModel() { return m_baseModel; }
+	const FloatModel& baseModel() const { return m_baseModel; }
+	TempoSyncKnobModel& speedModel() { return m_speedModel; }
+	const TempoSyncKnobModel& speedModel() const { return m_speedModel; }
+	FloatModel& amountModel() { return m_amountModel; }
+	const FloatModel& amountModel() const { return m_amountModel; }
+	FloatModel& phaseModel() { return m_phaseModel; }
+	const FloatModel& phaseModel() const { return m_phaseModel; }
+	IntModel& waveModel() { return m_waveModel; }
+	const IntModel& waveModel() const { return m_waveModel; }
+	IntModel& multiplierModel() { return m_multiplierModel; }
+	const IntModel& multiplierModel() const { return m_multiplierModel; }
+	const std::shared_ptr<const SampleBuffer>& userDefSampleBuffer() const { return m_userDefSampleBuffer; }
 
 protected:
 	// The internal per-controller value updating function
@@ -90,8 +103,6 @@ protected slots:
 	void updatePhase();
 	void updateSampleFunction();
 	void updateDuration();
-
-	friend class gui::LfoControllerDialog;
 
 } ;
 

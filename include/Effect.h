@@ -125,6 +125,11 @@ public:
 		return &m_autoQuitModel;
 	}
 
+	BoolModel& enabledModel() { return m_enabledModel; }
+	const BoolModel& enabledModel() const { return m_enabledModel; }
+	FloatModel& wetDryModel() { return m_wetDryModel; }
+	const FloatModel& wetDryModel() const { return m_wetDryModel; }
+
 	bool autoQuitEnabled() const
 	{
 		return m_autoQuitEnabled;
@@ -207,7 +212,6 @@ private:
 
 	bool m_autoQuitEnabled = false;
 
-	friend class gui::EffectView;
 	friend class EffectChain;
 
 } ;

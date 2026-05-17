@@ -95,13 +95,13 @@ TrackView::TrackView( Track * track, TrackContainerView * tcv ) :
 			this, SLOT(createClipView(lmms::Clip*)),
 			Qt::QueuedConnection );
 
-	connect( &m_track->m_mutedModel, SIGNAL(dataChanged()),
+	connect( &m_track->mutedModel(), SIGNAL(dataChanged()),
 			&m_trackContentWidget, SLOT(update()));
 
-	connect(&m_track->m_mutedModel, SIGNAL(dataChanged()),
+	connect(&m_track->mutedModel(), SIGNAL(dataChanged()),
 			this, SLOT(muteChanged()));
 
-	connect( &m_track->m_soloModel, SIGNAL(dataChanged()),
+	connect( &m_track->soloModel(), SIGNAL(dataChanged()),
 			m_track, SLOT(toggleSolo()), Qt::DirectConnection );
 	
 	auto trackGrip = m_trackOperationsWidget.getTrackGrip();
@@ -109,7 +109,7 @@ TrackView::TrackView( Track * track, TrackContainerView * tcv ) :
 	connect(trackGrip, &TrackGrip::released, this, &TrackView::onTrackGripReleased);
 
 	// create views for already existing clips
-	for (const auto& clip : m_track->m_clips)
+	for (const auto& clip : m_track->getClips())
 	{
 		createClipView(clip);
 	}
@@ -196,8 +196,8 @@ void TrackView::modelChanged()
 	m_track = castModel<Track>();
 	Q_ASSERT( m_track != nullptr );
 	connect( m_track, SIGNAL(destroyedTrack()), this, SLOT(close()));
-	m_trackOperationsWidget.m_muteBtn->setModel( &m_track->m_mutedModel );
-	m_trackOperationsWidget.m_soloBtn->setModel( &m_track->m_soloModel );
+	m_trackOperationsWidget.m_muteBtn->setModel( &m_track->mutedModel() );
+	m_trackOperationsWidget.m_soloBtn->setModel( &m_track->soloModel() );
 	ModelView::modelChanged();
 	setFixedHeight( m_track->getHeight() );
 }
@@ -359,7 +359,7 @@ void TrackView::mouseMoveEvent( QMouseEvent * me )
 
 	if( height() < DEFAULT_TRACK_HEIGHT )
 	{
-		setToolTip(m_track->m_name);
+		setToolTip(m_track->name());
 	}
 }
 
@@ -439,7 +439,7 @@ void TrackView::createClipView( Clip * clip )
 void TrackView::muteChanged()
 {
 	FadeButton * indicator = getActivityIndicator();
-	if (indicator) { setIndicatorMute(indicator, m_track->m_mutedModel.value()); }
+	if (indicator) { setIndicatorMute(indicator, m_track->mutedModel().value()); }
 }
 
 

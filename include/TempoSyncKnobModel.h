@@ -112,8 +112,6 @@ private:
 	MeterModel m_custom;
 
 
-	friend class gui::TempoSyncKnob;
-
 } ;
 
 } // namespace lmms

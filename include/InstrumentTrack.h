@@ -241,6 +241,13 @@ public:
 
 	//! Returns a non-owning pointer to the model for the knob at the given index in the track's MIDI CC rack
 	FloatModel* midiCCModel(int index) const { return m_midiCCModel[index].get(); }
+	const std::unique_ptr<BoolModel>& midiCCEnableModel() const { return m_midiCCEnable; }
+	InstrumentSoundShaping& soundShaping() { return m_soundShaping; }
+	const InstrumentSoundShaping& soundShaping() const { return m_soundShaping; }
+	InstrumentFunctionArpeggio& arpeggio() { return m_arpeggio; }
+	const InstrumentFunctionArpeggio& arpeggio() const { return m_arpeggio; }
+	InstrumentFunctionNoteStacking& noteStacking() { return m_noteStacking; }
+	const InstrumentFunctionNoteStacking& noteStacking() const { return m_noteStacking; }
 
 signals:
 	void instrumentChanged();
@@ -314,11 +321,7 @@ private:
 	std::unique_ptr<BoolModel> m_midiCCEnable;
 	std::unique_ptr<FloatModel> m_midiCCModel[MidiControllerCount];
 
-	friend class gui::InstrumentTrackView;
-	friend class gui::InstrumentTrackWindow;
 	friend class NotePlayHandle;
-	friend class gui::InstrumentTuningView;
-	friend class gui::MidiCCRackView;
 
 } ;
 

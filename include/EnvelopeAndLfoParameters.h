@@ -208,8 +208,6 @@ private:
 	void updateLfoShapeData();
 
 
-	friend class gui::EnvelopeAndLfoView;
-
 } ;
 
 } // namespace lmms

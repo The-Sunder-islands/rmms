@@ -198,6 +198,7 @@ public:
 	}
 
 	void clearObjects() { m_objects.clear(); }
+	objectVector& objects() { return m_objects; }
 
 public slots:
 	void clear();
@@ -252,9 +253,7 @@ private:
 	static const float DEFAULT_MIN_VALUE;
 	static const float DEFAULT_MAX_VALUE;
 
-	friend class gui::AutomationClipView;
 	friend class AutomationNode;
-	friend class gui::AutomationEditor;
 
 } ;
 
