@@ -31,6 +31,7 @@
 #include "Engine.h"
 #include "Graph.h"
 #include "GuiApplication.h"
+#include "GuiMode.h"
 #include "InstrumentTrack.h"
 #include "Knob.h"
 #include "LedCheckBox.h"
@@ -863,7 +864,7 @@ XpressiveHelpView::XpressiveHelpView():QTextEdit(s_helpText)
 {
 	setWindowTitle ( "Xpressive Help" );
 	setTextInteractionFlags ( Qt::TextSelectableByKeyboard | Qt::TextSelectableByMouse );
-	getGUI()->mainWindow()->addWindowedWidget( this );
+	if (isGuiMode()) { getGUI()->mainWindow()->addWindowedWidget( this ); }
 	parentWidget()->setAttribute( Qt::WA_DeleteOnClose, false );
 	parentWidget()->setWindowIcon( PLUGIN_NAME::getIconPixmap( "logo" ) );
 	parentWidget()->setFixedSize( 300, 500);

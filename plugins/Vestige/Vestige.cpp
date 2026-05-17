@@ -43,6 +43,7 @@
 #include "FileDialog.h"
 #include "FontHelper.h"
 #include "GuiApplication.h"
+#include "GuiMode.h"
 #include "InstrumentPlayHandle.h"
 #include "InstrumentTrack.h"
 #include "LocaleHelper.h"
@@ -128,7 +129,7 @@ public:
 			return;
 		}
 		if ( embedMethod() != "none" ) {
-			m_pluginSubWindow.reset(new gui::vstSubWin( gui::getGUI()->mainWindow()->workspace() ));
+			if (isGuiMode()) { m_pluginSubWindow.reset(new gui::vstSubWin( gui::getGUI()->mainWindow()->workspace() )); }
 			VstPlugin::createUI( m_pluginSubWindow.get() );
 			m_pluginSubWindow->setWidget(pluginWidget());
 		} else {
@@ -912,7 +913,7 @@ ManageVestigeInstrumentView::ManageVestigeInstrumentView( Instrument * _instrume
 	widget = new QWidget(this);
 	l = new QGridLayout( this );
 
-	m_vi->m_subWindow = getGUI()->mainWindow()->addWindowedWidget(m_vi->m_scrollArea);
+	if (isGuiMode()) { m_vi->m_subWindow = getGUI()->mainWindow()->addWindowedWidget(m_vi->m_scrollArea); }
 	m_vi->m_scrollArea->setFixedWidth(960);
 	m_vi->m_scrollArea->setMinimumHeight(300);
 	m_vi->m_subWindow->setWindowTitle( m_vi->instrumentTrack()->name()

@@ -35,6 +35,7 @@
 #include "embed.h"
 #include "../Eq/EqFader.h"
 #include "GuiApplication.h"
+#include "GuiMode.h"
 #include "Knob.h"
 #include "MainWindow.h"
 #include "PixmapButton.h"
@@ -291,7 +292,7 @@ CompressorControlDialog::CompressorControlDialog(CompressorControls* controls) :
 	lookaheadButton->setCheckable(true);
 	lookaheadButton->setModel(&controls->m_lookaheadModel);
 
-	connect(getGUI()->mainWindow(), SIGNAL(periodicUpdate()), this, SLOT(updateDisplay()));
+	if (isGuiMode()) { connect(getGUI()->mainWindow(), SIGNAL(periodicUpdate()), this, SLOT(updateDisplay())); }
 
 	connect(&m_controls->m_peakmodeModel, SIGNAL(dataChanged()), this, SLOT(peakmodeChanged()));
 	connect(&m_controls->m_stereoLinkModel, SIGNAL(dataChanged()), this, SLOT(stereoLinkChanged()));

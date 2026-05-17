@@ -31,6 +31,7 @@
 
 #include "ColorChooser.h"
 #include "GuiApplication.h"
+#include "GuiMode.h"
 #include "FontHelper.h"
 #include "MainWindow.h"
 #include "VecControls.h"
@@ -50,7 +51,7 @@ VectorView::VectorView(VecControls* controls, LocklessRingBuffer<SampleFrame>* i
 	setMinimumSize(200, 200);
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-	connect(getGUI()->mainWindow(), SIGNAL(periodicUpdate()), this, SLOT(periodicUpdate()));
+	if (isGuiMode()) { connect(getGUI()->mainWindow(), SIGNAL(periodicUpdate()), this, SLOT(periodicUpdate())); }
 
 #ifdef VEC_DEBUG
 	m_executionAvg = 0;

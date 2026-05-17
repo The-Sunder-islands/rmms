@@ -30,6 +30,7 @@
 #include "LcdFloatSpinBox.h"
 #include "MainWindow.h"
 #include "GuiApplication.h"
+#include "GuiMode.h"
 #include "PixmapButton.h"
 
 
@@ -141,7 +142,7 @@ GranularPitchShifterHelpView::GranularPitchShifterHelpView():QTextEdit(s_helpTex
 {
 	setWindowTitle("Granular Pitch Shifter Help");
 	setTextInteractionFlags(Qt::TextSelectableByKeyboard | Qt::TextSelectableByMouse);
-	getGUI()->mainWindow()->addWindowedWidget(this);
+	if (isGuiMode()) { getGUI()->mainWindow()->addWindowedWidget(this); }
 	parentWidget()->setAttribute(Qt::WA_DeleteOnClose, false);
 	parentWidget()->setWindowIcon(PLUGIN_NAME::getIconPixmap("logo"));
 	

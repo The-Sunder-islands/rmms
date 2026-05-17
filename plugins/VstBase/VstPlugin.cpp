@@ -25,6 +25,7 @@
 #include "VstPlugin.h"
 
 #include "communication.h"
+#include "GuiMode.h"
 
 #include <QtEndian>
 #include <QDebug>
@@ -413,15 +414,15 @@ bool VstPlugin::processMessage( const message & _m )
 #ifdef LMMS_BUILD_WIN32
 			// We're changing the owner, not the parent,
 			// so this is legal despite MSDN's warning
-			SetWindowLongPtr( (HWND)(intptr_t) m_pluginWindowID,
+			if (isGuiMode()) { SetWindowLongPtr( (HWND)(intptr_t) m_pluginWindowID,
 					GWLP_HWNDPARENT,
-					(LONG_PTR) gui::getGUI()->mainWindow()->winId() );
+					(LONG_PTR) gui::getGUI()->mainWindow()->winId() ); }
 #endif
 
 #if defined(LMMS_BUILD_LINUX) && (QT_VERSION < QT_VERSION_CHECK(6,0,0))
-			XSetTransientForHint( QX11Info::display(),
+			if (isGuiMode()) { XSetTransientForHint( QX11Info::display(),
 					m_pluginWindowID,
-					gui::getGUI()->mainWindow()->winId() );
+					gui::getGUI()->mainWindow()->winId() ); }
 #endif
 		}
 		break;

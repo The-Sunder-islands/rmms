@@ -29,6 +29,7 @@
 #include "EffectControls.h"
 #include "Fader.h"
 #include "GuiApplication.h"
+#include "GuiMode.h"
 #include "MainWindow.h"
 #include "TextFloat.h"
 
@@ -50,7 +51,7 @@ public:
 		resize( 23, 116 );
 		m_lPeak = lPeak;
 		m_rPeak = rPeak;
-		connect( getGUI()->mainWindow(), SIGNAL( periodicUpdate() ), this, SLOT( updateVuMeters() ) );
+		if (isGuiMode()) { connect( getGUI()->mainWindow(), SIGNAL( periodicUpdate() ), this, SLOT( updateVuMeters() ) ); }
 		m_model = model;
 		setPeak_L( 0 );
 		setPeak_R( 0 );

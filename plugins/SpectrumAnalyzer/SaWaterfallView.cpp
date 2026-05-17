@@ -36,6 +36,7 @@
 #include "DeprecationHelper.h"
 #include "EffectControlDialog.h"
 #include "GuiApplication.h"
+#include "GuiMode.h"
 #include "MainWindow.h"
 #include "SaControls.h"
 #include "SaProcessor.h"
@@ -54,7 +55,7 @@ SaWaterfallView::SaWaterfallView(SaControls *controls, SaProcessor *processor, Q
 	setMinimumSize(300, 150);
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-	connect(getGUI()->mainWindow(), SIGNAL(periodicUpdate()), this, SLOT(periodicUpdate()));
+	if (isGuiMode()) { connect(getGUI()->mainWindow(), SIGNAL(periodicUpdate()), this, SLOT(periodicUpdate())); }
 	connect(&controls->m_waterfallModel, &BoolModel::dataChanged, this, &SaWaterfallView::updateVisibility);
 
 	m_displayTop = 1;

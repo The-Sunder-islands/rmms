@@ -29,6 +29,7 @@
 #include "AutomatableButton.h"
 #include "embed.h"
 #include "GuiApplication.h"
+#include "GuiMode.h"
 #include "Knob.h"
 #include "LcdFloatSpinBox.h"
 #include "MainWindow.h"
@@ -246,7 +247,7 @@ FrequencyShifterHelpView::FrequencyShifterHelpView() :
 #endif
 	setWindowTitle(tr("Frequency Shifter Help"));
 	setTextInteractionFlags(Qt::TextSelectableByKeyboard | Qt::TextSelectableByMouse);
-	getGUI()->mainWindow()->addWindowedWidget(this);
+	if (isGuiMode()) { getGUI()->mainWindow()->addWindowedWidget(this); }
 	parentWidget()->setAttribute(Qt::WA_DeleteOnClose, false);
 
 	// No maximize button

@@ -29,6 +29,7 @@
 #include <QPainter>
 
 #include "GuiApplication.h"
+#include "GuiMode.h"
 #include "LOMM.h"
 #include "LOMMControls.h"
 #include "MainWindow.h"
@@ -120,7 +121,7 @@ LOMMControlDialog::LOMMControlDialog(LOMMControls* controls) :
 	connect(initButton, SIGNAL(clicked()), m_controls, SLOT(resetAllParameters()));
 	connect(&controls->m_lookaheadEnableModel, SIGNAL(dataChanged()), this, SLOT(updateFeedbackVisibility()));
 	connect(&controls->m_midsideModel, SIGNAL(dataChanged()), this, SLOT(updateLowSideUpwardSuppressVisibility()));
-	connect(getGUI()->mainWindow(), SIGNAL(periodicUpdate()), this, SLOT(updateDisplay()));
+	if (isGuiMode()) { connect(getGUI()->mainWindow(), SIGNAL(periodicUpdate()), this, SLOT(updateDisplay())); }
 
 	emit updateFeedbackVisibility();
 	emit updateLowSideUpwardSuppressVisibility();

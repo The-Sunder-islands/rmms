@@ -27,6 +27,7 @@
 #include "AudioEngine.h"
 #include "Engine.h"
 #include "GuiApplication.h"
+#include "GuiMode.h"
 #include "InstrumentPlayHandle.h"
 #include "InstrumentTrack.h"
 #include "Knob.h"
@@ -847,9 +848,11 @@ CarlaParamsView::CarlaParamsView(CarlaInstrumentView* const instrumentView, QWid
 	verticalLayout->addWidget(splitter);
 
 	// -- Sub window
-	auto win = new CarlaParamsSubWindow(getGUI()->mainWindow()->workspace()->viewport(),
-		Qt::SubWindow | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowSystemMenuHint);
-	m_carlaInstrumentView->m_paramsSubWindow = getGUI()->mainWindow()->workspace()->addSubWindow(win);
+	if (isGuiMode()) {
+		auto win = new CarlaParamsSubWindow(getGUI()->mainWindow()->workspace()->viewport(),
+			Qt::SubWindow | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowSystemMenuHint);
+		m_carlaInstrumentView->m_paramsSubWindow = getGUI()->mainWindow()->workspace()->addSubWindow(win);
+	}
 	m_carlaInstrumentView->m_paramsSubWindow->setSizePolicy(
 		QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 	m_carlaInstrumentView->m_paramsSubWindow->setMinimumHeight(200);

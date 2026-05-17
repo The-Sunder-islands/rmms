@@ -31,6 +31,7 @@
 #include "Engine.h"
 #include "EqCurve.h"
 #include "GuiApplication.h"
+#include "GuiMode.h"
 #include "MainWindow.h"
 
 namespace lmms
@@ -191,7 +192,7 @@ EqSpectrumView::EqSpectrumView(EqAnalyser *b, QWidget *_parent) :
 	m_periodicalUpdate( false )
 {
 	setFixedSize( 450, 200 );
-	connect( getGUI()->mainWindow(), SIGNAL( periodicUpdate() ), this, SLOT( periodicalUpdate() ) );
+	if (isGuiMode()) { connect( getGUI()->mainWindow(), SIGNAL( periodicUpdate() ), this, SLOT( periodicalUpdate() ) ); }
 	setAttribute( Qt::WA_TranslucentBackground, true );
 	m_skipBands = MAX_BANDS * 0.5;
 	const float totalLength = std::log10(20000);

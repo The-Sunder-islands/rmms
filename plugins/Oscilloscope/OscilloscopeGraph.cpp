@@ -22,10 +22,11 @@
 */
 
 #include "OscilloscopeGraph.h"
-#include "OscilloscopeControls.h"
 #include "Oscilloscope.h"
-#include "embed.h"
+#include "lmms_export.h"
+#include "Engine.h"
 #include "GuiApplication.h"
+#include "GuiMode.h"
 #include "MainWindow.h"
 
 #include <QApplication>
@@ -48,7 +49,7 @@ OscilloscopeGraph::OscilloscopeGraph(QWidget* parent, OscilloscopeControls* cont
 	setMinimumSize(400, 200);
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-	connect(getGUI()->mainWindow(), SIGNAL(periodicUpdate()), this, SLOT(update()));
+	if (isGuiMode()) { connect(getGUI()->mainWindow(), SIGNAL(periodicUpdate()), this, SLOT(update())); }
 	connect(Engine::audioEngine(), &AudioEngine::sampleRateChanged, this, &OscilloscopeGraph::changeSampleRate);
 	changeSampleRate();
 }

@@ -31,6 +31,7 @@
 #include "MainWindow.h"
 #include <QPainter>
 #include "GuiApplication.h"
+#include "GuiMode.h"
 #include "PixmapButton.h"
 #include "Draggable.h"
 #include "lmms_math.h"
@@ -194,7 +195,7 @@ SlewDistortionControlDialog::SlewDistortionControlDialog(SlewDistortionControls*
 	m_helpBtn->setToolTip(tr("Open help window"));
 	connect(m_helpBtn, &PixmapButton::clicked, this, &SlewDistortionControlDialog::showHelpWindow);
 	
-	connect(getGUI()->mainWindow(), SIGNAL(periodicUpdate()), this, SLOT(update()));
+	if (isGuiMode()) { connect(getGUI()->mainWindow(), SIGNAL(periodicUpdate()), this, SLOT(update())); }
 }
 
 void SlewDistortionControlDialog::paintEvent(QPaintEvent* event)
@@ -476,7 +477,7 @@ SlewDistortionHelpView::SlewDistortionHelpView() : QTextEdit(s_helpText)
 {
 	setWindowTitle("Slew Distortion Help");
 	setTextInteractionFlags(Qt::TextSelectableByKeyboard | Qt::TextSelectableByMouse);
-	getGUI()->mainWindow()->addWindowedWidget(this);
+	if (isGuiMode()) { getGUI()->mainWindow()->addWindowedWidget(this); }
 	parentWidget()->setAttribute(Qt::WA_DeleteOnClose, false);
 	parentWidget()->setWindowIcon(QIcon(PixmapLoader("lmms-plugin-logo").pixmap()));
 	
