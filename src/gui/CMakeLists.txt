@@ -64,6 +64,7 @@ SET(LMMS_SRCS
 	gui/editors/PositionLine.cpp
 	gui/editors/Rubberband.cpp
 	gui/editors/SongEditor.cpp
+	gui/editors/StepRecorder.cpp
 	gui/editors/StepRecorderWidget.cpp
 	gui/editors/TimeLineWidget.cpp
 	gui/editors/TrackContainerView.cpp
