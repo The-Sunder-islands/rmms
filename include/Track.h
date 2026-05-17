@@ -43,13 +43,7 @@ class TrackContainer;
 class Clip;
 
 
-namespace gui
-{
 
-class TrackView;
-class TrackContainerView;
-
-}
 
 
 /*! The minimum track height in pixels

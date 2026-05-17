@@ -36,12 +36,7 @@
 namespace lmms
 {
 
-namespace gui
-{
 
-class EnvelopeAndLfoView;
-
-}
 
 class LMMS_EXPORT EnvelopeAndLfoParameters : public Model, public JournallingObject
 {

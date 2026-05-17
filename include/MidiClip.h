@@ -36,10 +36,7 @@ namespace lmms
 
 class InstrumentTrack;
 
-namespace gui
-{
-class MidiClipView;
-}
+
 
 
 class LMMS_EXPORT MidiClip : public Clip

@@ -42,10 +42,7 @@ namespace lmms
 
 class ControllerConnection;
 
-namespace gui
-{
-class ControllerConnectionDialog;
-}
+
 
 using ControllerConnectionVector = std::vector<ControllerConnection*>;
 

@@ -36,10 +36,7 @@ class InstrumentTrack;
 class NotePlayHandle;
 class SampleFrame;
 
-namespace gui
-{
-class InstrumentSoundShapingView;
-}
+
 
 
 class InstrumentSoundShaping : public Model, public JournallingObject

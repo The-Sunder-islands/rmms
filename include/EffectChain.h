@@ -36,12 +36,7 @@ namespace lmms
 class AudioBuffer;
 class Effect;
 
-namespace gui
-{
 
-class EffectRackView;
-
-} // namespace gui
 
 
 class LMMS_EXPORT EffectChain : public Model, public SerializingObject

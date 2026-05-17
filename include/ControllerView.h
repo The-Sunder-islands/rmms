@@ -40,6 +40,7 @@ namespace lmms::gui
 {
 
 
+class ControllerDialog;
 class LedCheckBox;
 
 

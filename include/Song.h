@@ -48,11 +48,7 @@ class Keymap;
 class MidiClip;
 class Scale;
 
-namespace gui
-{
-class SongEditor;
-class ControllerRackView;
-}
+
 
 
 const bpm_t MinTempo = 10;

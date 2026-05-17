@@ -38,12 +38,7 @@ namespace lmms
 class Controller;
 class ControllerConnection;
 
-namespace gui
-{
 
-class ControllerDialog;
-
-} // namespace gui
 
 using ControllerVector = std::vector<Controller*>;
 

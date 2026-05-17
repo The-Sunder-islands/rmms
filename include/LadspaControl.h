@@ -37,13 +37,7 @@ namespace lmms
 
 struct port_desc_t;
 
-namespace gui
-{
 
-class LadspaControlView;
-class LadspaMatrixControlDialog;
-
-} // namespace gui
 
 
 class LMMS_EXPORT LadspaControl : public Model, public JournallingObject

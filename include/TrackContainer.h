@@ -37,12 +37,7 @@ namespace lmms
 class AutomationClip;
 class InstrumentTrack;
 
-namespace gui
-{
 
-class TrackContainerView;
-
-}
 
 
 class LMMS_EXPORT TrackContainer : public Model, public JournallingObject

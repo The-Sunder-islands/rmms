@@ -31,10 +31,7 @@
 namespace lmms
 {
 
-namespace gui
-{
-	class PatternEditorWindow;
-}
+
 
 /*
  * PatternStore is the backend of Pattern Editor:

@@ -40,12 +40,7 @@ namespace lmms
 class AutomatableModel;
 class PixmapLoader;
 
-namespace gui
-{
 
-class PluginView;
-
-}
 
 /**
 	Abstract representation of a plugin

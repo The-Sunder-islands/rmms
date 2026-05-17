@@ -33,12 +33,7 @@ class QAction;
 namespace lmms
 {
 
-namespace gui
-{
 
-class TempoSyncKnob;
-
-} // namespace gui
 
 
 class LMMS_EXPORT TempoSyncKnobModel : public FloatModel

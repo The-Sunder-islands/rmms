@@ -40,11 +40,7 @@ namespace lmms
 class AutomationTrack;
 class TimePos;
 
-namespace gui
-{
-class AutomationClipView;
-class AutomationEditor;
-} // namespace gui
+
 
 
 

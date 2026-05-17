@@ -37,13 +37,7 @@ namespace lmms
 
 class Track;
 
-namespace gui
-{
 
-class ClipView;
-class TrackView;
-
-} // namespace gui
 
 
 class LMMS_EXPORT Clip : public Model, public JournallingObject

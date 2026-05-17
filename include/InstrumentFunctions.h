@@ -38,13 +38,7 @@ namespace lmms
 class InstrumentTrack;  // IWYU pragma: keep
 class NotePlayHandle;
 
-namespace gui
-{
 
-class InstrumentFunctionNoteStackingView;
-class InstrumentFunctionArpeggioView;
-
-}
 
 
 class InstrumentFunctionNoteStacking : public Model, public JournallingObject

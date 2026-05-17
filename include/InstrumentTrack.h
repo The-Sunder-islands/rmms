@@ -47,15 +47,7 @@ namespace lmms
 class Instrument;
 class DataFile;
 
-namespace gui
-{
 
-class InstrumentTrackView;
-class InstrumentTrackWindow;
-class InstrumentTuningView;
-class MidiCCRackView;
-
-} // namespace gui
 
 
 class LMMS_EXPORT InstrumentTrack : public Track, public MidiEventProcessor

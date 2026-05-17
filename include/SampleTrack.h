@@ -32,13 +32,7 @@
 namespace lmms
 {
 
-namespace gui
-{
-
-class SampleTrackView;
-class SampleTrackWindow;
-
-} // namespace gui
+ // namespace gui
 
 
 class SampleTrack : public Track

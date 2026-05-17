@@ -33,12 +33,7 @@ namespace lmms
 {
 
 
-namespace gui
-{
 
-class EffectControlDialog;
-
-} // namespace gui
 
 class EffectControls : public JournallingObject, public Model
 {

@@ -34,12 +34,7 @@ namespace lmms
 
 class SampleBuffer;
 
-namespace gui
-{
-
-class SampleClipView;
-
-} // namespace gui
+ // namespace gui
 
 
 class SampleClip : public Clip

@@ -34,12 +34,7 @@ namespace lmms
 
 class TrackContainer;
 
-namespace gui
-{
 
-class PatternTrackView;
-
-} // namespace gui
 
 
 /*! Track type used in the Song (Editor) to reference a pattern in the PatternStore */
