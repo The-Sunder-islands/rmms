@@ -139,9 +139,11 @@ public slots:
 	void removeSteps();
 	void clear();
 
-protected:
+public:
 	MidiClip( const MidiClip& other );
 	void updatePatternTrack();
+
+protected:
 
 protected slots:
 	void changeTimeSignature();

@@ -90,7 +90,7 @@ MidiCCRackView::MidiCCRackView(InstrumentTrack * track) :
 	for (int i = 0; i < MidiControllerCount; ++i)
 	{
 		auto knob = new Knob(KnobType::Bright26, tr("CC %1").arg(i), this);
-		knob->setModel(m_track->m_midiCCModel[i].get());
+		knob->setModel(m_track->midiCCModel(i));
 		knobsAreaLayout->addWidget(knob, i/4, i%4, Qt::AlignHCenter);
 
 		// TODO It seems that this is not really used/needed?
@@ -99,7 +99,7 @@ MidiCCRackView::MidiCCRackView(InstrumentTrack * track) :
 
 	// Set all the models
 	// Set the LED button to enable/disable the track midi cc
-	m_midiCCGroupBox->setModel(m_track->m_midiCCEnable.get());
+	m_midiCCGroupBox->setModel(m_track->midiCCEnable());
 
 	// Connection to update the name of the track on the label
 	connect(m_track, SIGNAL(nameChanged()),

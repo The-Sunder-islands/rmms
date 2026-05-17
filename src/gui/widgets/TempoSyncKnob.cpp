@@ -90,7 +90,7 @@ void TempoSyncKnob::modelChanged()
 	}
 	if( m_custom != nullptr )
 	{
-		m_custom->setModel( &model()->m_custom );
+		m_custom->setModel( &model()->getCustomMeterModel() );
 	}
 	connect(model(), &TempoSyncKnobModel::syncModeChanged, this, &TempoSyncKnob::updateDescAndIcon);
 	connect( this, SIGNAL(sliderMoved(float)),
@@ -113,7 +113,7 @@ void TempoSyncKnob::contextMenuEvent( QContextMenuEvent * )
 	contextMenu.addSeparator();
 
 	float limit = 60000.0f / ( Engine::getSong()->getTempo() *
-							model()->m_scale );
+							model()->scale() );
 
 	QMenu * syncMenu = contextMenu.addMenu( m_tempoSyncIcon,
 						m_tempoSyncDescription );
@@ -181,16 +181,16 @@ void TempoSyncKnob::contextMenuEvent( QContextMenuEvent * )
 
 void TempoSyncKnob::updateDescAndIcon()
 {
-	if( model()->m_tempoSyncMode != TempoSyncKnobModel::SyncMode::None )
+	if( model()->syncMode() != TempoSyncKnobModel::SyncMode::None )
 	{
-		switch( model()->m_tempoSyncMode )
+		switch( model()->syncMode() )
 		{
 			case TempoSyncKnobModel::SyncMode::Custom:
 				m_tempoSyncDescription = tr( "Custom " ) +
 						"(" +
-			QString::number( model()->m_custom.numeratorModel().value() ) +
+			QString::number( model()->getCustomMeterModel().numeratorModel().value() ) +
 						"/" +
-			QString::number( model()->m_custom.denominatorModel().value() ) +
+			QString::number( model()->getCustomMeterModel().denominatorModel().value() ) +
 						")";
 				break;
 			case TempoSyncKnobModel::SyncMode::DoubleWholeNote:
@@ -229,12 +229,12 @@ void TempoSyncKnob::updateDescAndIcon()
 		m_tempoSyncDescription = tr( "Tempo Sync" );
 	}
 	if( m_custom != nullptr &&
-		model()->m_tempoSyncMode != TempoSyncKnobModel::SyncMode::Custom )
+		model()->syncMode() != TempoSyncKnobModel::SyncMode::Custom )
 	{
 		m_custom->parentWidget()->hide();
 	}
 
-	switch( model()->m_tempoSyncMode )
+	switch( model()->syncMode() )
 	{
 		case TempoSyncKnobModel::SyncMode::None:
 			m_tempoSyncIcon = embed::getIconPixmap( "tempo_sync" );
@@ -321,7 +321,7 @@ void TempoSyncKnob::showCustom()
 		subWindow->setWindowFlags( flags );
 		setFixedSize(size());
 		m_custom->setWindowTitle( "Meter" );
-		m_custom->setModel( &model()->m_custom );
+		m_custom->setModel( &model()->getCustomMeterModel() );
 	}
 	m_custom->parentWidget()->show();
 	model()->setTempoSync( TempoSyncKnobModel::SyncMode::Custom );

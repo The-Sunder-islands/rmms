@@ -84,7 +84,7 @@ bool LadspaMatrixControlDialog::needsLinkColumn() const
 		auto const & currentControls = ladspaControls->m_controls[i];
 		for (auto ladspaControl : currentControls)
 		{
-			if (ladspaControl->m_link)
+			if (ladspaControl->link())
 			{
 				return true;
 			}
@@ -144,10 +144,10 @@ void LadspaMatrixControlDialog::arrangeControls(QWidget * parent, QGridLayout* g
 		for (auto ladspaControl : currentControls)
 		{
 			// Only use the first channel to determine if we need to add link controls
-			if (i == 0 && ladspaControl->m_link)
+			if (i == 0 && ladspaControl->link())
 			{
 				LedCheckBox * linkCheckBox = new LedCheckBox("", parent, "", LedCheckBox::LedColor::Green);
-				linkCheckBox->setModel(&ladspaControl->m_linkEnabledModel);
+				linkCheckBox->setModel(&ladspaControl->linkEnabledModel());
 				linkCheckBox->setToolTip(tr("Link channels"));
 				gridLayout->addWidget(linkCheckBox, currentRow, linkColumn, Qt::AlignHCenter);
 			}

@@ -204,22 +204,22 @@ void EnvelopeAndLfoView::modelChanged()
 {
 	m_params = castModel<EnvelopeAndLfoParameters>();
 	m_envelopeGraph->setModel(m_params);
-	m_predelayKnob->setModel( &m_params->m_predelayModel );
-	m_attackKnob->setModel( &m_params->m_attackModel );
-	m_holdKnob->setModel( &m_params->m_holdModel );
-	m_decayKnob->setModel( &m_params->m_decayModel );
-	m_sustainKnob->setModel( &m_params->m_sustainModel );
-	m_releaseKnob->setModel( &m_params->m_releaseModel );
-	m_amountKnob->setModel( &m_params->m_amountModel );
+	m_predelayKnob->setModel( &m_params->getPredelayModel() );
+	m_attackKnob->setModel( &m_params->getAttackModel() );
+	m_holdKnob->setModel( &m_params->getHoldModel() );
+	m_decayKnob->setModel( &m_params->getDecayModel() );
+	m_sustainKnob->setModel( &m_params->getSustainModel() );
+	m_releaseKnob->setModel( &m_params->getReleaseModel() );
+	m_amountKnob->setModel( &m_params->getAmountModel() );
 
 	m_lfoGraph->setModel(m_params);
-	m_lfoPredelayKnob->setModel( &m_params->m_lfoPredelayModel );
-	m_lfoAttackKnob->setModel( &m_params->m_lfoAttackModel );
-	m_lfoSpeedKnob->setModel( &m_params->m_lfoSpeedModel );
-	m_lfoAmountKnob->setModel( &m_params->m_lfoAmountModel );
-	m_lfoWaveBtnGrp->setModel( &m_params->m_lfoWaveModel );
-	m_x100Cb->setModel( &m_params->m_x100Model );
-	m_controlEnvAmountCb->setModel( &m_params->m_controlEnvAmountModel );
+	m_lfoPredelayKnob->setModel( &m_params->getLfoPredelayModel() );
+	m_lfoAttackKnob->setModel( &m_params->getLfoAttackModel() );
+	m_lfoSpeedKnob->setModel( &m_params->getLfoSpeedModel() );
+	m_lfoAmountKnob->setModel( &m_params->getLfoAmountModel() );
+	m_lfoWaveBtnGrp->setModel( &m_params->getLfoWaveModel() );
+	m_x100Cb->setModel( &m_params->getX100Model() );
+	m_controlEnvAmountCb->setModel( &m_params->getControlEnvAmountModel() );
 }
 
 
@@ -241,9 +241,9 @@ void EnvelopeAndLfoView::dropEvent( QDropEvent * _de )
 	QString value = StringPairDrag::decodeValue( _de );
 	if( type == "samplefile" )
 	{
-		m_params->m_userWave = SampleBuffer::fromFile(value);
+		m_params->getLfoUserWave() = SampleBuffer::fromFile(value);
 		m_userLfoBtn->model()->setValue( true );
-		m_params->m_lfoWaveModel.setValue(static_cast<int>(EnvelopeAndLfoParameters::LfoShape::UserDefinedWave));
+		m_params->getLfoWaveModel().setValue(static_cast<int>(EnvelopeAndLfoParameters::LfoShape::UserDefinedWave));
 		_de->accept();
 		update();
 	}
@@ -253,9 +253,9 @@ void EnvelopeAndLfoView::dropEvent( QDropEvent * _de )
 		auto file = dataFile.content().
 					firstChildElement().firstChildElement().
 					firstChildElement().attribute("src");
-		m_params->m_userWave = SampleBuffer::fromFile(file);
+		m_params->getLfoUserWave() = SampleBuffer::fromFile(file);
 		m_userLfoBtn->model()->setValue( true );
-		m_params->m_lfoWaveModel.setValue(static_cast<int>(EnvelopeAndLfoParameters::LfoShape::UserDefinedWave));
+		m_params->getLfoWaveModel().setValue(static_cast<int>(EnvelopeAndLfoParameters::LfoShape::UserDefinedWave));
 		_de->accept();
 		update();
 	}
@@ -266,10 +266,10 @@ void EnvelopeAndLfoView::dropEvent( QDropEvent * _de )
 
 void EnvelopeAndLfoView::lfoUserWaveChanged()
 {
-	if( static_cast<EnvelopeAndLfoParameters::LfoShape>(m_params->m_lfoWaveModel.value()) ==
+	if( static_cast<EnvelopeAndLfoParameters::LfoShape>(m_params->getLfoWaveModel().value()) ==
 				EnvelopeAndLfoParameters::LfoShape::UserDefinedWave )
 	{
-		if (m_params->m_userWave->size() <= 1)
+		if (m_params->getLfoUserWave()->size() <= 1)
 		{
 			TextFloat::displayMessage( tr( "Hint" ),
 				tr( "Drag and drop a sample into this window." ),

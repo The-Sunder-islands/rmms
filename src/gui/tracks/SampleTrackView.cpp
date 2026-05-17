@@ -180,7 +180,7 @@ void SampleTrackView::modelChanged()
 {
 	auto st = castModel<SampleTrack>();
 	m_volumeKnob->setModel(&st->volumeModel());
-	m_mixerChannelNumber->setModel(&st->m_mixerChannelModel);
+	m_mixerChannelNumber->setModel(st->mixerChannelModel());
 
 	TrackView::modelChanged();
 }

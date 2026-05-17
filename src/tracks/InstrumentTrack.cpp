@@ -41,10 +41,10 @@
 #include "Song.h"
 #include "TrackContainerView.h"
 
-bool InstrumentTrack::s_pianoRollRecording = false;
-
 namespace lmms
 {
+
+bool InstrumentTrack::s_pianoRollRecording = false;
 
 
 InstrumentTrack::InstrumentTrack(TrackContainer* tc) :

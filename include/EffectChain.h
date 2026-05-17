@@ -67,14 +67,16 @@ public:
 
 	void clear();
 
-	const EffectList& effects() const { return m_effects; }
-	EffectList& effects() { return m_effects; }
 	BoolModel& enabledModel() { return m_enabledModel; }
 	const BoolModel& enabledModel() const { return m_enabledModel; }
 
 private:
 	using EffectList = std::vector<Effect*>;
 	EffectList m_effects;
+
+public:
+	const EffectList& effects() const { return m_effects; }
+	EffectList& effects() { return m_effects; }
 
 	BoolModel m_enabledModel;
 

@@ -349,11 +349,11 @@ public slots:
 	void clearProject();
 
 	void addPatternTrack();
+	void insertBar();
+	void removeBar();
 
 
 private slots:
-	void insertBar();
-	void removeBar();
 	void addSampleTrack();
 	void addAutomationTrack();
 

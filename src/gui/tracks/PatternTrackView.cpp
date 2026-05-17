@@ -57,7 +57,7 @@ PatternTrackView::PatternTrackView(PatternTrack* pt, TrackContainerView* tcv) :
 
 PatternTrackView::~PatternTrackView()
 {
-	getGUI()->patternEditor()->m_editor->removeViewsForPattern(PatternTrack::s_infoMap[m_patternTrack]);
+	getGUI()->patternEditor()->m_editor->removeViewsForPattern(PatternTrack::patternInfoMap()[m_patternTrack]);
 }
 
 
@@ -65,7 +65,7 @@ PatternTrackView::~PatternTrackView()
 
 bool PatternTrackView::close()
 {
-	getGUI()->patternEditor()->m_editor->removeViewsForPattern(PatternTrack::s_infoMap[m_patternTrack]);
+	getGUI()->patternEditor()->m_editor->removeViewsForPattern(PatternTrack::patternInfoMap()[m_patternTrack]);
 	return TrackView::close();
 }
 

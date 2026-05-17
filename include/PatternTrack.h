@@ -47,6 +47,8 @@ class LMMS_EXPORT PatternTrack : public Track
 {
 	Q_OBJECT
 public:
+	using infoMap = QMap<PatternTrack*, int>;
+
 	PatternTrack(TrackContainer* tc);
 	~PatternTrack() override;
 
@@ -61,6 +63,8 @@ public:
 
 	static PatternTrack* findPatternTrack(int pattern_num);
 	static void swapPatternTracks(Track* track1, Track* track2);
+
+	static infoMap& patternInfoMap() { return s_infoMap; }
 
 	int patternIndex()
 	{
@@ -90,11 +94,7 @@ protected:
 private:
 	QList<Track *> m_disabledTracks;
 
-	using infoMap = QMap<PatternTrack*, int>;
 	static infoMap s_infoMap;
-
-	static infoMap& patternInfoMap() { return s_infoMap; }
-	static const infoMap& patternInfoMap() { return s_infoMap; }
 } ;
 
 

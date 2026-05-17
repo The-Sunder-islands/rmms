@@ -77,6 +77,7 @@ public slots:
 	IntModel& multiplierModel() { return m_multiplierModel; }
 	const IntModel& multiplierModel() const { return m_multiplierModel; }
 	const std::shared_ptr<const SampleBuffer>& userDefSampleBuffer() const { return m_userDefSampleBuffer; }
+	std::shared_ptr<const SampleBuffer>& userDefSampleBuffer() { return m_userDefSampleBuffer; }
 
 protected:
 	// The internal per-controller value updating function

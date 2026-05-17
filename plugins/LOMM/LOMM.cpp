@@ -63,7 +63,7 @@ LOMMEffect::LOMMEffect(Model* parent, const Descriptor::SubPluginFeatures::Key* 
 	m_lookWrite(0),
 	m_lookBufLength(2)
 {
-	autoQuitModel()->setValue(autoQuitModel()->maxValue());
+	autoQuitModel().setValue(autoQuitModel().maxValue());
 	
 	m_ap.setFilterType(BasicFilters<2>::FilterType::AllPass);
 	

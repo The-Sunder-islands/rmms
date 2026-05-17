@@ -242,6 +242,7 @@ public:
 	//! Returns a non-owning pointer to the model for the knob at the given index in the track's MIDI CC rack
 	FloatModel* midiCCModel(int index) const { return m_midiCCModel[index].get(); }
 	const std::unique_ptr<BoolModel>& midiCCEnableModel() const { return m_midiCCEnable; }
+	BoolModel* midiCCEnable() const { return m_midiCCEnable.get(); }
 	InstrumentSoundShaping& soundShaping() { return m_soundShaping; }
 	const InstrumentSoundShaping& soundShaping() const { return m_soundShaping; }
 	InstrumentFunctionArpeggio& arpeggio() { return m_arpeggio; }
@@ -323,6 +324,7 @@ private:
 
 	friend class NotePlayHandle;
 
+public:
 	static bool s_pianoRollRecording;
 
 	static bool pianoRollRecording() { return s_pianoRollRecording; }

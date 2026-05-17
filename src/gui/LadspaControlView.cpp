@@ -48,10 +48,10 @@ LadspaControlView::LadspaControlView( QWidget * _parent,
 
 	LedCheckBox * link = nullptr;
 
-	if( m_ctl->m_link )
+	if( m_ctl->link() )
 	{
 		link = new LedCheckBox( "", this );
-		link->setModel( &m_ctl->m_linkEnabledModel );
+		link->setModel( &m_ctl->linkEnabledModel() );
 		link->setToolTip(tr("Link channels"));
 		layout->addWidget( link );
 	}

@@ -135,7 +135,7 @@ SongEditor::SongEditor( Song * song ) :
 	getGUI()->mainWindow()->addSpacingToToolBar( 40 );
 
 	m_tempoSpinBox = new LcdSpinBox( 3, tb, tr( "Tempo" ) );
-	m_tempoSpinBox->setModel( &m_song->m_tempoModel );
+	m_tempoSpinBox->setModel( &m_song->tempoModel() );
 	m_tempoSpinBox->setLabel( tr( "TEMPO" ) );
 	m_tempoSpinBox->setToolTip(tr("Tempo in BPM"));
 
@@ -146,7 +146,7 @@ SongEditor::SongEditor( Song * song ) :
 	getGUI()->mainWindow()->addSpacingToToolBar( 10 );
 
 	m_timeSigDisplay = new MeterDialog( this, true );
-	m_timeSigDisplay->setModel( &m_song->m_timeSigModel );
+	m_timeSigDisplay->setModel( &m_song->getTimeSigModel() );
 	getGUI()->mainWindow()->addWidgetToToolBar( m_timeSigDisplay );
 
 	getGUI()->mainWindow()->addSpacingToToolBar( 10 );
@@ -156,7 +156,7 @@ SongEditor::SongEditor( Song * song ) :
 
 	m_masterVolumeSlider = new AutomatableSlider( tb,
 							tr( "Master volume" ) );
-	m_masterVolumeSlider->setModel( &m_song->m_masterVolumeModel );
+	m_masterVolumeSlider->setModel( &m_song->masterVolumeModel() );
 	m_masterVolumeSlider->setOrientation( Qt::Vertical );
 	m_masterVolumeSlider->setPageStep( 1 );
 	m_masterVolumeSlider->setTickPosition( QSlider::TicksLeft );
@@ -188,7 +188,7 @@ SongEditor::SongEditor( Song * song ) :
 	master_pitch_lbl->setFixedHeight( 64 );
 
 	m_masterPitchSlider = new AutomatableSlider( tb, tr( "Global transposition" ) );
-	m_masterPitchSlider->setModel( &m_song->m_masterPitchModel );
+	m_masterPitchSlider->setModel( &m_song->masterPitchModel() );
 	m_masterPitchSlider->setOrientation( Qt::Vertical );
 	m_masterPitchSlider->setPageStep( 1 );
 	m_masterPitchSlider->setTickPosition( QSlider::TicksLeft );
@@ -633,7 +633,7 @@ void SongEditor::setMasterVolume( int new_val )
 {
 	updateMasterVolumeFloat( new_val );
 
-	if (!m_mvsStatus->isVisible() && !m_song->m_loadingProject
+	if (!m_mvsStatus->isVisible() && !m_song->isLoadingProject()
 					&& m_masterVolumeSlider->showStatus() )
 	{
 		m_mvsStatus->moveGlobal(m_masterVolumeSlider,
@@ -651,7 +651,7 @@ void SongEditor::showMasterVolumeFloat( void )
 	m_mvsStatus->moveGlobal(m_masterVolumeSlider,
 			QPoint( m_masterVolumeSlider->width() + 2, -2 ) );
 	m_mvsStatus->show();
-	updateMasterVolumeFloat( m_song->m_masterVolumeModel.value() );
+	updateMasterVolumeFloat( m_song->masterVolumeModel().value() );
 }
 
 
@@ -676,7 +676,7 @@ void SongEditor::hideMasterVolumeFloat( void )
 void SongEditor::setMasterPitch( int new_val )
 {
 	updateMasterPitchFloat( new_val );
-	if( m_mpsStatus->isVisible() == false && m_song->m_loadingProject == false
+	if( m_mpsStatus->isVisible() == false && m_song->isLoadingProject() == false
 					&& m_masterPitchSlider->showStatus() )
 	{
 		m_mpsStatus->moveGlobal( m_masterPitchSlider,
@@ -693,7 +693,7 @@ void SongEditor::showMasterPitchFloat( void )
 	m_mpsStatus->moveGlobal( m_masterPitchSlider,
 			QPoint( m_masterPitchSlider->width() + 2, -2 ) );
 	m_mpsStatus->show();
-	updateMasterPitchFloat( m_song->m_masterPitchModel.value() );
+	updateMasterPitchFloat( m_song->masterPitchModel().value() );
 }
 
 
@@ -762,7 +762,7 @@ void SongEditor::updatePosition()
 	const auto widgetWidth = compactTrackButtons ? DEFAULT_SETTINGS_WIDGET_WIDTH_COMPACT : DEFAULT_SETTINGS_WIDGET_WIDTH;
 	const auto trackOpWidth = compactTrackButtons ? TRACK_OP_WIDTH_COMPACT : TRACK_OP_WIDTH;
 
-	if ((m_song->isPlaying() && m_song->m_playMode == Song::PlayMode::Song)
+	if ((m_song->isPlaying() && m_song->playMode() == Song::PlayMode::Song)
 							|| m_scrollBack)
 	{
 		m_smoothScroll = ConfigManager::inst()->value( "ui", "smoothscroll" ).toInt();

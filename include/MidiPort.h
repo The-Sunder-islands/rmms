@@ -145,6 +145,22 @@ public:
 	const IntModel& inputChannelModel() const { return m_inputChannelModel; }
 	IntModel& inputControllerModel() { return m_inputControllerModel; }
 	const IntModel& inputControllerModel() const { return m_inputControllerModel; }
+	IntModel& outputChannelModel() { return m_outputChannelModel; }
+	const IntModel& outputChannelModel() const { return m_outputChannelModel; }
+	IntModel& fixedInputVelocityModel() { return m_fixedInputVelocityModel; }
+	const IntModel& fixedInputVelocityModel() const { return m_fixedInputVelocityModel; }
+	IntModel& fixedOutputVelocityModel() { return m_fixedOutputVelocityModel; }
+	const IntModel& fixedOutputVelocityModel() const { return m_fixedOutputVelocityModel; }
+	IntModel& fixedOutputNoteModel() { return m_fixedOutputNoteModel; }
+	const IntModel& fixedOutputNoteModel() const { return m_fixedOutputNoteModel; }
+	IntModel& outputProgramModel() { return m_outputProgramModel; }
+	const IntModel& outputProgramModel() const { return m_outputProgramModel; }
+	IntModel& baseVelocityModel() { return m_baseVelocityModel; }
+	const IntModel& baseVelocityModel() const { return m_baseVelocityModel; }
+	BoolModel& readableModel() { return m_readableModel; }
+	const BoolModel& readableModel() const { return m_readableModel; }
+	BoolModel& writableModel() { return m_writableModel; }
+	const BoolModel& writableModel() const { return m_writableModel; }
 
 public slots:
 	void updateMidiPortMode();

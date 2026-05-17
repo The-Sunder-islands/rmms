@@ -251,10 +251,10 @@ ControllerConnectionDialog::ControllerConnectionDialog( QWidget * _parent,
 				midiToggled();
 
 				auto cont = (MidiController*)(cc->getController());
-				m_midiChannelSpinBox->model()->setValue( cont->m_midiPort.inputChannel() );
-				m_midiControllerSpinBox->model()->setValue( cont->m_midiPort.inputController() );
+				m_midiChannelSpinBox->model()->setValue( cont->midiPort().inputChannel() );
+				m_midiControllerSpinBox->model()->setValue( cont->midiPort().inputController() );
 
-				m_midiController->subscribeReadablePorts( static_cast<MidiController*>( cc->getController() )->m_midiPort.readablePorts() );
+				m_midiController->subscribeReadablePorts( static_cast<MidiController*>( cc->getController() )->midiPort().readablePorts() );
 			}
 			else
 			{
@@ -314,7 +314,7 @@ void ControllerConnectionDialog::selectController()
 				mc->m_midiPort.setName( m_targetModel->displayName() );
 			}
 			*/
-			mc->m_midiPort.setName( m_targetModel->fullDisplayName() );
+			mc->midiPort().setName( m_targetModel->fullDisplayName() );
 			m_controller = mc;
 		}
 	}
@@ -355,19 +355,19 @@ void ControllerConnectionDialog::midiToggled()
 		{
 			m_midiController = new AutoDetectMidiController( Engine::getSong() );
 
-			MidiPort::Map map = m_midiController->m_midiPort.readablePorts();
+			MidiPort::Map map = m_midiController->midiPort().readablePorts();
 			for( MidiPort::Map::Iterator it = map.begin(); it != map.end(); ++it )
 			{
 				it.value() = true;
 			}
 			m_midiController->subscribeReadablePorts( map );
 
-			m_midiChannelSpinBox->setModel( &m_midiController->m_midiPort.m_inputChannelModel );
-			m_midiControllerSpinBox->setModel( &m_midiController->m_midiPort.m_inputControllerModel );
+			m_midiChannelSpinBox->setModel( &m_midiController->midiPort().inputChannelModel() );
+			m_midiControllerSpinBox->setModel( &m_midiController->midiPort().inputControllerModel() );
 
 			if( m_readablePorts )
 			{
-				m_readablePorts->setModel( &m_midiController->m_midiPort );
+				m_readablePorts->setModel( &m_midiController->midiPort() );
 			}
 
 			connect( m_midiController, SIGNAL(valueChanged()), this, SLOT(midiValueChanged()));

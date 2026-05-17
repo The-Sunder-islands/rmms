@@ -52,7 +52,7 @@ InstrumentTuningView::InstrumentTuningView(InstrumentTrack *it, QWidget *parent)
 
 	// Master pitch toggle
 	m_pitchGroupBox = new GroupBox(tr("GLOBAL TRANSPOSITION"));
-	m_pitchGroupBox->setModel(&it->m_useMasterPitchModel);
+	m_pitchGroupBox->setModel(it->useMasterPitchModel());
 	layout->addWidget(m_pitchGroupBox);
 
 	auto masterPitchLayout = new QHBoxLayout(m_pitchGroupBox);
@@ -70,7 +70,7 @@ InstrumentTuningView::InstrumentTuningView(InstrumentTrack *it, QWidget *parent)
 	layout->addWidget(m_microtunerNotSupportedLabel);
 
 	m_microtunerGroupBox = new GroupBox(tr("MICROTUNER"));
-	m_microtunerGroupBox->setModel(it->m_microtuner.enabledModel());
+	m_microtunerGroupBox->setModel(it->microtuner()->enabledModel());
 	layout->addWidget(m_microtunerGroupBox);
 
 	auto microtunerLayout = new QVBoxLayout(m_microtunerGroupBox);
@@ -94,18 +94,18 @@ InstrumentTuningView::InstrumentTuningView(InstrumentTrack *it, QWidget *parent)
 	scaleEditLayout->addWidget(editPixButton);
 
 	m_scaleCombo = new ComboBox();
-	m_scaleCombo->setModel(it->m_microtuner.scaleModel());
+	m_scaleCombo->setModel(it->microtuner()->scaleModel());
 	microtunerLayout->addWidget(m_scaleCombo);
 
 	auto keymapLabel = new QLabel(tr("Active keymap:"));
 	microtunerLayout->addWidget(keymapLabel);
 
 	m_keymapCombo = new ComboBox();
-	m_keymapCombo->setModel(it->m_microtuner.keymapModel());
+	m_keymapCombo->setModel(it->microtuner()->keymapModel());
 	microtunerLayout->addWidget(m_keymapCombo);
 
 	m_rangeImportCheckbox = new LedCheckBox(tr("Import note ranges from keymap"), this);
-	m_rangeImportCheckbox->setModel(it->m_microtuner.keyRangeImportModel());
+	m_rangeImportCheckbox->setModel(it->microtuner()->keyRangeImportModel());
 	m_rangeImportCheckbox->setToolTip(tr("When enabled, the first, last and base notes of this instrument will be overwritten with values specified by the selected keymap."));
 	m_rangeImportCheckbox->setCheckable(true);
 	microtunerLayout->addWidget(m_rangeImportCheckbox);

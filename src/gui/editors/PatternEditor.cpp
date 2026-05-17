@@ -305,7 +305,7 @@ PatternEditorWindow::PatternEditorWindow(PatternStore* ps) :
 
 	m_patternComboBox = new ComboBox(m_toolBar);
 	m_patternComboBox->setFixedSize(200, ComboBox::DEFAULT_HEIGHT);
-	m_patternComboBox->setModel(&ps->m_patternComboBoxModel);
+	m_patternComboBox->setModel(&ps->patternComboBoxModel());
 
 	patternSelectionToolBar->addWidget(m_patternComboBox);
 
@@ -336,9 +336,9 @@ PatternEditorWindow::PatternEditorWindow(PatternStore* ps) :
 	trackAndStepActionsToolBar->addAction( embed::getIconPixmap("step_btn_duplicate"), tr("Clone Steps"),
 						m_editor, SLOT(cloneSteps()));
 
-	connect(&ps->m_patternComboBoxModel, SIGNAL(dataChanged()),
+	connect(&ps->patternComboBoxModel(), SIGNAL(dataChanged()),
 			m_editor, SLOT(updatePosition()));
-	connect(&ps->m_patternComboBoxModel, &ComboBoxModel::dataChanged, m_editor, &PatternEditor::updateMaxSteps);
+	connect(&ps->patternComboBoxModel(), &ComboBoxModel::dataChanged, m_editor, &PatternEditor::updateMaxSteps);
 
 	auto viewNext = new QAction(this);
 	connect(viewNext, SIGNAL(triggered()), m_patternComboBox, SLOT(selectNext()));

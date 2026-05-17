@@ -31,14 +31,13 @@
 #include "InstrumentTrack.h"
 #include "MidiClipView.h"
 #include "PatternStore.h"
+#include "Song.h"
 #include "TrackView.h"
-
-
-
-int MidiClip::s_quantization = 0;
 
 namespace lmms
 {
+
+int MidiClip::s_quantization = 0;
 
 MidiClip::MidiClip( InstrumentTrack * _instrument_track ) :
 	Clip( _instrument_track ),

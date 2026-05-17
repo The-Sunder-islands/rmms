@@ -256,7 +256,7 @@ InstrumentTrackWindow::InstrumentTrackWindow( InstrumentTrackView * _itv ) :
 	m_midiView = new InstrumentMidiIOView(m_tabWidget);
 
 	// FX tab
-	m_effectView = new EffectRackView(m_track->m_audioBusHandle.effects(), m_tabWidget);
+	m_effectView = new EffectRackView(m_track->audioBusHandle()->effects(), m_tabWidget);
 
 	// Tuning tab
 	m_tuningView = new InstrumentTuningView(m_track, m_tabWidget);
@@ -352,13 +352,13 @@ void InstrumentTrackWindow::modelChanged()
 
 	m_volumeKnob->setModel( m_track->volumeModel() );
 	m_panningKnob->setModel( m_track->panningModel() );
-	m_mixerChannelNumber->setModel( &m_track->m_mixerChannelModel );
-	m_pianoView->setModel( &m_track->m_piano );
+	m_mixerChannelNumber->setModel( m_track->mixerChannelModel() );
+	m_pianoView->setModel( m_track->pianoModel() );
 
 	if (m_track->instrument() && m_track->instrument()->isBendable())
 	{
-		m_pitchKnob->setModel( &m_track->m_pitchModel );
-		m_pitchRangeSpinBox->setModel( &m_track->m_pitchRangeModel );
+		m_pitchKnob->setModel( m_track->pitchModel() );
+		m_pitchRangeSpinBox->setModel( m_track->pitchRangeModel() );
 		m_pitchKnob->show();
 		m_pitchLabel->show();
 		m_pitchRangeSpinBox->show();
@@ -377,7 +377,7 @@ void InstrumentTrackWindow::modelChanged()
 	{
 		m_tuningView->microtunerNotSupportedLabel()->show();
 		m_tuningView->microtunerGroupBox()->hide();
-		m_track->m_microtuner.enabledModel()->setValue(false);
+		m_track->microtuner()->enabledModel()->setValue(false);
 	}
 	else
 	{
@@ -388,13 +388,13 @@ void InstrumentTrackWindow::modelChanged()
 	m_ssView->setModel(&m_track->soundShaping());
 	m_noteStackingView->setModel(&m_track->noteStacking());
 	m_arpeggioView->setModel(&m_track->arpeggio());
-	m_midiView->setModel(&m_track->m_midiPort);
-	m_effectView->setModel(m_track->m_audioBusHandle.effects());
-	m_tuningView->pitchGroupBox()->setModel(&m_track->m_useMasterPitchModel);
-	m_tuningView->microtunerGroupBox()->setModel(m_track->m_microtuner.enabledModel());
-	m_tuningView->scaleCombo()->setModel(m_track->m_microtuner.scaleModel());
-	m_tuningView->keymapCombo()->setModel(m_track->m_microtuner.keymapModel());
-	m_tuningView->rangeImportCheckbox()->setModel(m_track->m_microtuner.keyRangeImportModel());
+	m_midiView->setModel(m_track->midiPort());
+	m_effectView->setModel(m_track->audioBusHandle()->effects());
+	m_tuningView->pitchGroupBox()->setModel(m_track->useMasterPitchModel());
+	m_tuningView->microtunerGroupBox()->setModel(m_track->microtuner()->enabledModel());
+	m_tuningView->scaleCombo()->setModel(m_track->microtuner()->scaleModel());
+	m_tuningView->keymapCombo()->setModel(m_track->microtuner()->keymapModel());
+	m_tuningView->rangeImportCheckbox()->setModel(m_track->microtuner()->keyRangeImportModel());
 	updateName();
 
 	updateSubWindow();
@@ -462,9 +462,9 @@ void InstrumentTrackWindow::updateName()
 void InstrumentTrackWindow::updateInstrumentView()
 {
 	delete m_instrumentView;
-	if( m_track->m_instrument != nullptr )
+	if( m_track->instrument() != nullptr )
 	{
-		m_instrumentView = static_cast<InstrumentView*>(m_track->m_instrument->createView( m_tabWidget ));
+		m_instrumentView = static_cast<InstrumentView*>(m_track->instrument()->createView( m_tabWidget ));
 		m_tabWidget->addTab( m_instrumentView, tr( "Plugin" ), "plugin_tab", 0 );
 		m_tabWidget->setActiveTab( 0 );
 
@@ -487,13 +487,13 @@ void InstrumentTrackWindow::updateInstrumentView()
 		m_midiView->setMaximumSize(maxSize);
 		m_tuningView->setMaximumSize(maxSize);
 
-		m_ssView->setFunctionsHidden(m_track->m_instrument->isSingleStreamed());
+		m_ssView->setFunctionsHidden(m_track->instrument()->isSingleStreamed());
 
 		modelChanged(); 		// Get the instrument window to refresh
 		m_track->dataChanged(); // Get the text on the trackButton to change
 
 		adjustTabSize(m_instrumentView);
-		m_pianoView->setVisible(m_track->m_instrument->hasNoteInput());
+		m_pianoView->setVisible(m_track->instrument()->hasNoteInput());
 		// adjust window size
 		layout()->invalidate();
 		resize(sizeHint());

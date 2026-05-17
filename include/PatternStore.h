@@ -102,6 +102,10 @@ public slots:
 signals:
 	void trackUpdated();
 
+public:
+	ComboBoxModel& patternComboBoxModel() { return m_patternComboBoxModel; }
+	const ComboBoxModel& patternComboBoxModel() const { return m_patternComboBoxModel; }
+
 private:
 	ComboBoxModel m_patternComboBoxModel;
 

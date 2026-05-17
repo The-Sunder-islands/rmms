@@ -4961,6 +4961,7 @@ void PianoRoll::zoomingYChanged()
 
 void PianoRoll::quantizeChanged()
 {
+	MidiClip::setQuantization(quantization());
 	update();
 }
 
@@ -5504,6 +5505,7 @@ void PianoRollWindow::setCurrentMidiClip( MidiClip* clip )
 		m_fileToolsButton->setEnabled(true);
 		connect( clip->instrumentTrack(), SIGNAL(nameChanged()), this, SLOT(updateAfterMidiClipChange()));
 		connect( clip, SIGNAL(dataChanged()), this, SLOT(updateAfterMidiClipChange()));
+		connect( clip, &MidiClip::pianoRollUpdateRequired, this, &PianoRollWindow::updateAfterMidiClipChange );
 	}
 	else
 	{

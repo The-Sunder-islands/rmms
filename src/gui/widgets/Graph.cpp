@@ -213,7 +213,7 @@ void Graph::drawLineAt( int _x, int _y, int _lastx )
 	{
 		sample_begin = (int)((_x) * xscale);
 		sample_end = (int)ceil((_lastx+1) * xscale);
-		lastval = model() -> m_samples[ (int)( sample_end - 1 ) ];
+		lastval = model()->samplesVector()[ (int)( sample_end - 1 ) ];
 		val_begin = val;
 		val_end = lastval;
 
@@ -222,7 +222,7 @@ void Graph::drawLineAt( int _x, int _y, int _lastx )
 	{
 		sample_begin = (int)(_lastx * xscale);
 		sample_end =  (int)ceil((_x+1) * xscale);
-		lastval = model() -> m_samples[ (int)( sample_begin ) ];
+		lastval = model()->samplesVector()[ (int)( sample_begin ) ];
 		val_begin = lastval;
 		val_end = val;
 		
@@ -296,7 +296,7 @@ void Graph::paintEvent( QPaintEvent * )
 	p.setPen( QPen( m_graphColor, 1 ) );
 	QColor gcol = QColor( m_graphColor.red(), m_graphColor.green(), m_graphColor.blue(), 100 );
 
-	QVector<float> * samps = &(model()->m_samples);
+	QVector<float> * samps = &(model()->samplesVector());
 	int length = model()->length();
 	const float maxVal = model()->maxValue();
 	const float minVal = model()->minValue();

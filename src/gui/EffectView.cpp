@@ -239,9 +239,9 @@ void EffectView::paintEvent( QPaintEvent * )
 
 void EffectView::modelChanged()
 {
-	m_bypass->setModel( &effect()->m_enabledModel );
-	m_wetDry->setModel( &effect()->m_wetDryModel );
-	m_autoQuit->setModel( &effect()->m_autoQuitModel );
+	m_bypass->setModel( &effect()->enabledModel() );
+	m_wetDry->setModel( &effect()->wetDryModel() );
+	m_autoQuit->setModel( &effect()->autoQuitModel() );
 }
 
 } // namespace lmms::gui

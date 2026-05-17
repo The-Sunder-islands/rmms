@@ -195,7 +195,7 @@ void SampleTrackWindow::modelChanged()
 
 	m_volumeKnob->setModel(&m_track->volumeModel());
 	m_panningKnob->setModel(&m_track->panningModel());
-	m_mixerChannelNumber->setModel(&m_track->m_mixerChannelModel);
+	m_mixerChannelNumber->setModel(m_track->mixerChannelModel());
 
 	updateName();
 }

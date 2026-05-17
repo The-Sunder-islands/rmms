@@ -126,11 +126,17 @@ public:
 
 	// Envelope
 	const FloatModel& getPredelayModel() const { return m_predelayModel; }
+	FloatModel& getPredelayModel() { return m_predelayModel; }
 	const FloatModel& getAttackModel() const { return m_attackModel; }
+	FloatModel& getAttackModel() { return m_attackModel; }
 	const FloatModel& getHoldModel() const { return m_holdModel; }
+	FloatModel& getHoldModel() { return m_holdModel; }
 	const FloatModel& getDecayModel() const { return m_decayModel; }
+	FloatModel& getDecayModel() { return m_decayModel; }
 	const FloatModel& getSustainModel() const { return m_sustainModel; }
+	FloatModel& getSustainModel() { return m_sustainModel; }
 	const FloatModel& getReleaseModel() const { return m_releaseModel; }
+	FloatModel& getReleaseModel() { return m_releaseModel; }
 	const FloatModel& getAmountModel() const { return m_amountModel; }
 	FloatModel& getAmountModel() { return m_amountModel; }
 
@@ -140,12 +146,22 @@ public:
 	inline f_cnt_t getLfoAttackFrames() const { return m_lfoAttackFrames; }
 	inline f_cnt_t getLfoOscillationFrames() const { return m_lfoOscillationFrames; }
 
+	const FloatModel& getLfoPredelayModel() const { return m_lfoPredelayModel; }
+	FloatModel& getLfoPredelayModel() { return m_lfoPredelayModel; }
+	const FloatModel& getLfoAttackModel() const { return m_lfoAttackModel; }
+	FloatModel& getLfoAttackModel() { return m_lfoAttackModel; }
 	const FloatModel& getLfoAmountModel() const { return m_lfoAmountModel; }
 	FloatModel& getLfoAmountModel() { return m_lfoAmountModel; }
 	const TempoSyncKnobModel& getLfoSpeedModel() const { return m_lfoSpeedModel; }
+	TempoSyncKnobModel& getLfoSpeedModel() { return m_lfoSpeedModel; }
 	const BoolModel& getX100Model() const { return m_x100Model; }
+	BoolModel& getX100Model() { return m_x100Model; }
 	const IntModel& getLfoWaveModel() const { return m_lfoWaveModel; }
+	IntModel& getLfoWaveModel() { return m_lfoWaveModel; }
+	const BoolModel& getControlEnvAmountModel() const { return m_controlEnvAmountModel; }
+	BoolModel& getControlEnvAmountModel() { return m_controlEnvAmountModel; }
 	std::shared_ptr<const SampleBuffer> getLfoUserWave() const { return m_userWave; }
+	std::shared_ptr<const SampleBuffer>& getLfoUserWave() { return m_userWave; }
 
 public slots:
 	void updateSampleVars();

@@ -80,9 +80,9 @@ InstrumentFunctionNoteStackingView::~InstrumentFunctionNoteStackingView()
 void InstrumentFunctionNoteStackingView::modelChanged()
 {
 	m_cc = castModel<InstrumentFunctionNoteStacking>();
-	m_chordsGroupBox->setModel( &m_cc->m_chordsEnabledModel );
-	m_chordsComboBox->setModel( &m_cc->m_chordsModel );
-	m_chordRangeKnob->setModel( &m_cc->m_chordRangeModel );
+	m_chordsGroupBox->setModel( &m_cc->chordsEnabledModel() );
+	m_chordsComboBox->setModel( &m_cc->chordsModel() );
+	m_chordRangeKnob->setModel( &m_cc->chordRangeModel() );
 }
 
 
@@ -167,17 +167,17 @@ InstrumentFunctionArpeggioView::~InstrumentFunctionArpeggioView()
 void InstrumentFunctionArpeggioView::modelChanged()
 {
 	m_a = castModel<InstrumentFunctionArpeggio>();
-	m_arpGroupBox->setModel( &m_a->m_arpEnabledModel );
-	m_arpComboBox->setModel( &m_a->m_arpModel );
-	m_arpRangeKnob->setModel( &m_a->m_arpRangeModel );
-	m_arpRepeatsKnob->setModel( &m_a->m_arpRepeatsModel );
-	m_arpCycleKnob->setModel( &m_a->m_arpCycleModel );
-	m_arpSkipKnob->setModel( &m_a->m_arpSkipModel );
-	m_arpMissKnob->setModel( &m_a->m_arpMissModel );
-	m_arpTimeKnob->setModel( &m_a->m_arpTimeModel );
-	m_arpGateKnob->setModel( &m_a->m_arpGateModel );
-	m_arpDirectionComboBox->setModel( &m_a->m_arpDirectionModel );
-	m_arpModeComboBox->setModel( &m_a->m_arpModeModel );
+	m_arpGroupBox->setModel( &m_a->arpEnabledModel() );
+	m_arpComboBox->setModel( &m_a->arpModel() );
+	m_arpRangeKnob->setModel( &m_a->arpRangeModel() );
+	m_arpRepeatsKnob->setModel( &m_a->arpRepeatsModel() );
+	m_arpCycleKnob->setModel( &m_a->arpCycleModel() );
+	m_arpSkipKnob->setModel( &m_a->arpSkipModel() );
+	m_arpMissKnob->setModel( &m_a->arpMissModel() );
+	m_arpTimeKnob->setModel( &m_a->arpTimeModel() );
+	m_arpGateKnob->setModel( &m_a->arpGateModel() );
+	m_arpDirectionComboBox->setModel( &m_a->arpDirectionModel() );
+	m_arpModeComboBox->setModel( &m_a->arpModeModel() );
 }
 
 

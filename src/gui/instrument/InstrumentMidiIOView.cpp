@@ -166,17 +166,17 @@ void InstrumentMidiIOView::modelChanged()
 {
 	auto mp = castModel<MidiPort>();
 
-	m_midiInputGroupBox->setModel( &mp->m_readableModel );
+	m_midiInputGroupBox->setModel( &mp->readableModel() );
 	m_inputChannelSpinBox->setModel( &mp->inputChannelModel() );
-	m_fixedInputVelocitySpinBox->setModel( &mp->m_fixedInputVelocityModel );
+	m_fixedInputVelocitySpinBox->setModel( &mp->fixedInputVelocityModel() );
 
-	m_midiOutputGroupBox->setModel( &mp->m_writableModel );
-	m_outputChannelSpinBox->setModel( &mp->m_outputChannelModel );
-	m_fixedOutputVelocitySpinBox->setModel( &mp->m_fixedOutputVelocityModel );
-	m_fixedOutputNoteSpinBox->setModel( &mp->m_fixedOutputNoteModel );
-	m_outputProgramSpinBox->setModel( &mp->m_outputProgramModel );
+	m_midiOutputGroupBox->setModel( &mp->writableModel() );
+	m_outputChannelSpinBox->setModel( &mp->outputChannelModel() );
+	m_fixedOutputVelocitySpinBox->setModel( &mp->fixedOutputVelocityModel() );
+	m_fixedOutputNoteSpinBox->setModel( &mp->fixedOutputNoteModel() );
+	m_outputProgramSpinBox->setModel( &mp->outputProgramModel() );
 
-	m_baseVelocitySpinBox->setModel( &mp->m_baseVelocityModel );
+	m_baseVelocitySpinBox->setModel( &mp->baseVelocityModel() );
 
 	if( m_rpBtn )
 	{

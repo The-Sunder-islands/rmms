@@ -205,14 +205,16 @@ public slots:
 	void clear();
 	void clearInvisible();
 
+	QVector<float>& samplesVector() { return m_samples; }
+	const QVector<float>& samplesVector() const { return m_samples; }
+	void drawSampleAt( int x, float val );
+
 signals:
 	void lengthChanged();
 	void samplesChanged( int startPos, int endPos );
 	void rangeChanged();
 
 private:
-	void drawSampleAt( int x, float val );
-
 	QVector<float> m_samples;
 	int m_length;
 	float m_minValue;

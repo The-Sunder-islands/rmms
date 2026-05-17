@@ -55,7 +55,7 @@ GranularPitchShifterEffect::GranularPitchShifterEffect(Model* parent, const Desc
 	m_granularpitchshifterControls(this),
 	m_prefilter({PrefilterLowpass(), PrefilterLowpass()})
 {
-	autoQuitModel()->setValue(autoQuitModel()->maxValue());
+	autoQuitModel().setValue(autoQuitModel().maxValue());
 	
 	changeSampleRate();
 }

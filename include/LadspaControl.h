@@ -59,6 +59,7 @@ public:
 	void setValue( LADSPA_Data _value );
 	void setLink( bool _state );
 	bool link() const { return m_link; }
+	bool& link() { return m_link; }
 
 	void linkControls( LadspaControl * _control );
 	void unlinkControls( LadspaControl * _control );

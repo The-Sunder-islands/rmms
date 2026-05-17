@@ -120,15 +120,12 @@ public:
 		return isEnabled() && isAwake() && isOkay() && !dontRun();
 	}
 
-	inline TempoSyncKnobModel* autoQuitModel()
-	{
-		return &m_autoQuitModel;
-	}
-
 	BoolModel& enabledModel() { return m_enabledModel; }
 	const BoolModel& enabledModel() const { return m_enabledModel; }
 	FloatModel& wetDryModel() { return m_wetDryModel; }
 	const FloatModel& wetDryModel() const { return m_wetDryModel; }
+	TempoSyncKnobModel& autoQuitModel() { return m_autoQuitModel; }
+	const TempoSyncKnobModel& autoQuitModel() const { return m_autoQuitModel; }
 
 	bool autoQuitEnabled() const
 	{

@@ -210,10 +210,12 @@ public slots:
 protected:
 	AutomationClip( const AutomationClip & _clip_to_copy );
 
-private:
-	void cleanObjects();
+public:
 	void generateTangents();
 	void generateTangents(timeMap::iterator it, int numToGenerate);
+
+private:
+	void cleanObjects();
 	float valueAt( timeMap::const_iterator v, int offset ) const;
 
 	/**

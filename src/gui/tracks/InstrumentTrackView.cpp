@@ -98,18 +98,18 @@ InstrumentTrackView::InstrumentTrackView( InstrumentTrack * _it, TrackContainerV
 	// sequenced MIDI?
 	if( !Engine::audioEngine()->midiClient()->isRaw() )
 	{
-		_it->m_midiPort.m_readablePortsMenu = new MidiPortMenu(
+		_it->midiPort()->m_readablePortsMenu = new MidiPortMenu(
 							MidiPort::Mode::Input );
-		_it->m_midiPort.m_writablePortsMenu = new MidiPortMenu(
+		_it->midiPort()->m_writablePortsMenu = new MidiPortMenu(
 							MidiPort::Mode::Output );
-		_it->m_midiPort.m_readablePortsMenu->setModel(
-							&_it->m_midiPort );
-		_it->m_midiPort.m_writablePortsMenu->setModel(
-							&_it->m_midiPort );
+		_it->midiPort()->m_readablePortsMenu->setModel(
+							_it->midiPort() );
+		_it->midiPort()->m_writablePortsMenu->setModel(
+							_it->midiPort() );
 		m_midiInputAction = m_midiMenu->addMenu(
-					_it->m_midiPort.m_readablePortsMenu );
+					_it->midiPort()->m_readablePortsMenu );
 		m_midiOutputAction = m_midiMenu->addMenu(
-					_it->m_midiPort.m_writablePortsMenu );
+					_it->midiPort()->m_writablePortsMenu );
 	}
 	else
 	{
@@ -121,7 +121,7 @@ InstrumentTrackView::InstrumentTrackView( InstrumentTrack * _it, TrackContainerV
 						SLOT(midiInSelected()));
 		connect( m_midiOutputAction, SIGNAL(changed()), this,
 					SLOT(midiOutSelected()));
-		connect( &_it->m_midiPort, SIGNAL(modeChanged()),
+		connect( _it->midiPort(), SIGNAL(modeChanged()),
 				this, SLOT(midiConfigChanged()));
 	}
 
@@ -176,8 +176,8 @@ InstrumentTrackView::~InstrumentTrackView()
 	delete m_window;
 	m_window = nullptr;
 
-	delete model()->m_midiPort.m_readablePortsMenu;
-	delete model()->m_midiPort.m_writablePortsMenu;
+	delete model()->midiPort()->m_readablePortsMenu;
+	delete model()->midiPort()->m_writablePortsMenu;
 }
 
 
@@ -275,7 +275,7 @@ void InstrumentTrackView::modelChanged()
 {
 	TrackView::modelChanged();
 	auto st = castModel<InstrumentTrack>();
-	m_mixerChannelNumber->setModel(&st->m_mixerChannelModel);
+	m_mixerChannelNumber->setModel(st->mixerChannelModel());
 }
 
 void InstrumentTrackView::dragEnterEvent( QDragEnterEvent * _dee )
@@ -336,7 +336,7 @@ void InstrumentTrackView::midiInSelected()
 {
 	if( model() )
 	{
-		model()->m_midiPort.setReadable( m_midiInputAction->isChecked() );
+		model()->midiPort()->setReadable( m_midiInputAction->isChecked() );
 	}
 }
 
@@ -347,7 +347,7 @@ void InstrumentTrackView::midiOutSelected()
 {
 	if( model() )
 	{
-		model()->m_midiPort.setWritable( m_midiOutputAction->isChecked() );
+		model()->midiPort()->setWritable( m_midiOutputAction->isChecked() );
 	}
 }
 
@@ -356,8 +356,8 @@ void InstrumentTrackView::midiOutSelected()
 
 void InstrumentTrackView::midiConfigChanged()
 {
-	m_midiInputAction->setChecked( model()->m_midiPort.isReadable() );
-	m_midiOutputAction->setChecked( model()->m_midiPort.isWritable() );
+	m_midiInputAction->setChecked( model()->midiPort()->isReadable() );
+	m_midiOutputAction->setChecked( model()->midiPort()->isWritable() );
 }
 
 
