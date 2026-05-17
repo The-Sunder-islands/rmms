@@ -24,6 +24,7 @@
  
 #include "PatternTrackView.h"
 
+#include "embed.h"
 #include "Engine.h"
 #include "GuiApplication.h"
 #include "MainWindow.h"

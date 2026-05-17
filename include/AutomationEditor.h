@@ -32,6 +32,7 @@
 #include "AutomationClip.h"
 #include "ComboBoxModel.h"
 #include "Editor.h"
+#include "embed.h"
 #include "JournallingObject.h"
 #include "SampleClip.h"
 #include "TimePos.h"

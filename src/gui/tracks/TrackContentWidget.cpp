@@ -33,6 +33,7 @@
 #include "Clipboard.h"
 #include "DataFile.h"
 #include "DeprecationHelper.h"
+#include "embed.h"
 #include "Engine.h"
 #include "GuiApplication.h"
 #include "PatternEditor.h"

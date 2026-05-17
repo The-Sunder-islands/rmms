@@ -24,6 +24,8 @@
 
 #include "PatternClipView.h"
 
+#include "embed.h"
+
 #include <QApplication>
 #include <QMenu>
 #include <QPainter>

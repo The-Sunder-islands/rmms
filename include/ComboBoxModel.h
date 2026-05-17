@@ -30,7 +30,7 @@
 #include <vector>
 
 #include "AutomatableModel.h"
-#include "embed.h"
+#include "PixmapLoader.h"
 
 namespace lmms
 {
@@ -47,6 +47,7 @@ public:
 	{
 		setJournalling(false);
 	}
+
 
 	void addItem( QString item, std::unique_ptr<PixmapLoader> loader = nullptr );
 

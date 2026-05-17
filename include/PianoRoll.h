@@ -33,6 +33,7 @@
 
 #include "Editor.h"
 #include "ComboBoxModel.h"
+#include "embed.h"
 #include "SerializingObject.h"
 #include "Note.h"
 #include "LmmsTypes.h"

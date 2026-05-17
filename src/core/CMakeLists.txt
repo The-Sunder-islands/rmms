@@ -57,6 +57,7 @@ set(LMMS_SRCS
 	core/PeakController.cpp
 	core/PerfLog.cpp
 	core/Piano.cpp
+	core/PixmapLoader.cpp
 	core/PlayHandle.cpp
 	core/Plugin.cpp
 	core/PluginIssue.cpp
