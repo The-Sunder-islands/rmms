@@ -192,6 +192,26 @@ GuiApplication::GuiApplication()
 	m_automationEditor = new AutomationEditorWindow;
 	connect(m_automationEditor, SIGNAL(destroyed(QObject*)), this, SLOT(childDestroyed(QObject*)));
 
+	// Connect Song signals for GUI coordination
+	auto* song = Engine::getSong();
+	connect(song, &Song::projectCleared, this, [this]() {
+		m_songEditor->m_editor->clearAllTracks();
+		m_patternEditor->m_editor->clearAllTracks();
+		m_pianoRoll->reset();
+		m_automationEditor->m_editor->update();
+		m_mixerView->clear();
+	});
+	connect(song, &Song::mixerStateRestored, m_mixerView,
+		&MixerView::refreshDisplay);
+	connect(song, &Song::guiStateNode, this,
+		[this](const QDomElement& element) {
+			m_songEditor->m_editor->loadSettings(element);
+		});
+	connect(song, &Song::guiStateSaveRequired, this,
+		[this](QDomDocument& doc, QDomElement& element) {
+			m_songEditor->m_editor->saveSettings(doc, element);
+		});
+
 	splashScreen.finish(m_mainWindow);
 	m_mainWindow->finalize();
 
