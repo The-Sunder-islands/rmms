@@ -41,14 +41,7 @@ class MidiClient;
 class MidiEvent;
 class MidiEventProcessor;
 
-namespace gui
-{
 
-class MidiPortMenu;
-class ControllerConnectionDialog;
-class InstrumentMidiIOView;
-
-}
 
 
 // class for abstraction of MIDI-port
@@ -137,9 +130,6 @@ public:
 	}
 
 	void invalidateCilent();
-
-	gui::MidiPortMenu* m_readablePortsMenu;
-	gui::MidiPortMenu* m_writablePortsMenu;
 
 	IntModel& inputChannelModel() { return m_inputChannelModel; }
 	const IntModel& inputChannelModel() const { return m_inputChannelModel; }

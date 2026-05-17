@@ -29,10 +29,13 @@
 
 #include "InstrumentTrack.h"
 
+#include <QMap>
+
 
 namespace lmms::gui
 {
 
+class MidiPortMenu;
 
 class InstrumentTrackWindow;
 class Knob;
@@ -62,6 +65,12 @@ public:
 	}
 
 	static InstrumentTrackWindow * topLevelInstrumentTrackWindow();
+
+	static MidiPortMenu* readablePortsMenu(const InstrumentTrack* track);
+	static MidiPortMenu* writablePortsMenu(const InstrumentTrack* track);
+	static void setReadablePortsMenu(const InstrumentTrack* track, MidiPortMenu* menu);
+	static void setWritablePortsMenu(const InstrumentTrack* track, MidiPortMenu* menu);
+	static void removeMenus(const InstrumentTrack* track);
 
 	QMenu * midiMenu()
 	{

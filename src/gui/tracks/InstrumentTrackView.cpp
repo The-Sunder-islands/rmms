@@ -98,18 +98,16 @@ InstrumentTrackView::InstrumentTrackView( InstrumentTrack * _it, TrackContainerV
 	// sequenced MIDI?
 	if( !Engine::audioEngine()->midiClient()->isRaw() )
 	{
-		_it->midiPort()->m_readablePortsMenu = new MidiPortMenu(
-							MidiPort::Mode::Input );
-		_it->midiPort()->m_writablePortsMenu = new MidiPortMenu(
-							MidiPort::Mode::Output );
-		_it->midiPort()->m_readablePortsMenu->setModel(
-							_it->midiPort() );
-		_it->midiPort()->m_writablePortsMenu->setModel(
-							_it->midiPort() );
-		m_midiInputAction = m_midiMenu->addMenu(
-					_it->midiPort()->m_readablePortsMenu );
-		m_midiOutputAction = m_midiMenu->addMenu(
-					_it->midiPort()->m_writablePortsMenu );
+		{
+			auto rpMenu = new MidiPortMenu(MidiPort::Mode::Input);
+			auto wpMenu = new MidiPortMenu(MidiPort::Mode::Output);
+			setReadablePortsMenu(_it, rpMenu);
+			setWritablePortsMenu(_it, wpMenu);
+			rpMenu->setModel(_it->midiPort());
+			wpMenu->setModel(_it->midiPort());
+			m_midiInputAction = m_midiMenu->addMenu(rpMenu);
+			m_midiOutputAction = m_midiMenu->addMenu(wpMenu);
+		}
 	}
 	else
 	{
@@ -176,8 +174,7 @@ InstrumentTrackView::~InstrumentTrackView()
 	delete m_window;
 	m_window = nullptr;
 
-	delete model()->midiPort()->m_readablePortsMenu;
-	delete model()->midiPort()->m_writablePortsMenu;
+	removeMenus(model());
 }
 
 
@@ -418,6 +415,49 @@ QPixmap InstrumentTrackView::determinePixmap(InstrumentTrack* instrumentTrack)
 	}
 
 	return embed::getIconPixmap("instrument_track");
+}
+
+
+namespace
+{
+using MenuMap = QMap<const lmms::InstrumentTrack*, lmms::gui::MidiPortMenu*>;
+MenuMap& readableMenus()
+{
+	static MenuMap m;
+	return m;
+}
+MenuMap& writableMenus()
+{
+	static MenuMap m;
+	return m;
+}
+} // namespace
+
+
+MidiPortMenu* InstrumentTrackView::readablePortsMenu(const InstrumentTrack* track)
+{
+	return readableMenus().value(track);
+}
+
+MidiPortMenu* InstrumentTrackView::writablePortsMenu(const InstrumentTrack* track)
+{
+	return writableMenus().value(track);
+}
+
+void InstrumentTrackView::setReadablePortsMenu(const InstrumentTrack* track, MidiPortMenu* menu)
+{
+	readableMenus()[track] = menu;
+}
+
+void InstrumentTrackView::setWritablePortsMenu(const InstrumentTrack* track, MidiPortMenu* menu)
+{
+	writableMenus()[track] = menu;
+}
+
+void InstrumentTrackView::removeMenus(const InstrumentTrack* track)
+{
+	delete readableMenus().take(track);
+	delete writableMenus().take(track);
 }
 
 

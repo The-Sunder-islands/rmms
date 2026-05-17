@@ -27,6 +27,7 @@
 #include <QVBoxLayout>
 
 #include "InstrumentMidiIOView.h"
+#include "InstrumentTrackView.h"
 #include "MidiPortMenu.h"
 #include "AudioEngine.h"
 #include "Engine.h"
@@ -178,13 +179,14 @@ void InstrumentMidiIOView::modelChanged()
 
 	m_baseVelocitySpinBox->setModel( &mp->baseVelocityModel() );
 
-	if( m_rpBtn )
+	auto track = qobject_cast<InstrumentTrack*>(mp->parent());
+	if( m_rpBtn && track )
 	{
-		m_rpBtn->setMenu( mp->m_readablePortsMenu );
+		m_rpBtn->setMenu( InstrumentTrackView::readablePortsMenu( track ) );
 	}
-	if( m_wpBtn )
+	if( m_wpBtn && track )
 	{
-		m_wpBtn->setMenu( mp->m_writablePortsMenu );
+		m_wpBtn->setMenu( InstrumentTrackView::writablePortsMenu( track ) );
 	}
 }
 
