@@ -12,6 +12,7 @@ SET(LMMS_SRCS
 	gui/AudioSoundIoSetupWidget.cpp
 	gui/AutomatableModelView.cpp
 	gui/ControlLayout.cpp
+	gui/CreateView.cpp
 	gui/ControllerDialog.cpp
 	gui/ControllerRackView.cpp
 	gui/ControllerView.cpp

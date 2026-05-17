@@ -27,7 +27,7 @@
 #include <QDomElement>
  
 #include "Engine.h"
-#include "PatternClipView.h"
+
 #include "PatternStore.h"
 #include "PatternTrack.h"
 #include "TrackView.h"
@@ -110,11 +110,6 @@ int PatternClip::patternIndex()
 }
 
 
-
-QWidget* PatternClip::createView(QWidget* tv)
-{
-	return new gui::PatternClipView(this, static_cast<gui::TrackView*>(tv));
-}
 
 
 } // namespace lmms

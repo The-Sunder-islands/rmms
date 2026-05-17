@@ -31,8 +31,6 @@
 #include "ConfigManager.h"
 #include "EffectChain.h"
 #include "EffectControls.h"
-#include "EffectView.h"
-#include "SampleFrame.h"
 
 namespace lmms
 {
@@ -198,10 +196,5 @@ void Effect::handleAutoQuit(bool silentOutput)
 
 
 
-
-QWidget * Effect::instantiateView( QWidget * _parent )
-{
-	return new gui::EffectView( this, _parent );
-}
 
 } // namespace lmms

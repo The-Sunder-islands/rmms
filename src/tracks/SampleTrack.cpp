@@ -35,10 +35,7 @@
 #include "SampleClip.h"
 #include "SamplePlayHandle.h"
 #include "SampleRecordHandle.h"
-#include "SampleTrackView.h"
 #include "Song.h"
-#include "TrackContainerView.h"
-#include "volume.h"
 
 
 namespace lmms
@@ -168,11 +165,6 @@ bool SampleTrack::play( const TimePos & _start, const f_cnt_t _frames,
 
 
 
-
-QWidget * SampleTrack::createView( QWidget* tcv )
-{
-	return new gui::SampleTrackView( this, static_cast<gui::TrackContainerView*>( tcv ) );
-}
 
 
 

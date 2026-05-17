@@ -28,10 +28,8 @@
 #include <QFileInfo>
 
 #include "PathUtil.h"
-#include "SampleClipView.h"
 #include "SampleTrack.h"
 #include "Song.h"
-#include "TrackView.h"
 
 namespace lmms
 {
@@ -343,11 +341,6 @@ void SampleClip::loadSettings( const QDomElement & _this )
 
 
 
-
-QWidget * SampleClip::createView( QWidget * _tv )
-{
-	return new gui::SampleClipView( this, static_cast<gui::TrackView*>( _tv ) );
-}
 
 
 } // namespace lmms

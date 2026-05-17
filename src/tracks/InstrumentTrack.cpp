@@ -29,7 +29,6 @@
 #include "ControllerConnection.h"
 #include "DataFile.h"
 #include "Mixer.h"
-#include "InstrumentTrackView.h"
 #include "Instrument.h"
 #include "Keymap.h"
 #include "MidiClient.h"
@@ -39,8 +38,6 @@
 #include "PatternTrack.h"
 #include "Pitch.h"
 #include "Song.h"
-#include "TrackContainerView.h"
-
 namespace lmms
 {
 
@@ -818,11 +815,6 @@ Clip* InstrumentTrack::createClip(const TimePos & pos)
 
 
 
-
-QWidget* InstrumentTrack::createView( QWidget* tcv )
-{
-	return new gui::InstrumentTrackView( this, static_cast<gui::TrackContainerView*>( tcv ) );
-}
 
 
 

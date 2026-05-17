@@ -29,10 +29,8 @@
 #include "Engine.h"
 #include "PatternClip.h"
 #include "PatternStore.h"
-#include "PatternTrackView.h"
-#include "PlayHandle.h"
-#include "TrackContainerView.h"
 
+#include "PlayHandle.h"
 
 namespace lmms
 {
@@ -136,11 +134,6 @@ bool PatternTrack::play( const TimePos & _start, const f_cnt_t _frames,
 
 
 
-
-QWidget* PatternTrack::createView(QWidget* tcv)
-{
-	return new gui::PatternTrackView(this, static_cast<gui::TrackContainerView*>( tcv ));
-}
 
 
 

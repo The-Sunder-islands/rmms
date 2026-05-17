@@ -27,7 +27,7 @@
 #include "AutomationClip.h"
 
 #include "AutomationNode.h"
-#include "AutomationClipView.h"
+
 #include "AutomationTrack.h"
 #include "KeyboardShortcuts.h"
 #include "LocaleHelper.h"
@@ -919,13 +919,6 @@ QString AutomationClip::name() const
 
 
 
-
-QWidget * AutomationClip::createView( QWidget * _tv )
-{
-	QMutexLocker m(&m_clipMutex);
-
-	return new gui::AutomationClipView( this, static_cast<gui::TrackView*>( _tv ) );
-}
 
 
 

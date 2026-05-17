@@ -29,11 +29,8 @@
 #include <QDomElement>
 
 #include "InstrumentTrack.h"
-#include "MidiClipView.h"
 #include "PatternStore.h"
 #include "Song.h"
-#include "TrackView.h"
-
 namespace lmms
 {
 
@@ -621,11 +618,6 @@ void MidiClip::removeSteps()
 
 
 
-
-QWidget * MidiClip::createView( QWidget * _tv )
-{
-	return new gui::MidiClipView( this, static_cast<gui::TrackView*>( _tv ) );
-}
 
 
 

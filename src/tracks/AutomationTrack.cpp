@@ -26,8 +26,7 @@
 
 #include "AutomationTrack.h"
 
-#include "AutomationTrackView.h"
-#include "TrackContainerView.h"
+
 #include "AutomationClip.h"
 
 namespace lmms
@@ -48,11 +47,6 @@ bool AutomationTrack::play( const TimePos & time_start, const f_cnt_t _frames,
 
 
 
-
-QWidget* AutomationTrack::createView( QWidget* tcv )
-{
-	return new gui::AutomationTrackView( this, static_cast<gui::TrackContainerView*>( tcv ) );
-}
 
 
 

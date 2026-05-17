@@ -260,12 +260,6 @@ void Plugin::collectErrorForUI( QString errMsg )
 
 
 
-QWidget * Plugin::createView( QWidget * parent )
-{
-	if (!isGuiMode()) { return nullptr; }
-	return instantiateView( parent );
-}
-
 
 
 
