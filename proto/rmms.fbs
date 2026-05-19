@@ -1,0 +1,1267 @@
+// =============================================================================
+// RMMS Protocol Schema — FlatBuffers IDL
+// Version: 0.1.0 (Phase 0 draft)
+//
+// This is the single source of truth for all RMMS agent communication.
+// Changes to this file require regenerating bindings and notifying all agents.
+//
+// Method naming convention: "{domain}.{action}"  (e.g. "transport.play")
+// =============================================================================
+
+namespace rmms;
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 1: Core Enums
+// ═════════════════════════════════════════════════════════════════════════════
+
+// --- Message envelope type ---
+enum MsgType : uint8 {
+    REQUEST  = 0,
+    RESPONSE = 1,
+    EVENT    = 2,
+}
+
+// --- Plugin categories ---
+enum PluginCategory : uint8 {
+    EMBED   = 0,
+    THREAD  = 1,
+    PROCESS = 2,
+}
+
+// --- Track types ---
+enum TrackType : uint8 {
+    INSTRUMENT = 0,
+    AUDIO      = 1,
+    HYBRID     = 2,
+    CHORD      = 3,
+    ARRANGER   = 4,
+    MARKER     = 5,
+    TEMPO      = 6,
+    GROUP      = 7,
+}
+
+// --- Clip types ---
+enum ClipType : uint8 {
+    MIDI       = 0,
+    AUDIO      = 1,
+    AUTOMATION = 2,
+    HYBRID     = 3,
+}
+
+// --- Transport state ---
+enum TransportState : uint8 {
+    STOPPED = 0,
+    PLAYING = 1,
+    PAUSED  = 2,
+}
+
+// --- Chord types ---
+enum ChordType : uint8 {
+    MAJOR     = 0,
+    MINOR     = 1,
+    DIM       = 2,
+    AUG       = 3,
+    DOM7      = 4,
+    MIN7      = 5,
+    MAJ7      = 6,
+    DIM7      = 7,
+    HALF_DIM7 = 8,
+    MIN_MAJ7  = 9,
+    SUS2      = 10,
+    SUS4      = 11,
+    DOM9      = 12,
+    MAJ9      = 13,
+    MIN9      = 14,
+}
+
+// --- Marker types ---
+enum MarkerType : uint8 {
+    POINT      = 0,
+    LOOP_START = 1,
+    LOOP_END   = 2,
+    REGION     = 3,
+}
+
+// --- AI capability implementation status ---
+enum CapabilityStatus : uint8 {
+    IMPLEMENTED     = 0,
+    NOT_IMPLEMENTED = 1,
+}
+
+// --- AI Step status (progress events) ---
+enum StepStatus : uint8 {
+    RUNNING   = 0,
+    COMPLETED = 1,
+    FAILED    = 2,
+}
+
+// --- AI Task status ---
+enum TaskStatus : uint8 {
+    QUEUED        = 0,
+    PROCESSING    = 1,
+    DONE          = 2,
+    PARTIAL_ERROR = 3,
+    ERROR         = 4,
+    CANCELLED     = 5,
+}
+
+// --- Plugin status ---
+enum PluginStatus : uint8 {
+    READY    = 0,
+    LOADING  = 1,
+    CRASHED  = 2,
+    DISABLED = 3,
+}
+
+// --- Parameter type (for dynamic UI generation) ---
+enum ParamType : uint8 {
+    INT        = 0,
+    FLOAT      = 1,
+    STRING     = 2,
+    ENUM       = 3,
+    BOOL       = 4,
+    MULTI_ENUM = 5,
+}
+
+// --- AI Device type ---
+enum DeviceType : uint8 {
+    NPU  = 0,
+    CUDA = 1,
+    CPU  = 2,
+    MPS  = 3,
+}
+
+// NOTE: output_format and output_package are kept as strings (not enums)
+// because Protocol B (AI Server REST API) uses string identifiers ("wav", "flac",
+// "mp3", "separate", "zip"). The ai_client translation layer passes them through.
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 2: Common / Shared Tables
+// ═════════════════════════════════════════════════════════════════════════════
+
+table StatusResponse {
+    success:      bool;
+    error_code:   string;     // empty on success
+    error_message:string;     // empty on success
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 3: Core Data Structures
+// ═════════════════════════════════════════════════════════════════════════════
+
+table Project {
+    name:        string;
+    file_path:   string;       // empty if unsaved
+    bpm:         float32;
+    time_sig_num:uint32;
+    time_sig_den:uint32;
+    sample_rate: uint32;
+    modified:    bool;
+}
+
+table Track {
+    id:          string;       // UUID
+    name:        string;
+    type:        TrackType;
+    volume:      float32;
+    pan:         float32;
+    mute:        bool;
+    solo:        bool;
+    arm:         bool;
+    color:       uint32;       // RGBA
+    plugin_id:   string;       // InstrumentTrack: plugin UUID
+    audio_url:   string;       // AudioTrack: file path or URL
+    child_ids:   [string];     // GroupTrack: child track UUIDs
+}
+
+table Clip {
+    id:          string;
+    track_id:    string;
+    type:        ClipType;
+    start_tick:  uint64;
+    length_ticks:uint64;
+    loop_start:  uint64;       // 0 = no loop
+    loop_end:    uint64;
+}
+
+table Note {
+    id:          string;
+    clip_id:     string;
+    key:         uint8;        // 0-127 MIDI note
+    start_tick:  uint64;
+    length_ticks:uint64;
+    velocity:    uint8;        // 0-127
+    pan:         uint8;        // 0-127, 64 = center
+}
+
+table AutomationPoint {
+    tick:        uint64;
+    value:       float32;
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 4: Specialized Track / Clip Structures
+// ═════════════════════════════════════════════════════════════════════════════
+
+// --- Hybrid Track (based on ripx_rip format) ---
+table HarmonicEntry {
+    harmonic_index: uint8;
+    frequency:      float32;
+    amplitude:      float32;
+    phase:          float32;
+    panning:        float32;
+}
+
+table NoteDescriptor {
+    note_index:   uint32;
+    channel:      uint8;
+    start_frame:  uint32;
+    end_frame:    uint32;
+    frequency:    float32;
+    amplitude:    float32;
+    phase:        float32;
+    panning:      float32;
+    instrument:   uint8;
+    harmonics:    [HarmonicEntry];
+}
+
+table HybridClip {
+    clip:               Clip;      // composition: base clip fields
+    waveform_url:       string;
+    notes:              [NoteDescriptor];
+    freq_trajectories:  [float32];  // N×M matrix, transmitted via shared memory
+    amp_trajectories:   [float32];
+    pan_trajectories:   [float32];
+}
+
+// --- Chord Track ---
+table ChordEvent {
+    id:        string;     // UUID
+    tick:      uint64;
+    root:      uint8;      // 0-11 (=C-B)
+    type:      ChordType;
+    duration:  uint64;     // in ticks
+}
+
+// --- Arranger Track ---
+table ArrangerSection {
+    id:           string;  // UUID
+    name:         string;
+    start_tick:   uint64;
+    length_ticks: uint64;
+    color:        uint32;
+    repeat_count: uint32;  // 0 = no repeat
+}
+
+// --- Marker Track ---
+table Marker {
+    id:   string;          // UUID
+    name: string;
+    tick: uint64;
+    type: MarkerType;
+}
+
+// --- Tempo Track ---
+table TempoPoint {
+    id:   string;          // UUID
+    tick: uint64;
+    bpm:  float32;
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 5: Transport Request/Response
+// ═════════════════════════════════════════════════════════════════════════════
+
+// Method: "transport.play"
+table TransportPlayRequest {}
+table TransportPlayResponse {
+    status:   StatusResponse;
+    position: uint64;
+}
+
+// Method: "transport.stop"
+table TransportStopRequest {}
+table TransportStopResponse {
+    status: StatusResponse;
+}
+
+// Method: "transport.pause"
+table TransportPauseRequest {}
+table TransportPauseResponse {
+    status: StatusResponse;
+}
+
+// Method: "transport.set_position"
+table TransportSetPositionRequest {
+    tick: uint64;
+}
+table TransportSetPositionResponse {
+    status: StatusResponse;
+}
+
+// Method: "transport.get_position"
+table TransportGetPositionRequest {}
+table TransportGetPositionResponse {
+    tick: uint64;
+}
+
+// Method: "transport.set_tempo"
+table TransportSetTempoRequest {
+    bpm: float32;
+}
+table TransportSetTempoResponse {
+    status: StatusResponse;
+}
+
+// Method: "transport.set_time_sig"
+table TransportSetTimeSigRequest {
+    numerator:   uint32;
+    denominator: uint32;
+}
+table TransportSetTimeSigResponse {
+    status: StatusResponse;
+}
+
+// Method: "transport.set_loop"
+table TransportSetLoopRequest {
+    start_tick: uint64;
+    end_tick:   uint64;
+}
+table TransportSetLoopResponse {
+    status: StatusResponse;
+}
+
+// Method: "transport.get_state"
+table TransportGetStateRequest {}
+table TransportGetStateResponse {
+    state:    TransportState;
+    position: uint64;
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 6: Track Request/Response
+// ═════════════════════════════════════════════════════════════════════════════
+
+// Method: "track.add"
+table TrackAddRequest {
+    type: TrackType;
+    name: string;
+}
+table TrackAddResponse {
+    status:   StatusResponse;
+    track_id: string;       // empty on failure
+}
+
+// Method: "track.remove"
+table TrackRemoveRequest {
+    track_id: string;
+}
+table TrackRemoveResponse {
+    status: StatusResponse;
+}
+
+// Method: "track.list"
+table TrackListRequest {}
+table TrackListResponse {
+    tracks: [Track];
+}
+
+// Method: "track.get"
+table TrackGetRequest {
+    track_id: string;
+}
+table TrackGetResponse {
+    status: StatusResponse;
+    track:  Track;
+}
+
+// Method: "track.set_name"
+table TrackSetNameRequest {
+    track_id: string;
+    name:     string;
+}
+table TrackSetNameResponse {
+    status: StatusResponse;
+}
+
+// Method: "track.set_volume"
+table TrackSetVolumeRequest {
+    track_id: string;
+    volume:   float32;
+}
+table TrackSetVolumeResponse {
+    status: StatusResponse;
+}
+
+// Method: "track.set_pan"
+table TrackSetPanRequest {
+    track_id: string;
+    pan:      float32;
+}
+table TrackSetPanResponse {
+    status: StatusResponse;
+}
+
+// Method: "track.set_mute"
+table TrackSetMuteRequest {
+    track_id: string;
+    mute:     bool;
+}
+table TrackSetMuteResponse {
+    status: StatusResponse;
+}
+
+// Method: "track.set_solo"
+table TrackSetSoloRequest {
+    track_id: string;
+    solo:     bool;
+}
+table TrackSetSoloResponse {
+    status: StatusResponse;
+}
+
+// Method: "track.set_arm"
+table TrackSetArmRequest {
+    track_id: string;
+    arm:      bool;
+}
+table TrackSetArmResponse {
+    status: StatusResponse;
+}
+
+// Method: "track.set_color"
+table TrackSetColorRequest {
+    track_id: string;
+    color:    uint32;
+}
+table TrackSetColorResponse {
+    status: StatusResponse;
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 7: Clip Request/Response
+// ═════════════════════════════════════════════════════════════════════════════
+
+// Method: "clip.add"
+table ClipAddRequest {
+    track_id:     string;
+    type:         ClipType;
+    start_tick:   uint64;
+    length_ticks: uint64;
+}
+table ClipAddResponse {
+    status:  StatusResponse;
+    clip_id: string;
+}
+
+// Method: "clip.remove"
+table ClipRemoveRequest {
+    clip_id: string;
+}
+table ClipRemoveResponse {
+    status: StatusResponse;
+}
+
+// Method: "clip.move"
+table ClipMoveRequest {
+    clip_id:    string;
+    track_id:   string;
+    start_tick: uint64;
+}
+table ClipMoveResponse {
+    status: StatusResponse;
+}
+
+// Method: "clip.resize"
+table ClipResizeRequest {
+    clip_id:      string;
+    length_ticks: uint64;
+}
+table ClipResizeResponse {
+    status: StatusResponse;
+}
+
+// Method: "clip.set_loop"
+table ClipSetLoopRequest {
+    clip_id:    string;
+    loop_start: uint64;
+    loop_end:   uint64;
+}
+table ClipSetLoopResponse {
+    status: StatusResponse;
+}
+
+// Method: "clip.split"
+table ClipSplitRequest {
+    clip_id:    string;
+    split_tick: uint64;
+}
+table ClipSplitResponse {
+    status:    StatusResponse;
+    new_clip_id:string;     // ID of the new (right-side) clip
+}
+
+// Method: "clip.list"
+table ClipListRequest {
+    track_id: string;
+}
+table ClipListResponse {
+    clips: [Clip];
+}
+
+// Method: "clip.get"
+table ClipGetRequest {
+    clip_id: string;
+}
+table ClipGetResponse {
+    status: StatusResponse;
+    clip:   Clip;
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 8: Note / MIDI Request/Response
+// ═════════════════════════════════════════════════════════════════════════════
+
+// Method: "note.add"
+table NoteAddRequest {
+    clip_id:     string;
+    key:         uint8;
+    start_tick:  uint64;
+    length_ticks:uint64;
+    velocity:    uint8;
+    pan:         uint8;
+}
+table NoteAddResponse {
+    status:  StatusResponse;
+    note_id: string;
+}
+
+// Method: "note.remove"
+table NoteRemoveRequest {
+    note_id: string;
+}
+table NoteRemoveResponse {
+    status: StatusResponse;
+}
+
+// Method: "note.move"
+table NoteMoveRequest {
+    note_id:    string;
+    key:        uint8;
+    start_tick: uint64;
+}
+table NoteMoveResponse {
+    status: StatusResponse;
+}
+
+// Method: "note.set_length"
+table NoteSetLengthRequest {
+    note_id:      string;
+    length_ticks: uint64;
+}
+table NoteSetLengthResponse {
+    status: StatusResponse;
+}
+
+// Method: "note.set_velocity"
+table NoteSetVelocityRequest {
+    note_id:  string;
+    velocity: uint8;
+}
+table NoteSetVelocityResponse {
+    status: StatusResponse;
+}
+
+// Method: "note.list"
+table NoteListRequest {
+    clip_id: string;
+}
+table NoteListResponse {
+    notes: [Note];
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 9: Mixer Request/Response
+// ═════════════════════════════════════════════════════════════════════════════
+
+table MixerChannel {
+    id:      string;
+    name:    string;
+    volume:  float32;
+    pan:     float32;
+    mute:    bool;
+    solo:    bool;
+    effects: [string];     // plugin IDs on this channel
+}
+
+// Method: "mixer.list_channels"
+table MixerListChannelsRequest {}
+table MixerListChannelsResponse {
+    channels: [MixerChannel];
+}
+
+// Method: "mixer.add_channel"
+table MixerAddChannelRequest {
+    name: string;
+}
+table MixerAddChannelResponse {
+    status:     StatusResponse;
+    channel_id: string;
+}
+
+// Method: "mixer.remove_channel"
+table MixerRemoveChannelRequest {
+    channel_id: string;
+}
+table MixerRemoveChannelResponse {
+    status: StatusResponse;
+}
+
+// Method: "mixer.set_volume"
+table MixerSetVolumeRequest {
+    channel_id: string;
+    volume:     float32;
+}
+table MixerSetVolumeResponse {
+    status: StatusResponse;
+}
+
+// Method: "mixer.set_pan"
+table MixerSetPanRequest {
+    channel_id: string;
+    pan:        float32;
+}
+table MixerSetPanResponse {
+    status: StatusResponse;
+}
+
+// Method: "mixer.set_route"
+table MixerSetRouteRequest {
+    src_channel_id: string;
+    dst_channel_id: string;
+    gain:           float32;
+}
+table MixerSetRouteResponse {
+    status: StatusResponse;
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 10: Project Request/Response
+// ═════════════════════════════════════════════════════════════════════════════
+
+// Method: "project.new"
+table ProjectNewRequest {}
+table ProjectNewResponse {
+    status:  StatusResponse;
+    project: Project;
+}
+
+// Method: "project.open"
+table ProjectOpenRequest {
+    file_path: string;
+}
+table ProjectOpenResponse {
+    status:  StatusResponse;
+    project: Project;
+}
+
+// Method: "project.save"
+table ProjectSaveRequest {
+    file_path: string;      // empty = use current path
+}
+table ProjectSaveResponse {
+    status: StatusResponse;
+}
+
+// Method: "project.save_as"
+table ProjectSaveAsRequest {
+    file_path: string;
+}
+table ProjectSaveAsResponse {
+    status: StatusResponse;
+}
+
+// Method: "project.close"
+table ProjectCloseRequest {}
+table ProjectCloseResponse {
+    status:   StatusResponse;
+    modified: bool;
+}
+
+// Method: "project.get_state"
+table ProjectGetStateRequest {}
+table ProjectGetStateResponse {
+    project:  Project;
+    tracks:   [Track];
+    modified: bool;
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 11: Plugin Request/Response
+// ═════════════════════════════════════════════════════════════════════════════
+
+table PluginDescriptor {
+    id:                string;
+    category:          PluginCategory;
+    path:              string;      // .so path or executable path
+    entry:             string;      // function name (EMBED) or argv (PROCESS)
+    has_params:        bool;
+    param_schema:      [ParamDef];
+    has_audio_in:      bool;
+    has_audio_out:     bool;
+    has_midi_in:       bool;
+    has_midi_out:      bool;
+    max_latency_samples: uint32;
+    name:              string;
+    vendor:            string;
+    version:           string;
+}
+
+// Method: "plugin.list"
+table PluginListRequest {}
+table PluginListResponse {
+    plugins: [PluginDescriptor];
+}
+
+// Method: "plugin.get_descriptor"
+table PluginGetDescriptorRequest {
+    plugin_id: string;
+}
+table PluginGetDescriptorResponse {
+    status:     StatusResponse;
+    descriptor: PluginDescriptor;
+}
+
+// Method: "plugin.set_param"
+table PluginSetParamRequest {
+    plugin_id: string;
+    key:       string;
+    value:     string;      // JSON-encoded value
+}
+table PluginSetParamResponse {
+    status: StatusResponse;
+}
+
+// Method: "plugin.get_params"
+table PluginGetParamsRequest {
+    plugin_id: string;
+}
+table PluginGetParamsResponse {
+    status: StatusResponse;
+    params: string;         // JSON-encoded key-value map
+}
+
+// Method: "plugin.enable"
+table PluginEnableRequest {
+    plugin_id: string;
+    enabled:   bool;
+}
+table PluginEnableResponse {
+    status: StatusResponse;
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 12: Hybrid Track Request/Response
+// ═════════════════════════════════════════════════════════════════════════════
+
+// Method: "hybrid.get_clip"
+table HybridGetClipRequest {
+    clip_id: string;
+}
+table HybridGetClipResponse {
+    status: StatusResponse;
+    clip:   HybridClip;
+}
+
+// Method: "hybrid.update_notes"
+table HybridUpdateNotesRequest {
+    clip_id: string;
+    notes:   [NoteDescriptor];
+}
+table HybridUpdateNotesResponse {
+    status: StatusResponse;
+}
+
+// Method: "hybrid.update_trajectories"
+table HybridUpdateTrajectoriesRequest {
+    clip_id:            string;
+    freq_trajectories:  [float32];
+    amp_trajectories:   [float32];
+    pan_trajectories:   [float32];
+}
+table HybridUpdateTrajectoriesResponse {
+    status: StatusResponse;
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 13: Chord Track Request/Response
+// ═════════════════════════════════════════════════════════════════════════════
+
+// Method: "chord.add"
+table ChordAddRequest {
+    track_id: string;
+    tick:     uint64;
+    root:     uint8;
+    type:     ChordType;
+    duration: uint64;
+}
+table ChordAddResponse {
+    status:    StatusResponse;
+    chord_id:  string;
+}
+
+// Method: "chord.remove"
+table ChordRemoveRequest {
+    chord_id: string;
+}
+table ChordRemoveResponse {
+    status: StatusResponse;
+}
+
+// Method: "chord.list"
+table ChordListRequest {
+    track_id: string;
+}
+table ChordListResponse {
+    chords: [ChordEvent];
+}
+
+// Method: "chord.update"
+table ChordUpdateRequest {
+    chord_id: string;
+    tick:     uint64;
+    root:     uint8;
+    type:     ChordType;
+    duration: uint64;
+}
+table ChordUpdateResponse {
+    status: StatusResponse;
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 14: Arranger Track Request/Response
+// ═════════════════════════════════════════════════════════════════════════════
+
+// Method: "arranger.add_section"
+table ArrangerAddSectionRequest {
+    track_id:     string;
+    name:         string;
+    start_tick:   uint64;
+    length_ticks: uint64;
+    color:        uint32;
+    repeat_count: uint32;
+}
+table ArrangerAddSectionResponse {
+    status:     StatusResponse;
+    section_id: string;
+}
+
+// Method: "arranger.remove_section"
+table ArrangerRemoveSectionRequest {
+    section_id: string;
+}
+table ArrangerRemoveSectionResponse {
+    status: StatusResponse;
+}
+
+// Method: "arranger.list_sections"
+table ArrangerListSectionsRequest {
+    track_id: string;
+}
+table ArrangerListSectionsResponse {
+    sections: [ArrangerSection];
+}
+
+// Method: "arranger.update_section"
+table ArrangerUpdateSectionRequest {
+    section_id:   string;
+    name:         string;
+    start_tick:   uint64;
+    length_ticks: uint64;
+    color:        uint32;
+    repeat_count: uint32;
+}
+table ArrangerUpdateSectionResponse {
+    status: StatusResponse;
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 15: Marker Track Request/Response
+// ═════════════════════════════════════════════════════════════════════════════
+
+// Method: "marker.add"
+table MarkerAddRequest {
+    track_id: string;
+    name:     string;
+    tick:     uint64;
+    type:     MarkerType;
+}
+table MarkerAddResponse {
+    status:    StatusResponse;
+    marker_id: string;
+}
+
+// Method: "marker.remove"
+table MarkerRemoveRequest {
+    marker_id: string;
+}
+table MarkerRemoveResponse {
+    status: StatusResponse;
+}
+
+// Method: "marker.list"
+table MarkerListRequest {
+    track_id: string;
+}
+table MarkerListResponse {
+    markers: [Marker];
+}
+
+// Method: "marker.update"
+table MarkerUpdateRequest {
+    marker_id: string;
+    name:      string;
+    tick:      uint64;
+    type:      MarkerType;
+}
+table MarkerUpdateResponse {
+    status: StatusResponse;
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 16: Tempo Track Request/Response
+// ═════════════════════════════════════════════════════════════════════════════
+
+// Method: "tempo.add_point"
+table TempoAddPointRequest {
+    track_id: string;
+    tick:     uint64;
+    bpm:      float32;
+}
+table TempoAddPointResponse {
+    status:   StatusResponse;
+    point_id: string;
+}
+
+// Method: "tempo.remove_point"
+table TempoRemovePointRequest {
+    point_id: string;
+}
+table TempoRemovePointResponse {
+    status: StatusResponse;
+}
+
+// Method: "tempo.list_points"
+table TempoListPointsRequest {
+    track_id: string;
+}
+table TempoListPointsResponse {
+    points: [TempoPoint];
+}
+
+// Method: "tempo.update_point"
+table TempoUpdatePointRequest {
+    point_id: string;
+    tick:     uint64;
+    bpm:      float32;
+}
+table TempoUpdatePointResponse {
+    status: StatusResponse;
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 17: AI Types (mapped from Protocol B JSON schema)
+// ═════════════════════════════════════════════════════════════════════════════
+
+// --- ParamDef (drives dynamic UI generation) ---
+table EnumOption {
+    value: string;
+    label: string;
+}
+
+table ParamDef {
+    key:         string;
+    type:        ParamType;
+    label:       string;
+    description: string;
+    default_val: string;      // JSON-encoded default
+    min:         float32;     // only for INT/FLOAT
+    max:         float32;
+    step:        float32;     // only for INT/FLOAT
+    decimals:    uint8;       // only for FLOAT
+    placeholder: string;      // only for STRING
+    pattern:     string;      // only for STRING
+    options:     [EnumOption];// only for ENUM/MULTI_ENUM
+    group:       string;      // "basic" | "advanced" | "experimental"
+}
+
+// --- Device info (maps to /capabilities → devices[].units[]) ---
+table AIDeviceUnit {
+    device_index:    int32;
+    name:            string;
+    memory_total_mb: uint64;
+}
+
+table AIDevice {
+    device_type:  DeviceType;
+    available:    bool;
+    count:        int32;
+    install_hint: string;     // null = ""
+    units:        [AIDeviceUnit];
+}
+
+// --- Scheduler config ---
+table AIScheduler {
+    max_concurrent_tasks: uint32;
+    max_queue_size:       uint32;
+}
+
+// --- AI Capability ---
+table AICapability {
+    id:            string;
+    label:         string;
+    description:   string;
+    status:        CapabilityStatus;
+    models:        [string];
+    default_model: string;    // empty = null
+    param_defs:    [ParamDef];
+}
+
+// --- AI Capabilities response (maps to GET /api/v1/capabilities) ---
+table AICapabilities {
+    protocol_version: string;
+    server_version:   string;
+    capabilities:     [AICapability];
+    devices:          [AIDevice];
+    scheduler:        AIScheduler;
+    output_formats:   [string];
+    output_packages:  [string];
+    max_upload_bytes: uint64;
+}
+
+// --- Pipeline step input ---
+table AIStepInput {
+    from_step: int32;
+    stem:      string;     // empty = full output
+}
+
+// --- Pipeline step ---
+table AIStep {
+    type:         string;    // "split" | "midi" | "generate" | "detect"
+    model:        string;
+    input:        AIStepInput;
+    params:       string;    // JSON-encoded key-value
+    model_params: string;    // JSON-encoded, passed through to model
+}
+
+// --- Pipeline ---
+table AIPipeline {
+    steps: [AIStep];
+}
+
+// --- AI Request/Response methods ---
+
+// Method: "ai.get_capabilities"
+table AIGetCapabilitiesRequest {}
+table AIGetCapabilitiesResponse {
+    status:       StatusResponse;
+    capabilities: AICapabilities;
+}
+
+// Method: "ai.submit_pipeline"
+table AISubmitPipelineRequest {
+    input_url:       string;
+    pipeline:        AIPipeline;
+    device_pref:     string;   // "npu" | "cuda" | "cpu"
+    device_index:    int32;    // -1 = auto
+    priority:        int32;    // 1-10, default 5
+    output_format:   string;   // Protocol B string: "wav" | "flac" | "mp3"
+    output_package:  string;   // Protocol B string: "separate" | "zip"
+    force_refresh:   bool;
+}
+table AISubmitPipelineResponse {
+    status:     StatusResponse;
+    task_id:    string;
+    cached:     bool;
+    task_status:TaskStatus;
+}
+
+// Method: "ai.get_task_status"
+table AIGetTaskStatusRequest {
+    task_id: string;
+}
+table AIGetTaskStatusResponse {
+    status:          StatusResponse;
+    task_id:         string;
+    task_status:     TaskStatus;
+    current_step:    int32;
+    step_type:       string;
+    percent:         int32;
+    completed_steps: [int32];
+    failed_steps:    [int32];
+    completed_urls:  [string];   // JSON-encoded StepResult array
+    errors:          [string];   // JSON-encoded StepError array
+}
+
+// Method: "ai.cancel_task"
+table AICancelTaskRequest {
+    task_id: string;
+}
+table AICancelTaskResponse {
+    status: StatusResponse;
+}
+
+// Method: "ai.list_tasks"
+table AIListTasksRequest {
+    status_filter: string;    // "" = all
+    limit:         int32;
+    offset:        int32;
+}
+table AIListTasksResponse {
+    status: StatusResponse;
+    tasks:  [string];         // JSON-encoded TaskSummary array
+    total:  int32;
+}
+
+// --- AI SSE → FlatBuffers event translation ---
+
+// Event: "ai.partial_result"
+// Maps to SSE partial_result event (one per output stem)
+table AIEventPartialResult {
+    task_id:    string;
+    step_index: int32;
+    step_type:  string;
+    stem:       string;
+    track_type: string;      // "audio" | "midi" | "hybrid"
+    label:      string;
+    url:        string;
+    format:     string;      // "wav" | "flac" | "mp3" | "mid"
+    sample_rate:int32;
+    duration:   float64;
+    size_bytes: int64;
+}
+
+// Event: "ai.progress"
+// Maps to SSE progress event
+table AIEventProgress {
+    task_id:    string;
+    step_index: int32;
+    step_type:  string;
+    status:     StepStatus;
+    percent:    int32;
+    urls:       [string];
+    error_code: string;
+    error_msg:  string;
+}
+
+// Event: "ai.final_result"
+// Maps to SSE final_result event
+table AIEventFinalResult {
+    task_id:    string;
+    status:     TaskStatus;   // DONE | PARTIAL_ERROR | ERROR | CANCELLED
+    urls:       [string];     // JSON-encoded StepResult array
+    errors:     [string];     // JSON-encoded StepError array
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 18: Event Tables (Backend → Frontend push)
+// ═════════════════════════════════════════════════════════════════════════════
+
+// Event: "transport.position_changed"  (~60 Hz via RingBuf)
+table EventPositionChanged {
+    tick: uint64;
+}
+
+// Event: "transport.state_changed"
+table EventStateChanged {
+    state: TransportState;
+}
+
+// Event: "meter.level_changed"  (~30 Hz via RingBuf)
+table EventMeterLevel {
+    channel_id: string;
+    levels:     [float32];   // per-channel level in dB
+}
+
+// Event: "project.modified"
+table EventProjectModified {
+    modified: bool;
+}
+
+// Event: "track.added"
+table EventTrackAdded {
+    track: Track;
+}
+
+// Event: "track.removed"
+table EventTrackRemoved {
+    track_id: string;
+}
+
+// Event: "track.updated"
+table EventTrackUpdated {
+    track: Track;
+}
+
+// Event: "clip.added"
+table EventClipAdded {
+    clip: Clip;
+}
+
+// Event: "clip.removed"
+table EventClipRemoved {
+    clip_id: string;
+}
+
+// Event: "clip.updated"
+table EventClipUpdated {
+    clip: Clip;
+}
+
+// Event: "note.added"
+table EventNoteAdded {
+    note: Note;
+}
+
+// Event: "note.removed"
+table EventNoteRemoved {
+    note_id: string;
+}
+
+// Event: "note.updated"
+table EventNoteUpdated {
+    note: Note;
+}
+
+// Event: "plugin.status_changed"
+table EventPluginStatusChanged {
+    plugin_id: string;
+    status:    PluginStatus;
+}
+
+// Event: "project.saved"
+table EventProjectSaved {
+    file_path: string;
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 19: Message Envelope (Root Type)
+// ═════════════════════════════════════════════════════════════════════════════
+
+// The envelope is the top-level container for all messages.
+// payload contains a serialized FlatBuffers table determined by `method`.
+//
+// For Requests:  payload = serialized *Request table
+// For Responses: payload = serialized *Response table
+// For Events:    payload = serialized Event* table
+//
+// v1 uses [ubyte] for simplicity; v2 will upgrade to a union type.
+
+table Envelope {
+    msg_type: MsgType;
+    seq_id:   uint32;
+    method:   string;       // e.g. "transport.play", "track.add", "ai.submit_pipeline"
+    payload:  [ubyte];      // serialized FlatBuffers body
+}
+
+root_type Envelope;

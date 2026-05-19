@@ -14,3 +14,12 @@
 Brewfile.lock.json
 /.cache/
 compile_commands.json
+
+# Project-internal planning (agents must not access)
+.prompts/
+
+# AI Server reference copy (local only)
+rmms-ai-server-copy/
+
+# ripx/rip reference (local only)
+ripx_rip_ref/
