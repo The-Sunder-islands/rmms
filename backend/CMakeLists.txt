@@ -74,6 +74,15 @@ set(PROTOCOL_HEADERS
     src/protocol/server.h
 )
 
+# ── Mock engine ──────────────────────────────────────────────────────────────
+set(MOCK_SOURCES
+    src/mock/mock_engine.cpp
+)
+
+set(MOCK_HEADERS
+    src/mock/mock_engine.h
+)
+
 # ── Backend library ──────────────────────────────────────────────────────────
 set(CORE_SOURCES
     src/core/project_state.cpp
@@ -106,6 +115,8 @@ add_library(rmms_backend STATIC
     ${CORE_SOURCES}
     ${CORE_HEADERS}
     ${HANDLER_SOURCES}
+    ${MOCK_SOURCES}
+    ${MOCK_HEADERS}
 )
 
 target_include_directories(rmms_backend PUBLIC
@@ -125,6 +136,6 @@ target_compile_options(rmms_backend PRIVATE
     -Wall -Wextra -Wpedantic
 )
 
-# ── Headless main executable (future: mock backend links here) ───────────────
-# add_executable(rmms_backend_main src/main.cpp)
-# target_link_libraries(rmms_backend_main PRIVATE rmms_backend)
+# ── Mock backend executable ──────────────────────────────────────────────────
+add_executable(rmms_mock_backend main.cpp)
+target_link_libraries(rmms_mock_backend PRIVATE rmms_backend)

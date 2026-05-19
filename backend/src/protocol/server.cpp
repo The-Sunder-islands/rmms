@@ -45,12 +45,7 @@ void ProtocolServer::stop() {
 void ProtocolServer::push_event(std::string_view event_name,
                                 const uint8_t* payload, size_t payload_size)
 {
-    if (!is_running()) return;
-
-    bool has_subscribers = m_subscriptions &&
-        !m_subscriptions->subscribers(event_name).empty();
-
-    if (!has_subscribers) return;
+    if (!is_running() || !m_socket.is_connected()) return;
 
     send_event(event_name, payload, payload_size);
 }
