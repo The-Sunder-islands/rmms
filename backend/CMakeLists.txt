@@ -75,11 +75,37 @@ set(PROTOCOL_HEADERS
 )
 
 # ── Backend library ──────────────────────────────────────────────────────────
+set(CORE_SOURCES
+    src/core/project_state.cpp
+)
+
+set(CORE_HEADERS
+    src/core/project_state.h
+)
+
+set(HANDLER_SOURCES
+    src/handlers/transport_handler.cpp
+    src/handlers/track_handler.cpp
+    src/handlers/clip_handler.cpp
+    src/handlers/note_handler.cpp
+    src/handlers/mixer_handler.cpp
+    src/handlers/project_handler.cpp
+    src/handlers/plugin_handler.cpp
+    src/handlers/hybrid_handler.cpp
+    src/handlers/chord_handler.cpp
+    src/handlers/arranger_handler.cpp
+    src/handlers/marker_handler.cpp
+    src/handlers/tempo_handler.cpp
+)
+
 add_library(rmms_backend STATIC
     ${TRANSPORT_SOURCES}
     ${TRANSPORT_HEADERS}
     ${PROTOCOL_SOURCES}
     ${PROTOCOL_HEADERS}
+    ${CORE_SOURCES}
+    ${CORE_HEADERS}
+    ${HANDLER_SOURCES}
 )
 
 target_include_directories(rmms_backend PUBLIC

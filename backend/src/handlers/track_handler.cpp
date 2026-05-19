@@ -1,0 +1,118 @@
+#include "protocol/handler.h"
+#include "core/project_state.h"
+#include "rmms_generated.h"
+#include <flatbuffers/flatbuffers.h>
+#include <memory>
+
+using State = std::shared_ptr<rmms::backend::core::ProjectState>;
+namespace c = rmms::backend::core;
+
+static flatbuffers::Offset<rmms::StatusResponse> ok(flatbuffers::FlatBufferBuilder& fbb) {
+    return rmms::CreateStatusResponse(fbb, true);
+}
+
+static flatbuffers::Offset<rmms::StatusResponse> err(flatbuffers::FlatBufferBuilder& fbb,
+                                                     const char* code, const char* msg) {
+    return rmms::CreateStatusResponse(fbb, false,
+        fbb.CreateString(code), fbb.CreateString(msg));
+}
+
+void register_track_handlers(
+    rmms::backend::protocol::HandlerRegistry& r, State s)
+{
+    r.register_handler("track.add", [s](auto& req, auto& resp) {
+        auto* r = flatbuffers::GetRoot<rmms::TrackAddRequest>(req.payload()->data());
+        if (!r) { resp.Finish(rmms::CreateTrackAddResponse(resp, err(resp, "BAD_REQ", "invalid"))); return; }
+        auto id = s->track_add(r->type(), r->name()->string_view());
+        auto sid = resp.CreateString(id);
+        resp.Finish(rmms::CreateTrackAddResponse(resp, ok(resp), sid));
+    });
+
+    r.register_handler("track.remove", [s](auto& req, auto& resp) {
+        auto* r = flatbuffers::GetRoot<rmms::TrackRemoveRequest>(req.payload()->data());
+        bool ok = r && s->track_remove(r->track_id()->string_view());
+        resp.Finish(rmms::CreateTrackRemoveResponse(resp,
+            ok ? ::ok(resp) : err(resp, "NOT_FOUND", "track not found")));
+    });
+
+    r.register_handler("track.list", [s](auto&, auto& resp) {
+        auto tracks = s->track_list();
+        std::vector<flatbuffers::Offset<rmms::Track>> offsets;
+        for (auto* t : tracks)
+            offsets.push_back(c::build_track(resp, *t));
+        auto vec = resp.CreateVector(offsets);
+        resp.Finish(rmms::CreateTrackListResponse(resp, vec));
+    });
+
+    r.register_handler("track.get", [s](auto& req, auto& resp) {
+        auto* r = flatbuffers::GetRoot<rmms::TrackGetRequest>(req.payload()->data());
+        auto* t = r ? s->track_get(r->track_id()->string_view()) : nullptr;
+        auto track_off = t ? c::build_track(resp, *t) : flatbuffers::Offset<rmms::Track>();
+        resp.Finish(rmms::CreateTrackGetResponse(resp,
+            t ? ok(resp) : err(resp, "NOT_FOUND", "track not found"), track_off));
+    });
+
+    r.register_handler("track.set_name", [s](auto& req, auto& resp) {
+        auto* r = flatbuffers::GetRoot<rmms::TrackSetNameRequest>(req.payload()->data());
+        bool ok = r && s->track_get(r->track_id()->string_view()) &&
+                  (s->track_get(r->track_id()->string_view())->name = r->name()->str(), true);
+        resp.Finish(rmms::CreateTrackSetNameResponse(resp,
+            ok ? ::ok(resp) : err(resp, "NOT_FOUND", "track not found")));
+    });
+
+    auto set_float = [s](auto& req, auto& resp, auto setter) {
+        auto* r = flatbuffers::GetRoot<rmms::TrackSetVolumeRequest>(req.payload()->data());
+        bool ok = r && s->track_get(r->track_id()->string_view());
+        if (ok) setter(s->track_get(r->track_id()->string_view()), r->volume());
+        using R = rmms::TrackSetVolumeResponse;
+        resp.Finish(R(resp, ok ? ::ok(resp) : err(resp, "NOT_FOUND", "track not found")));
+    };
+
+    r.register_handler("track.set_volume", [s](auto& req, auto& resp) {
+        auto* r = flatbuffers::GetRoot<rmms::TrackSetVolumeRequest>(req.payload()->data());
+        bool ok = r && s->track_get(r->track_id()->string_view());
+        if (ok) s->track_get(r->track_id()->string_view())->volume = r->volume();
+        resp.Finish(rmms::CreateTrackSetVolumeResponse(resp,
+            ok ? ::ok(resp) : err(resp, "NOT_FOUND", "track not found")));
+    });
+
+    r.register_handler("track.set_pan", [s](auto& req, auto& resp) {
+        auto* r = flatbuffers::GetRoot<rmms::TrackSetPanRequest>(req.payload()->data());
+        bool ok = r && s->track_get(r->track_id()->string_view());
+        if (ok) s->track_get(r->track_id()->string_view())->pan = r->pan();
+        resp.Finish(rmms::CreateTrackSetPanResponse(resp,
+            ok ? ::ok(resp) : err(resp, "NOT_FOUND", "track not found")));
+    });
+
+    r.register_handler("track.set_mute", [s](auto& req, auto& resp) {
+        auto* r = flatbuffers::GetRoot<rmms::TrackSetMuteRequest>(req.payload()->data());
+        bool ok = r && s->track_get(r->track_id()->string_view());
+        if (ok) s->track_get(r->track_id()->string_view())->mute = r->mute();
+        resp.Finish(rmms::CreateTrackSetMuteResponse(resp,
+            ok ? ::ok(resp) : err(resp, "NOT_FOUND", "track not found")));
+    });
+
+    r.register_handler("track.set_solo", [s](auto& req, auto& resp) {
+        auto* r = flatbuffers::GetRoot<rmms::TrackSetSoloRequest>(req.payload()->data());
+        bool ok = r && s->track_get(r->track_id()->string_view());
+        if (ok) s->track_get(r->track_id()->string_view())->solo = r->solo();
+        resp.Finish(rmms::CreateTrackSetSoloResponse(resp,
+            ok ? ::ok(resp) : err(resp, "NOT_FOUND", "track not found")));
+    });
+
+    r.register_handler("track.set_arm", [s](auto& req, auto& resp) {
+        auto* r = flatbuffers::GetRoot<rmms::TrackSetArmRequest>(req.payload()->data());
+        bool ok = r && s->track_get(r->track_id()->string_view());
+        if (ok) s->track_get(r->track_id()->string_view())->arm = r->arm();
+        resp.Finish(rmms::CreateTrackSetArmResponse(resp,
+            ok ? ::ok(resp) : err(resp, "NOT_FOUND", "track not found")));
+    });
+
+    r.register_handler("track.set_color", [s](auto& req, auto& resp) {
+        auto* r = flatbuffers::GetRoot<rmms::TrackSetColorRequest>(req.payload()->data());
+        bool ok = r && s->track_get(r->track_id()->string_view());
+        if (ok) s->track_get(r->track_id()->string_view())->color = r->color();
+        resp.Finish(rmms::CreateTrackSetColorResponse(resp,
+            ok ? ::ok(resp) : err(resp, "NOT_FOUND", "track not found")));
+    });
+}
