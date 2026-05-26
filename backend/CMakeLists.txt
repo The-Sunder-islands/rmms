@@ -6,8 +6,16 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# ── FlatBuffers ──────────────────────────────────────────────────────────────
-# flatc location: set -DFLATC_EXECUTABLE=/path/to/flatc or auto-find
+# ── Project root (one level above backend/) ───────────────────────────────
+get_filename_component(PROJECT_ROOT "${CMAKE_CURRENT_SOURCE_DIR}" DIRECTORY)
+
+# ── FlatBuffers headers (vendored in third_party/) ─────────────────────────
+set(VENDORED_FLATBUF_INCLUDE "${PROJECT_ROOT}/third_party/flatbuffers/include")
+set(FLATBUFFERS_INCLUDE_DIR "${VENDORED_FLATBUF_INCLUDE}" CACHE PATH
+    "FlatBuffers header path" FORCE)
+message(STATUS "FlatBuffers include: ${FLATBUFFERS_INCLUDE_DIR}")
+
+# ── flatc: find or auto-download ──────────────────────────────────────────
 if(NOT FLATC_EXECUTABLE)
     find_program(FLATC_EXECUTABLE flatc
         PATHS /tmp/flatbuffers
@@ -16,15 +24,39 @@ if(NOT FLATC_EXECUTABLE)
 endif()
 
 if(NOT FLATC_EXECUTABLE)
-    message(FATAL_ERROR "flatc not found. Set -DFLATC_EXECUTABLE=/path/to/flatc")
+    message(STATUS "flatc not found, downloading...")
+    set(FLATC_VERSION "25.2.10")
+    set(FLATC_DIR "${CMAKE_CURRENT_BINARY_DIR}/flatc-${FLATC_VERSION}")
+    set(FLATC_ZIP "${CMAKE_CURRENT_BINARY_DIR}/flatc-${FLATC_VERSION}.zip")
+
+    file(DOWNLOAD
+        "https://github.com/google/flatbuffers/releases/download/v${FLATC_VERSION}/Linux.flatc.binary.clang++-18.zip"
+        "${FLATC_ZIP}"
+        STATUS FLATC_DL_STATUS
+        SHOW_PROGRESS
+    )
+
+    list(GET FLATC_DL_STATUS 0 FLATC_DL_CODE)
+    if(FLATC_DL_CODE EQUAL 0)
+        file(ARCHIVE_EXTRACT INPUT "${FLATC_ZIP}" DESTINATION "${FLATC_DIR}")
+        set(FLATC_EXECUTABLE "${FLATC_DIR}/flatc" CACHE FILEPATH "flatc binary" FORCE)
+        file(REMOVE "${FLATC_ZIP}")
+    endif()
+endif()
+
+if(NOT FLATC_EXECUTABLE OR NOT EXISTS "${FLATC_EXECUTABLE}")
+    message(FATAL_ERROR
+        "flatc not found and auto-download failed. "
+        "Set -DFLATC_EXECUTABLE=/path/to/flatc manually."
+    )
 endif()
 
 message(STATUS "Using flatc: ${FLATC_EXECUTABLE}")
 
-set(FBS_SCHEMA "${CMAKE_SOURCE_DIR}/../proto/rmms.fbs")
+# ── Codegen: rmms.fbs → C++ headers ───────────────────────────────────────
+set(FBS_SCHEMA "${PROJECT_ROOT}/proto/rmms.fbs")
 set(GEN_DIR "${CMAKE_CURRENT_BINARY_DIR}/flatbuffers")
 
-# Generate C++ headers from rmms.fbs
 add_custom_command(
     OUTPUT "${GEN_DIR}/rmms_generated.h"
     COMMAND ${FLATC_EXECUTABLE} --cpp -o "${GEN_DIR}" "${FBS_SCHEMA}"
@@ -37,19 +69,7 @@ add_custom_target(flatbuffers_generated
     DEPENDS "${GEN_DIR}/rmms_generated.h"
 )
 
-# FlatBuffers runtime (header-only library shipped with flatc)
-find_path(FLATBUFFERS_INCLUDE_DIR
-    NAMES flatbuffers/flatbuffers.h
-    PATHS /usr/include /usr/local/include
-)
-
-if(NOT FLATBUFFERS_INCLUDE_DIR)
-    message(FATAL_ERROR "flatbuffers headers not found. Install flatbuffers-dev or flatbuffers package.")
-endif()
-
-message(STATUS "FlatBuffers include: ${FLATBUFFERS_INCLUDE_DIR}")
-
-# ── Transport sources ────────────────────────────────────────────────────────
+# ── Source file lists ───────────────────────────────────────────────────────
 set(TRANSPORT_SOURCES
     src/transport/unix_socket.cpp
     src/transport/shared_mem.cpp
@@ -61,7 +81,6 @@ set(TRANSPORT_HEADERS
     src/transport/ring_buffer.h
 )
 
-# ── Protocol sources ─────────────────────────────────────────────────────────
 set(PROTOCOL_SOURCES
     src/protocol/handler.cpp
     src/protocol/subscription.cpp
@@ -74,7 +93,6 @@ set(PROTOCOL_HEADERS
     src/protocol/server.h
 )
 
-# ── Mock engine ──────────────────────────────────────────────────────────────
 set(MOCK_SOURCES
     src/mock/mock_engine.cpp
 )
@@ -83,7 +101,6 @@ set(MOCK_HEADERS
     src/mock/mock_engine.h
 )
 
-# ── Backend library ──────────────────────────────────────────────────────────
 set(CORE_SOURCES
     src/core/project_state.cpp
 )
@@ -107,6 +124,7 @@ set(HANDLER_SOURCES
     src/handlers/tempo_handler.cpp
 )
 
+# ── Backend library ─────────────────────────────────────────────────────────
 add_library(rmms_backend STATIC
     ${TRANSPORT_SOURCES}
     ${TRANSPORT_HEADERS}
@@ -136,6 +154,6 @@ target_compile_options(rmms_backend PRIVATE
     -Wall -Wextra -Wpedantic
 )
 
-# ── Mock backend executable ──────────────────────────────────────────────────
+# ── Mock backend executable ─────────────────────────────────────────────────
 add_executable(rmms_mock_backend main.cpp)
 target_link_libraries(rmms_mock_backend PRIVATE rmms_backend)
