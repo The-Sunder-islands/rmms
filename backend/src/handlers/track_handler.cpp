@@ -20,7 +20,7 @@ static flatbuffers::Offset<rmms::StatusResponse> err(flatbuffers::FlatBufferBuil
 void register_track_handlers(
     rmms::backend::protocol::HandlerRegistry& r, State s)
 {
-    r.register_handler("track.add", [s](auto& req, auto& resp) {
+    r.register_handler("track.add", [s](uint32_t, auto& req, auto& resp) {
         auto* r = flatbuffers::GetRoot<rmms::TrackAddRequest>(req.payload()->data());
         if (!r) { resp.Finish(rmms::CreateTrackAddResponse(resp, err(resp, "BAD_REQ", "invalid"))); return; }
         auto id = s->track_add(r->type(), r->name()->string_view());
@@ -28,14 +28,14 @@ void register_track_handlers(
         resp.Finish(rmms::CreateTrackAddResponse(resp, ok(resp), sid));
     });
 
-    r.register_handler("track.remove", [s](auto& req, auto& resp) {
+    r.register_handler("track.remove", [s](uint32_t, auto& req, auto& resp) {
         auto* r = flatbuffers::GetRoot<rmms::TrackRemoveRequest>(req.payload()->data());
         bool ok = r && s->track_remove(r->track_id()->string_view());
         resp.Finish(rmms::CreateTrackRemoveResponse(resp,
             ok ? ::ok(resp) : err(resp, "NOT_FOUND", "track not found")));
     });
 
-    r.register_handler("track.list", [s](auto&, auto& resp) {
+    r.register_handler("track.list", [s](uint32_t, auto&, auto& resp) {
         auto tracks = s->track_list();
         std::vector<flatbuffers::Offset<rmms::Track>> offsets;
         for (auto* t : tracks)
@@ -44,7 +44,7 @@ void register_track_handlers(
         resp.Finish(rmms::CreateTrackListResponse(resp, vec));
     });
 
-    r.register_handler("track.get", [s](auto& req, auto& resp) {
+    r.register_handler("track.get", [s](uint32_t, auto& req, auto& resp) {
         auto* r = flatbuffers::GetRoot<rmms::TrackGetRequest>(req.payload()->data());
         auto* t = r ? s->track_get(r->track_id()->string_view()) : nullptr;
         auto track_off = t ? c::build_track(resp, *t) : flatbuffers::Offset<rmms::Track>();
@@ -52,7 +52,7 @@ void register_track_handlers(
             t ? ok(resp) : err(resp, "NOT_FOUND", "track not found"), track_off));
     });
 
-    r.register_handler("track.set_name", [s](auto& req, auto& resp) {
+    r.register_handler("track.set_name", [s](uint32_t, auto& req, auto& resp) {
         auto* r = flatbuffers::GetRoot<rmms::TrackSetNameRequest>(req.payload()->data());
         bool ok = r && s->track_get(r->track_id()->string_view()) &&
                   (s->track_get(r->track_id()->string_view())->name = r->name()->str(), true);
@@ -68,7 +68,7 @@ void register_track_handlers(
         resp.Finish(R(resp, ok ? ::ok(resp) : err(resp, "NOT_FOUND", "track not found")));
     };
 
-    r.register_handler("track.set_volume", [s](auto& req, auto& resp) {
+    r.register_handler("track.set_volume", [s](uint32_t, auto& req, auto& resp) {
         auto* r = flatbuffers::GetRoot<rmms::TrackSetVolumeRequest>(req.payload()->data());
         bool ok = r && s->track_get(r->track_id()->string_view());
         if (ok) s->track_get(r->track_id()->string_view())->volume = r->volume();
@@ -76,7 +76,7 @@ void register_track_handlers(
             ok ? ::ok(resp) : err(resp, "NOT_FOUND", "track not found")));
     });
 
-    r.register_handler("track.set_pan", [s](auto& req, auto& resp) {
+    r.register_handler("track.set_pan", [s](uint32_t, auto& req, auto& resp) {
         auto* r = flatbuffers::GetRoot<rmms::TrackSetPanRequest>(req.payload()->data());
         bool ok = r && s->track_get(r->track_id()->string_view());
         if (ok) s->track_get(r->track_id()->string_view())->pan = r->pan();
@@ -84,7 +84,7 @@ void register_track_handlers(
             ok ? ::ok(resp) : err(resp, "NOT_FOUND", "track not found")));
     });
 
-    r.register_handler("track.set_mute", [s](auto& req, auto& resp) {
+    r.register_handler("track.set_mute", [s](uint32_t, auto& req, auto& resp) {
         auto* r = flatbuffers::GetRoot<rmms::TrackSetMuteRequest>(req.payload()->data());
         bool ok = r && s->track_get(r->track_id()->string_view());
         if (ok) s->track_get(r->track_id()->string_view())->mute = r->mute();
@@ -92,7 +92,7 @@ void register_track_handlers(
             ok ? ::ok(resp) : err(resp, "NOT_FOUND", "track not found")));
     });
 
-    r.register_handler("track.set_solo", [s](auto& req, auto& resp) {
+    r.register_handler("track.set_solo", [s](uint32_t, auto& req, auto& resp) {
         auto* r = flatbuffers::GetRoot<rmms::TrackSetSoloRequest>(req.payload()->data());
         bool ok = r && s->track_get(r->track_id()->string_view());
         if (ok) s->track_get(r->track_id()->string_view())->solo = r->solo();
@@ -100,7 +100,7 @@ void register_track_handlers(
             ok ? ::ok(resp) : err(resp, "NOT_FOUND", "track not found")));
     });
 
-    r.register_handler("track.set_arm", [s](auto& req, auto& resp) {
+    r.register_handler("track.set_arm", [s](uint32_t, auto& req, auto& resp) {
         auto* r = flatbuffers::GetRoot<rmms::TrackSetArmRequest>(req.payload()->data());
         bool ok = r && s->track_get(r->track_id()->string_view());
         if (ok) s->track_get(r->track_id()->string_view())->arm = r->arm();
@@ -108,7 +108,7 @@ void register_track_handlers(
             ok ? ::ok(resp) : err(resp, "NOT_FOUND", "track not found")));
     });
 
-    r.register_handler("track.set_color", [s](auto& req, auto& resp) {
+    r.register_handler("track.set_color", [s](uint32_t, auto& req, auto& resp) {
         auto* r = flatbuffers::GetRoot<rmms::TrackSetColorRequest>(req.payload()->data());
         bool ok = r && s->track_get(r->track_id()->string_view());
         if (ok) s->track_get(r->track_id()->string_view())->color = r->color();

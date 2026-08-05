@@ -23,6 +23,9 @@ import rmms.PluginListResponse
 import rmms.ProjectGetStateRequest
 import rmms.ProjectGetStateResponse
 import rmms.TrackAddResponse
+import rmms.SubscriptionSubscribeRequest
+import rmms.SubscriptionSubscribeResponse
+import rmms.SubscriptionUnsubscribeRequest
 
 SOCKET = "/tmp/rmms.sock"
 
@@ -33,7 +36,12 @@ def recv_frame(sock):
     hdr = sock.recv(4)
     if not hdr: return None
     n = struct.unpack("<I", hdr)[0]
-    return sock.recv(n)
+    data = b""
+    while len(data) < n:
+        chunk = sock.recv(n - len(data))
+        if not chunk: return None
+        data += chunk
+    return data
 
 def req(method, payload):
     """Wrap payload bytes in an Envelope with REQUEST type."""
@@ -188,6 +196,96 @@ def main():
         if proj:
             print(f"   Project: {proj.Name().decode()} bpm={proj.Bpm()}")
         print(f"   Track count: {resp.TracksLength()}")
+
+    # 9. subscription.subscribe + event delivery
+    print("\n9. subscription.subscribe -> position_changed events")
+    b = flatbuffers.Builder(128)
+    ev1 = b.CreateString("transport.position_changed")
+    rmms.SubscriptionSubscribeRequest.SubscriptionSubscribeRequestStartEventsVector(b, 1)
+    b.PrependUOffsetTRelative(ev1)
+    evs = b.EndVector()
+    rmms.SubscriptionSubscribeRequest.SubscriptionSubscribeRequestStart(b)
+    rmms.SubscriptionSubscribeRequest.SubscriptionSubscribeRequestAddEvents(b, evs)
+    r = rmms.SubscriptionSubscribeRequest.SubscriptionSubscribeRequestEnd(b)
+    b.Finish(r)
+    call("subscription.subscribe", b.Output())
+
+    # After transport.play (already PLAYING from test 1), events should flow.
+    events_seen = []
+    sock.settimeout(1.0)
+    try:
+        for _ in range(10):
+            raw = recv_frame(sock)
+            if not raw: break
+            mt, seq, m, p = unpack(raw)
+            if mt == rmms.MsgType.MsgType.EVENT:
+                events_seen.append(m)
+                print(f"   EVENT: {m} ({len(raw)} bytes)")
+    except socket.timeout:
+        pass
+    sock.settimeout(5)
+    if events_seen:
+        print(f"   Received {len(events_seen)} events")
+    else:
+        print("   WARNING: no events received after subscribe")
+        return 1
+
+    # 10. unsubscribe stops event delivery
+    print("\n10. subscription.unsubscribe -> events stop")
+    b = flatbuffers.Builder(128)
+    ev1 = b.CreateString("transport.position_changed")
+    rmms.SubscriptionUnsubscribeRequest.SubscriptionUnsubscribeRequestStartEventsVector(b, 1)
+    b.PrependUOffsetTRelative(ev1)
+    evs = b.EndVector()
+    rmms.SubscriptionUnsubscribeRequest.SubscriptionUnsubscribeRequestStart(b)
+    rmms.SubscriptionUnsubscribeRequest.SubscriptionUnsubscribeRequestAddEvents(b, evs)
+    r = rmms.SubscriptionUnsubscribeRequest.SubscriptionUnsubscribeRequestEnd(b)
+    b.Finish(r)
+    call("subscription.unsubscribe", b.Output())
+
+    sock.settimeout(1.0)
+    # Drain any in-flight events that were already queued before unsubscribe.
+    try:
+        for _ in range(20):
+            raw = recv_frame(sock)
+            if not raw: break
+    except socket.timeout:
+        pass
+    got_event = False
+    try:
+        for _ in range(10):
+            raw = recv_frame(sock)
+            if not raw: break
+            mt, seq, m, p = unpack(raw)
+            if mt == rmms.MsgType.MsgType.EVENT:
+                got_event = True
+                print(f"   UNEXPECTED EVENT: {m}")
+    except socket.timeout:
+        pass
+    sock.settimeout(5)
+    if got_event:
+        print("   FAIL: still receiving events after unsubscribe")
+        return 1
+    print("   No events after unsubscribe (as expected)")
+
+    # 11. reconnect: server must survive disconnect + accept new clients
+    print("\n11. reconnect (server must stay alive)")
+    sock.close()
+    sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    sock.settimeout(5)
+    sock.connect(SOCKET)
+    print("   Reconnected")
+
+    b = flatbuffers.Builder(64)
+    rmms.TransportGetStateRequest.TransportGetStateRequestStart(b)
+    r = rmms.TransportGetStateRequest.TransportGetStateRequestEnd(b)
+    b.Finish(r)
+    raw = call("transport.get_state", b.Output())
+    if not raw:
+        print("   FAIL: no response after reconnect")
+        return 1
+    resp = rmms.TransportGetStateResponse.TransportGetStateResponse.GetRootAs(raw, 0)
+    print(f"   state={resp.State()} position={resp.Position()} (server alive)")
 
     sock.close()
     print("\nDone.")

@@ -16,7 +16,7 @@ static auto nf(flatbuffers::FlatBufferBuilder& fbb) {
 void register_note_handlers(
     rmms::backend::protocol::HandlerRegistry& r, State s)
 {
-    r.register_handler("note.add", [s](auto& req, auto& resp) {
+    r.register_handler("note.add", [s](uint32_t, auto& req, auto& resp) {
         auto* nr = flatbuffers::GetRoot<rmms::NoteAddRequest>(req.payload()->data());
         if (!nr) { resp.Finish(rmms::CreateNoteAddResponse(resp, ok(resp))); return; }
         auto id = s->note_add(nr->clip_id()->string_view(), nr->key(),
@@ -25,13 +25,13 @@ void register_note_handlers(
         resp.Finish(rmms::CreateNoteAddResponse(resp, ok(resp), resp.CreateString(id)));
     });
 
-    r.register_handler("note.remove", [s](auto& req, auto& resp) {
+    r.register_handler("note.remove", [s](uint32_t, auto& req, auto& resp) {
         auto* nr = flatbuffers::GetRoot<rmms::NoteRemoveRequest>(req.payload()->data());
         bool ok = nr && s->note_remove(nr->note_id()->string_view());
         resp.Finish(rmms::CreateNoteRemoveResponse(resp, ok ? ::ok(resp) : nf(resp)));
     });
 
-    r.register_handler("note.move", [s](auto& req, auto& resp) {
+    r.register_handler("note.move", [s](uint32_t, auto& req, auto& resp) {
         auto* nr = flatbuffers::GetRoot<rmms::NoteMoveRequest>(req.payload()->data());
         auto* n = nr ? s->note_get(nr->note_id()->string_view()) : nullptr;
         bool found = n;
@@ -39,21 +39,21 @@ void register_note_handlers(
         resp.Finish(rmms::CreateNoteMoveResponse(resp, found ? ok(resp) : nf(resp)));
     });
 
-    r.register_handler("note.set_length", [s](auto& req, auto& resp) {
+    r.register_handler("note.set_length", [s](uint32_t, auto& req, auto& resp) {
         auto* nr = flatbuffers::GetRoot<rmms::NoteSetLengthRequest>(req.payload()->data());
         auto* n = nr ? s->note_get(nr->note_id()->string_view()) : nullptr;
         if (n) n->length_ticks = nr->length_ticks();
         resp.Finish(rmms::CreateNoteSetLengthResponse(resp, n ? ok(resp) : nf(resp)));
     });
 
-    r.register_handler("note.set_velocity", [s](auto& req, auto& resp) {
+    r.register_handler("note.set_velocity", [s](uint32_t, auto& req, auto& resp) {
         auto* nr = flatbuffers::GetRoot<rmms::NoteSetVelocityRequest>(req.payload()->data());
         auto* n = nr ? s->note_get(nr->note_id()->string_view()) : nullptr;
         if (n) n->velocity = nr->velocity();
         resp.Finish(rmms::CreateNoteSetVelocityResponse(resp, n ? ok(resp) : nf(resp)));
     });
 
-    r.register_handler("note.list", [s](auto& req, auto& resp) {
+    r.register_handler("note.list", [s](uint32_t, auto& req, auto& resp) {
         auto* nr = flatbuffers::GetRoot<rmms::NoteListRequest>(req.payload()->data());
         std::vector<flatbuffers::Offset<rmms::Note>> offsets;
         if (nr)

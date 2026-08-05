@@ -15,7 +15,7 @@ static auto nf(flatbuffers::FlatBufferBuilder& fbb) {
 void register_plugin_handlers(
     rmms::backend::protocol::HandlerRegistry& r, State s)
 {
-    r.register_handler("plugin.list", [s](auto&, auto& resp) {
+    r.register_handler("plugin.list", [s](uint32_t, auto&, auto& resp) {
         auto plugins = s->plugin_list();
         std::vector<flatbuffers::Offset<rmms::PluginDescriptor>> offs;
         for (auto* p : plugins) {
@@ -31,7 +31,7 @@ void register_plugin_handlers(
         resp.Finish(rmms::CreatePluginListResponse(resp, resp.CreateVector(offs)));
     });
 
-    r.register_handler("plugin.get_descriptor", [s](auto& req, auto& resp) {
+    r.register_handler("plugin.get_descriptor", [s](uint32_t, auto& req, auto& resp) {
         auto* pr = flatbuffers::GetRoot<rmms::PluginGetDescriptorRequest>(req.payload()->data());
         auto* p = pr ? s->plugin_get(pr->plugin_id()->string_view()) : nullptr;
         flatbuffers::Offset<rmms::PluginDescriptor> off;
@@ -48,20 +48,20 @@ void register_plugin_handlers(
             p ? ok(resp) : nf(resp), off));
     });
 
-    r.register_handler("plugin.set_param", [s](auto& req, auto& resp) {
+    r.register_handler("plugin.set_param", [s](uint32_t, auto& req, auto& resp) {
         auto* pr = flatbuffers::GetRoot<rmms::PluginSetParamRequest>(req.payload()->data());
         if (pr) s->plugin_set_param(pr->plugin_id()->string_view(),
                                     pr->key()->string_view(), pr->value()->string_view());
         resp.Finish(rmms::CreatePluginSetParamResponse(resp, ok(resp)));
     });
 
-    r.register_handler("plugin.get_params", [s](auto& req, auto& resp) {
+    r.register_handler("plugin.get_params", [s](uint32_t, auto& req, auto& resp) {
         auto* pr = flatbuffers::GetRoot<rmms::PluginGetParamsRequest>(req.payload()->data());
         auto json = pr ? s->plugin_get_params(pr->plugin_id()->string_view()) : "{}";
         resp.Finish(rmms::CreatePluginGetParamsResponse(resp, ok(resp), resp.CreateString(json)));
     });
 
-    r.register_handler("plugin.enable", [s](auto& req, auto& resp) {
+    r.register_handler("plugin.enable", [s](uint32_t, auto& req, auto& resp) {
         auto* pr = flatbuffers::GetRoot<rmms::PluginEnableRequest>(req.payload()->data());
         bool ok = pr && s->plugin_get(pr->plugin_id()->string_view());
         if (ok) s->plugin_set_enabled(pr->plugin_id()->string_view(), pr->enabled());

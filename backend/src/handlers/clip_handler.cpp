@@ -18,7 +18,7 @@ static flatbuffers::Offset<rmms::StatusResponse> not_found(flatbuffers::FlatBuff
 void register_clip_handlers(
     rmms::backend::protocol::HandlerRegistry& r, State s)
 {
-    r.register_handler("clip.add", [s](auto& req, auto& resp) {
+    r.register_handler("clip.add", [s](uint32_t, auto& req, auto& resp) {
         auto* cr = flatbuffers::GetRoot<rmms::ClipAddRequest>(req.payload()->data());
         if (!cr) { resp.Finish(rmms::CreateClipAddResponse(resp, ok(resp))); return; }
         auto id = s->clip_add(cr->track_id()->string_view(), cr->type(),
@@ -26,13 +26,13 @@ void register_clip_handlers(
         resp.Finish(rmms::CreateClipAddResponse(resp, ok(resp), resp.CreateString(id)));
     });
 
-    r.register_handler("clip.remove", [s](auto& req, auto& resp) {
+    r.register_handler("clip.remove", [s](uint32_t, auto& req, auto& resp) {
         auto* cr = flatbuffers::GetRoot<rmms::ClipRemoveRequest>(req.payload()->data());
         bool ok = cr && s->clip_remove(cr->clip_id()->string_view());
         resp.Finish(rmms::CreateClipRemoveResponse(resp, ok ? ::ok(resp) : not_found(resp)));
     });
 
-    r.register_handler("clip.move", [s](auto& req, auto& resp) {
+    r.register_handler("clip.move", [s](uint32_t, auto& req, auto& resp) {
         auto* cr = flatbuffers::GetRoot<rmms::ClipMoveRequest>(req.payload()->data());
         auto* c = cr ? s->clip_get(cr->clip_id()->string_view()) : nullptr;
         if (c) {
@@ -44,14 +44,14 @@ void register_clip_handlers(
         resp.Finish(rmms::CreateClipMoveResponse(resp, c ? ok(resp) : not_found(resp)));
     });
 
-    r.register_handler("clip.resize", [s](auto& req, auto& resp) {
+    r.register_handler("clip.resize", [s](uint32_t, auto& req, auto& resp) {
         auto* cr = flatbuffers::GetRoot<rmms::ClipResizeRequest>(req.payload()->data());
         bool ok = cr && s->clip_get(cr->clip_id()->string_view()) &&
                   (s->clip_get(cr->clip_id()->string_view())->length_ticks = cr->length_ticks(), true);
         resp.Finish(rmms::CreateClipResizeResponse(resp, ok ? ::ok(resp) : not_found(resp)));
     });
 
-    r.register_handler("clip.set_loop", [s](auto& req, auto& resp) {
+    r.register_handler("clip.set_loop", [s](uint32_t, auto& req, auto& resp) {
         auto* cr = flatbuffers::GetRoot<rmms::ClipSetLoopRequest>(req.payload()->data());
         bool ok = cr && s->clip_get(cr->clip_id()->string_view()) &&
                   (s->clip_get(cr->clip_id()->string_view())->loop_start = cr->loop_start(),
@@ -59,7 +59,7 @@ void register_clip_handlers(
         resp.Finish(rmms::CreateClipSetLoopResponse(resp, ok ? ::ok(resp) : not_found(resp)));
     });
 
-    r.register_handler("clip.split", [s](auto& req, auto& resp) {
+    r.register_handler("clip.split", [s](uint32_t, auto& req, auto& resp) {
         auto* cr = flatbuffers::GetRoot<rmms::ClipSplitRequest>(req.payload()->data());
         if (!cr) { resp.Finish(rmms::CreateClipSplitResponse(resp, not_found(resp))); return; }
         auto new_id = s->clip_split(cr->clip_id()->string_view(), cr->split_tick());
@@ -67,7 +67,7 @@ void register_clip_handlers(
             new_id.empty() ? not_found(resp) : ok(resp), resp.CreateString(new_id)));
     });
 
-    r.register_handler("clip.list", [s](auto& req, auto& resp) {
+    r.register_handler("clip.list", [s](uint32_t, auto& req, auto& resp) {
         auto* cr = flatbuffers::GetRoot<rmms::ClipListRequest>(req.payload()->data());
         std::vector<flatbuffers::Offset<rmms::Clip>> offsets;
         if (cr)
@@ -76,7 +76,7 @@ void register_clip_handlers(
         resp.Finish(rmms::CreateClipListResponse(resp, resp.CreateVector(offsets)));
     });
 
-    r.register_handler("clip.get", [s](auto& req, auto& resp) {
+    r.register_handler("clip.get", [s](uint32_t, auto& req, auto& resp) {
         auto* cr = flatbuffers::GetRoot<rmms::ClipGetRequest>(req.payload()->data());
         auto* cl = cr ? s->clip_get(cr->clip_id()->string_view()) : nullptr;
         auto off = cl ? c::build_clip(resp, *cl) : flatbuffers::Offset<rmms::Clip>();

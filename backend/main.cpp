@@ -26,11 +26,15 @@ extern void register_chord_handlers(protocol::HandlerRegistry&, std::shared_ptr<
 extern void register_arranger_handlers(protocol::HandlerRegistry&, std::shared_ptr<core::ProjectState>);
 extern void register_marker_handlers(protocol::HandlerRegistry&, std::shared_ptr<core::ProjectState>);
 extern void register_tempo_handlers(protocol::HandlerRegistry&, std::shared_ptr<core::ProjectState>);
+extern void register_subscription_handlers(protocol::HandlerRegistry&, std::shared_ptr<protocol::SubscriptionManager>);
 
 static std::atomic<bool> g_running(true);
+static protocol::ProtocolServer* g_server = nullptr;
 
 static void signal_handler(int) {
     g_running = false;
+    if (g_server)
+        g_server->signal_stop();
 }
 
 static void add_mock_data(std::shared_ptr<core::ProjectState> s) {
@@ -82,9 +86,12 @@ int main() {
     register_arranger_handlers(*registry, state);
     register_marker_handlers(*registry, state);
     register_tempo_handlers(*registry, state);
+    register_subscription_handlers(*registry, subs);
 
     protocol::ProtocolServer server("/tmp/rmms.sock", registry, subs);
     mock::MockEngine engine(state, &server);
+
+    g_server = &server;
 
     printf("RMMS Mock Backend listening on /tmp/rmms.sock\n");
     printf("  Methods registered: %zu\n", registry->registered_methods().size());

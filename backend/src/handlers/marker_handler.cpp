@@ -16,7 +16,7 @@ static auto nf(flatbuffers::FlatBufferBuilder& fbb) {
 void register_marker_handlers(
     rmms::backend::protocol::HandlerRegistry& r, State s)
 {
-    r.register_handler("marker.add", [s](auto& req, auto& resp) {
+    r.register_handler("marker.add", [s](uint32_t, auto& req, auto& resp) {
         auto* mr = flatbuffers::GetRoot<rmms::MarkerAddRequest>(req.payload()->data());
         if (!mr) { resp.Finish(rmms::CreateMarkerAddResponse(resp, ok(resp))); return; }
         auto id = s->marker_add(mr->track_id()->string_view(), mr->name()->string_view(),
@@ -24,20 +24,20 @@ void register_marker_handlers(
         resp.Finish(rmms::CreateMarkerAddResponse(resp, ok(resp), resp.CreateString(id)));
     });
 
-    r.register_handler("marker.remove", [s](auto& req, auto& resp) {
+    r.register_handler("marker.remove", [s](uint32_t, auto& req, auto& resp) {
         auto* mr = flatbuffers::GetRoot<rmms::MarkerRemoveRequest>(req.payload()->data());
         bool ok = mr && s->marker_remove(mr->marker_id()->string_view());
         resp.Finish(rmms::CreateMarkerRemoveResponse(resp, ok ? ::ok(resp) : nf(resp)));
     });
 
-    r.register_handler("marker.list", [s](auto&, auto& resp) {
+    r.register_handler("marker.list", [s](uint32_t, auto&, auto& resp) {
         std::vector<flatbuffers::Offset<rmms::Marker>> offs;
         for (auto* m : s->marker_list())
             offs.push_back(c::build_marker(resp, *m));
         resp.Finish(rmms::CreateMarkerListResponse(resp, resp.CreateVector(offs)));
     });
 
-    r.register_handler("marker.update", [s](auto& req, auto& resp) {
+    r.register_handler("marker.update", [s](uint32_t, auto& req, auto& resp) {
         auto* mr = flatbuffers::GetRoot<rmms::MarkerUpdateRequest>(req.payload()->data());
         auto* m = mr ? s->marker_get(mr->marker_id()->string_view()) : nullptr;
         if (m) { m->name = mr->name()->str(); m->tick = mr->tick(); m->type = mr->type(); }

@@ -16,7 +16,7 @@ static auto nf(flatbuffers::FlatBufferBuilder& fbb) {
 void register_chord_handlers(
     rmms::backend::protocol::HandlerRegistry& r, State s)
 {
-    r.register_handler("chord.add", [s](auto& req, auto& resp) {
+    r.register_handler("chord.add", [s](uint32_t, auto& req, auto& resp) {
         auto* cr = flatbuffers::GetRoot<rmms::ChordAddRequest>(req.payload()->data());
         if (!cr) { resp.Finish(rmms::CreateChordAddResponse(resp, ok(resp))); return; }
         auto id = s->chord_add(cr->track_id()->string_view(), cr->tick(),
@@ -24,20 +24,20 @@ void register_chord_handlers(
         resp.Finish(rmms::CreateChordAddResponse(resp, ok(resp), resp.CreateString(id)));
     });
 
-    r.register_handler("chord.remove", [s](auto& req, auto& resp) {
+    r.register_handler("chord.remove", [s](uint32_t, auto& req, auto& resp) {
         auto* cr = flatbuffers::GetRoot<rmms::ChordRemoveRequest>(req.payload()->data());
         bool ok = cr && s->chord_remove(cr->chord_id()->string_view());
         resp.Finish(rmms::CreateChordRemoveResponse(resp, ok ? ::ok(resp) : nf(resp)));
     });
 
-    r.register_handler("chord.list", [s](auto&, auto& resp) {
+    r.register_handler("chord.list", [s](uint32_t, auto&, auto& resp) {
         std::vector<flatbuffers::Offset<rmms::ChordEvent>> offs;
         for (auto* cd : s->chord_list())
             offs.push_back(c::build_chord(resp, *cd));
         resp.Finish(rmms::CreateChordListResponse(resp, resp.CreateVector(offs)));
     });
 
-    r.register_handler("chord.update", [s](auto& req, auto& resp) {
+    r.register_handler("chord.update", [s](uint32_t, auto& req, auto& resp) {
         auto* cr = flatbuffers::GetRoot<rmms::ChordUpdateRequest>(req.payload()->data());
         auto* cd = cr ? s->chord_get(cr->chord_id()->string_view()) : nullptr;
         if (cd) { cd->tick = cr->tick(); cd->root = cr->root();

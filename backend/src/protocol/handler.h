@@ -20,6 +20,7 @@ namespace rmms::backend::protocol {
 class HandlerRegistry {
 public:
     using HandlerFunc = std::function<void(
+        uint32_t client_id,
         const Envelope& request_envelope,
         flatbuffers::FlatBufferBuilder& response_builder)>;
 

@@ -15,7 +15,7 @@ static auto nf(flatbuffers::FlatBufferBuilder& fbb) {
 void register_hybrid_handlers(
     rmms::backend::protocol::HandlerRegistry& r, State s)
 {
-    r.register_handler("hybrid.get_clip", [s](auto& req, auto& resp) {
+    r.register_handler("hybrid.get_clip", [s](uint32_t, auto& req, auto& resp) {
         auto* hr = flatbuffers::GetRoot<rmms::HybridGetClipRequest>(req.payload()->data());
         auto* h = hr ? s->hybrid_get(hr->clip_id()->string_view()) : nullptr;
         flatbuffers::Offset<rmms::HybridClip> hoff;
@@ -32,7 +32,7 @@ void register_hybrid_handlers(
         resp.Finish(rmms::CreateHybridGetClipResponse(resp, h ? ok(resp) : nf(resp), hoff));
     });
 
-    r.register_handler("hybrid.update_notes", [s](auto& req, auto& resp) {
+    r.register_handler("hybrid.update_notes", [s](uint32_t, auto& req, auto& resp) {
         auto* hr = flatbuffers::GetRoot<rmms::HybridUpdateNotesRequest>(req.payload()->data());
         if (hr && s->hybrid_get(hr->clip_id()->string_view())) {
             auto* h = s->hybrid_get(hr->clip_id()->string_view());
@@ -46,7 +46,7 @@ void register_hybrid_handlers(
         resp.Finish(rmms::CreateHybridUpdateNotesResponse(resp, ok(resp)));
     });
 
-    r.register_handler("hybrid.update_trajectories", [s](auto& req, auto& resp) {
+    r.register_handler("hybrid.update_trajectories", [s](uint32_t, auto& req, auto& resp) {
         auto* hr = flatbuffers::GetRoot<rmms::HybridUpdateTrajectoriesRequest>(req.payload()->data());
         if (hr && s->hybrid_get(hr->clip_id()->string_view())) {
             auto* h = s->hybrid_get(hr->clip_id()->string_view());

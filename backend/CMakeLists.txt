@@ -122,6 +122,7 @@ set(HANDLER_SOURCES
     src/handlers/arranger_handler.cpp
     src/handlers/marker_handler.cpp
     src/handlers/tempo_handler.cpp
+    src/handlers/subscription_handler.cpp
 )
 
 # ── Backend library ─────────────────────────────────────────────────────────

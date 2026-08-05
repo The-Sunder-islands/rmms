@@ -970,7 +970,30 @@ table TempoUpdatePointResponse {
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-// SECTION 17: AI Types (mapped from Protocol B JSON schema)
+// SECTION 17: Subscription Request/Response
+// ═════════════════════════════════════════════════════════════════════════════
+
+// Method: "subscription.subscribe"
+// Subscribe to backend push events. Only subscribed events are delivered.
+// An empty event list subscribes to nothing (clear all is unsubscribe).
+table SubscriptionSubscribeRequest {
+    events: [string];
+}
+table SubscriptionSubscribeResponse {
+    status: StatusResponse;
+}
+
+// Method: "subscription.unsubscribe"
+// Unsubscribe from backend push events. An empty event list clears all.
+table SubscriptionUnsubscribeRequest {
+    events: [string];
+}
+table SubscriptionUnsubscribeResponse {
+    status: StatusResponse;
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// SECTION 18: AI Types (mapped from Protocol B JSON schema)
 // ═════════════════════════════════════════════════════════════════════════════
 
 // --- ParamDef (drives dynamic UI generation) ---
@@ -1164,7 +1187,7 @@ table AIEventFinalResult {
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-// SECTION 18: Event Tables (Backend → Frontend push)
+// SECTION 19: Event Tables (Backend → Frontend push)
 // ═════════════════════════════════════════════════════════════════════════════
 
 // Event: "transport.position_changed"  (~60 Hz via RingBuf)
@@ -1245,7 +1268,7 @@ table EventProjectSaved {
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-// SECTION 19: Message Envelope (Root Type)
+// SECTION 20: Message Envelope (Root Type)
 // ═════════════════════════════════════════════════════════════════════════════
 
 // The envelope is the top-level container for all messages.
