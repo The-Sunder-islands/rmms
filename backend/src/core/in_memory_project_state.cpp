@@ -368,4 +368,130 @@ void InMemoryProjectState::hybrid_ensure(std::string_view clip_id) {
 }
 void InMemoryProjectState::hybrid_remove(std::string_view clip_id) { m_hybrids.erase(std::string(clip_id)); }
 
+// ── Mutation commands ───────────────────────────────────────────────────────
+
+bool InMemoryProjectState::track_set_name(std::string_view id, std::string_view name) {
+    auto* t = track_get(id);
+    if (!t) return false;
+    t->name = std::string(name);
+    return true;
+}
+
+bool InMemoryProjectState::track_set_volume(std::string_view id, float volume) {
+    auto* t = track_get(id);
+    if (!t) return false;
+    t->volume = volume;
+    return true;
+}
+
+bool InMemoryProjectState::track_set_pan(std::string_view id, float pan) {
+    auto* t = track_get(id);
+    if (!t) return false;
+    t->pan = pan;
+    return true;
+}
+
+bool InMemoryProjectState::track_set_mute(std::string_view id, bool mute) {
+    auto* t = track_get(id);
+    if (!t) return false;
+    t->mute = mute;
+    return true;
+}
+
+bool InMemoryProjectState::track_set_solo(std::string_view id, bool solo) {
+    auto* t = track_get(id);
+    if (!t) return false;
+    t->solo = solo;
+    return true;
+}
+
+bool InMemoryProjectState::track_set_arm(std::string_view id, bool arm) {
+    auto* t = track_get(id);
+    if (!t) return false;
+    t->arm = arm;
+    return true;
+}
+
+bool InMemoryProjectState::track_set_color(std::string_view id, uint32_t color) {
+    auto* t = track_get(id);
+    if (!t) return false;
+    t->color = color;
+    return true;
+}
+
+bool InMemoryProjectState::clip_move(std::string_view id, std::string_view track_id,
+                                     uint64_t start_tick) {
+    auto* c = clip_get(id);
+    if (!c || !track_get(track_id)) return false;
+    c->track_id = std::string(track_id);
+    c->start_tick = start_tick;
+    return true;
+}
+
+bool InMemoryProjectState::clip_resize(std::string_view id, uint64_t length_ticks) {
+    auto* c = clip_get(id);
+    if (!c) return false;
+    c->length_ticks = length_ticks;
+    return true;
+}
+
+bool InMemoryProjectState::clip_set_loop(std::string_view id, uint64_t loop_start,
+                                         uint64_t loop_end) {
+    auto* c = clip_get(id);
+    if (!c) return false;
+    c->loop_start = loop_start;
+    c->loop_end = loop_end;
+    return true;
+}
+
+bool InMemoryProjectState::note_move(std::string_view id, uint8_t key, uint64_t start_tick) {
+    auto* n = note_get(id);
+    if (!n) return false;
+    n->key = key;
+    n->start_tick = start_tick;
+    return true;
+}
+
+bool InMemoryProjectState::note_set_length(std::string_view id, uint64_t length_ticks) {
+    auto* n = note_get(id);
+    if (!n) return false;
+    n->length_ticks = length_ticks;
+    return true;
+}
+
+bool InMemoryProjectState::note_set_velocity(std::string_view id, uint8_t velocity) {
+    auto* n = note_get(id);
+    if (!n) return false;
+    n->velocity = velocity;
+    return true;
+}
+
+bool InMemoryProjectState::channel_set_volume(std::string_view id, float volume) {
+    auto* ch = channel_get(id);
+    if (!ch) return false;
+    ch->volume = volume;
+    return true;
+}
+
+bool InMemoryProjectState::channel_set_pan(std::string_view id, float pan) {
+    auto* ch = channel_get(id);
+    if (!ch) return false;
+    ch->pan = pan;
+    return true;
+}
+
+bool InMemoryProjectState::channel_set_route(std::string_view src_id,
+                                             std::string_view dst_id, float gain) {
+    // Routing is not modelled in the reference store; accept and ignore.
+    (void)gain;
+    return channel_get(src_id) != nullptr && channel_get(dst_id) != nullptr;
+}
+
+bool InMemoryProjectState::project_save(std::string_view path) {
+    if (!path.empty())
+        m_project.file_path = std::string(path);
+    m_project.modified = false;
+    return true;
+}
+
 }  // namespace rmms::backend::core

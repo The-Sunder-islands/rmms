@@ -28,35 +28,28 @@ void register_clip_handlers(
 
     r.register_handler("clip.remove", [s](uint32_t, auto& req, auto& resp) {
         auto* cr = flatbuffers::GetRoot<rmms::ClipRemoveRequest>(req.payload()->data());
-        bool ok = cr && s->clip_remove(cr->clip_id()->string_view());
-        resp.Finish(rmms::CreateClipRemoveResponse(resp, ok ? ::ok(resp) : not_found(resp)));
+        bool success = cr && s->clip_remove(cr->clip_id()->string_view());
+        resp.Finish(rmms::CreateClipRemoveResponse(resp, success ? ::ok(resp) : not_found(resp)));
     });
 
     r.register_handler("clip.move", [s](uint32_t, auto& req, auto& resp) {
         auto* cr = flatbuffers::GetRoot<rmms::ClipMoveRequest>(req.payload()->data());
-        auto* c = cr ? s->clip_get(cr->clip_id()->string_view()) : nullptr;
-        if (c) {
-            if (s->track_get(cr->track_id()->string_view())) {
-                c->track_id = cr->track_id()->str();
-                c->start_tick = cr->start_tick();
-            }
-        }
-        resp.Finish(rmms::CreateClipMoveResponse(resp, c ? ok(resp) : not_found(resp)));
+        bool success = cr && s->clip_move(cr->clip_id()->string_view(),
+                                     cr->track_id()->string_view(), cr->start_tick());
+        resp.Finish(rmms::CreateClipMoveResponse(resp, success ? ok(resp) : not_found(resp)));
     });
 
     r.register_handler("clip.resize", [s](uint32_t, auto& req, auto& resp) {
         auto* cr = flatbuffers::GetRoot<rmms::ClipResizeRequest>(req.payload()->data());
-        bool ok = cr && s->clip_get(cr->clip_id()->string_view()) &&
-                  (s->clip_get(cr->clip_id()->string_view())->length_ticks = cr->length_ticks(), true);
-        resp.Finish(rmms::CreateClipResizeResponse(resp, ok ? ::ok(resp) : not_found(resp)));
+        bool success = cr && s->clip_resize(cr->clip_id()->string_view(), cr->length_ticks());
+        resp.Finish(rmms::CreateClipResizeResponse(resp, success ? ::ok(resp) : not_found(resp)));
     });
 
     r.register_handler("clip.set_loop", [s](uint32_t, auto& req, auto& resp) {
         auto* cr = flatbuffers::GetRoot<rmms::ClipSetLoopRequest>(req.payload()->data());
-        bool ok = cr && s->clip_get(cr->clip_id()->string_view()) &&
-                  (s->clip_get(cr->clip_id()->string_view())->loop_start = cr->loop_start(),
-                   s->clip_get(cr->clip_id()->string_view())->loop_end = cr->loop_end(), true);
-        resp.Finish(rmms::CreateClipSetLoopResponse(resp, ok ? ::ok(resp) : not_found(resp)));
+        bool success = cr && s->clip_set_loop(cr->clip_id()->string_view(),
+                                         cr->loop_start(), cr->loop_end());
+        resp.Finish(rmms::CreateClipSetLoopResponse(resp, success ? ::ok(resp) : not_found(resp)));
     });
 
     r.register_handler("clip.split", [s](uint32_t, auto& req, auto& resp) {

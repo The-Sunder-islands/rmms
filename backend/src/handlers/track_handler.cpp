@@ -54,64 +54,50 @@ void register_track_handlers(
 
     r.register_handler("track.set_name", [s](uint32_t, auto& req, auto& resp) {
         auto* r = flatbuffers::GetRoot<rmms::TrackSetNameRequest>(req.payload()->data());
-        bool ok = r && s->track_get(r->track_id()->string_view()) &&
-                  (s->track_get(r->track_id()->string_view())->name = r->name()->str(), true);
+        bool ok = r && s->track_set_name(r->track_id()->string_view(),
+                                         r->name()->string_view());
         resp.Finish(rmms::CreateTrackSetNameResponse(resp,
             ok ? ::ok(resp) : err(resp, "NOT_FOUND", "track not found")));
     });
 
-    auto set_float = [s](auto& req, auto& resp, auto setter) {
-        auto* r = flatbuffers::GetRoot<rmms::TrackSetVolumeRequest>(req.payload()->data());
-        bool ok = r && s->track_get(r->track_id()->string_view());
-        if (ok) setter(s->track_get(r->track_id()->string_view()), r->volume());
-        using R = rmms::TrackSetVolumeResponse;
-        resp.Finish(R(resp, ok ? ::ok(resp) : err(resp, "NOT_FOUND", "track not found")));
-    };
-
     r.register_handler("track.set_volume", [s](uint32_t, auto& req, auto& resp) {
         auto* r = flatbuffers::GetRoot<rmms::TrackSetVolumeRequest>(req.payload()->data());
-        bool ok = r && s->track_get(r->track_id()->string_view());
-        if (ok) s->track_get(r->track_id()->string_view())->volume = r->volume();
+        bool ok = r && s->track_set_volume(r->track_id()->string_view(), r->volume());
         resp.Finish(rmms::CreateTrackSetVolumeResponse(resp,
             ok ? ::ok(resp) : err(resp, "NOT_FOUND", "track not found")));
     });
 
     r.register_handler("track.set_pan", [s](uint32_t, auto& req, auto& resp) {
         auto* r = flatbuffers::GetRoot<rmms::TrackSetPanRequest>(req.payload()->data());
-        bool ok = r && s->track_get(r->track_id()->string_view());
-        if (ok) s->track_get(r->track_id()->string_view())->pan = r->pan();
+        bool ok = r && s->track_set_pan(r->track_id()->string_view(), r->pan());
         resp.Finish(rmms::CreateTrackSetPanResponse(resp,
             ok ? ::ok(resp) : err(resp, "NOT_FOUND", "track not found")));
     });
 
     r.register_handler("track.set_mute", [s](uint32_t, auto& req, auto& resp) {
         auto* r = flatbuffers::GetRoot<rmms::TrackSetMuteRequest>(req.payload()->data());
-        bool ok = r && s->track_get(r->track_id()->string_view());
-        if (ok) s->track_get(r->track_id()->string_view())->mute = r->mute();
+        bool ok = r && s->track_set_mute(r->track_id()->string_view(), r->mute());
         resp.Finish(rmms::CreateTrackSetMuteResponse(resp,
             ok ? ::ok(resp) : err(resp, "NOT_FOUND", "track not found")));
     });
 
     r.register_handler("track.set_solo", [s](uint32_t, auto& req, auto& resp) {
         auto* r = flatbuffers::GetRoot<rmms::TrackSetSoloRequest>(req.payload()->data());
-        bool ok = r && s->track_get(r->track_id()->string_view());
-        if (ok) s->track_get(r->track_id()->string_view())->solo = r->solo();
+        bool ok = r && s->track_set_solo(r->track_id()->string_view(), r->solo());
         resp.Finish(rmms::CreateTrackSetSoloResponse(resp,
             ok ? ::ok(resp) : err(resp, "NOT_FOUND", "track not found")));
     });
 
     r.register_handler("track.set_arm", [s](uint32_t, auto& req, auto& resp) {
         auto* r = flatbuffers::GetRoot<rmms::TrackSetArmRequest>(req.payload()->data());
-        bool ok = r && s->track_get(r->track_id()->string_view());
-        if (ok) s->track_get(r->track_id()->string_view())->arm = r->arm();
+        bool ok = r && s->track_set_arm(r->track_id()->string_view(), r->arm());
         resp.Finish(rmms::CreateTrackSetArmResponse(resp,
             ok ? ::ok(resp) : err(resp, "NOT_FOUND", "track not found")));
     });
 
     r.register_handler("track.set_color", [s](uint32_t, auto& req, auto& resp) {
         auto* r = flatbuffers::GetRoot<rmms::TrackSetColorRequest>(req.payload()->data());
-        bool ok = r && s->track_get(r->track_id()->string_view());
-        if (ok) s->track_get(r->track_id()->string_view())->color = r->color();
+        bool ok = r && s->track_set_color(r->track_id()->string_view(), r->color());
         resp.Finish(rmms::CreateTrackSetColorResponse(resp,
             ok ? ::ok(resp) : err(resp, "NOT_FOUND", "track not found")));
     });

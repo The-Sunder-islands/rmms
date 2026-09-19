@@ -62,6 +62,16 @@ public:
     virtual const TrackData* track_get(std::string_view id) const = 0;
     virtual std::vector<const TrackData*> track_list() const = 0;
 
+    // Track mutations. Engines implement these; handlers must never write
+    // through track_get()'s pointer, or an engine adapter cannot observe it.
+    virtual bool track_set_name(std::string_view id, std::string_view name) = 0;
+    virtual bool track_set_volume(std::string_view id, float volume) = 0;
+    virtual bool track_set_pan(std::string_view id, float pan) = 0;
+    virtual bool track_set_mute(std::string_view id, bool mute) = 0;
+    virtual bool track_set_solo(std::string_view id, bool solo) = 0;
+    virtual bool track_set_arm(std::string_view id, bool arm) = 0;
+    virtual bool track_set_color(std::string_view id, uint32_t color) = 0;
+
     // ── Clip ────────────────────────────────────────────────────────────────
     virtual std::string clip_add(std::string_view track_id, ClipType type,
                                  uint64_t start_tick, uint64_t length_ticks) = 0;
@@ -70,6 +80,11 @@ public:
     virtual const ClipData* clip_get(std::string_view id) const = 0;
     virtual std::vector<const ClipData*> clip_list(std::string_view track_id) const = 0;
     virtual std::string clip_split(std::string_view id, uint64_t split_tick) = 0;
+    virtual bool clip_move(std::string_view id, std::string_view track_id,
+                           uint64_t start_tick) = 0;
+    virtual bool clip_resize(std::string_view id, uint64_t length_ticks) = 0;
+    virtual bool clip_set_loop(std::string_view id, uint64_t loop_start,
+                               uint64_t loop_end) = 0;
 
     // ── Note ────────────────────────────────────────────────────────────────
     virtual std::string note_add(std::string_view clip_id, uint8_t key,
@@ -78,12 +93,19 @@ public:
     virtual bool        note_remove(std::string_view id) = 0;
     virtual NoteData*   note_get(std::string_view id) = 0;
     virtual std::vector<const NoteData*> note_list(std::string_view clip_id) const = 0;
+    virtual bool note_move(std::string_view id, uint8_t key, uint64_t start_tick) = 0;
+    virtual bool note_set_length(std::string_view id, uint64_t length_ticks) = 0;
+    virtual bool note_set_velocity(std::string_view id, uint8_t velocity) = 0;
 
     // ── Mixer ───────────────────────────────────────────────────────────────
     virtual std::string channel_add(std::string_view name) = 0;
     virtual bool        channel_remove(std::string_view id) = 0;
     virtual MixerChannelData* channel_get(std::string_view id) = 0;
     virtual std::vector<const MixerChannelData*> channel_list() const = 0;
+    virtual bool channel_set_volume(std::string_view id, float volume) = 0;
+    virtual bool channel_set_pan(std::string_view id, float pan) = 0;
+    virtual bool channel_set_route(std::string_view src_id, std::string_view dst_id,
+                                   float gain) = 0;
 
     // ── Plugin ──────────────────────────────────────────────────────────────
     virtual void plugin_set(const std::string& id, const std::string& name,
@@ -130,6 +152,10 @@ public:
     virtual const HybridClipData* hybrid_get(std::string_view clip_id) const = 0;
     virtual void hybrid_ensure(std::string_view clip_id) = 0;
     virtual void hybrid_remove(std::string_view clip_id) = 0;
+
+    // ── Project commands ────────────────────────────────────────────────────
+    // Empty path = save to the current project file.
+    virtual bool project_save(std::string_view path) = 0;
 };
 
 }  // namespace rmms::backend::core

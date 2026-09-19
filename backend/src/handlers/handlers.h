@@ -6,6 +6,7 @@
 
 namespace rmms::backend::protocol {
 class HandlerRegistry;
+class SubscriptionManager;
 }  // namespace rmms::backend::protocol
 
 // Handler registration entry points. Defined by the individual handler
@@ -35,3 +36,6 @@ void register_marker_handlers(rmms::backend::protocol::HandlerRegistry&,
                               std::shared_ptr<rmms::backend::core::IProjectState>);
 void register_tempo_handlers(rmms::backend::protocol::HandlerRegistry&,
                              std::shared_ptr<rmms::backend::core::IProjectState>);
+void register_subscription_handlers(
+    rmms::backend::protocol::HandlerRegistry&,
+    std::shared_ptr<rmms::backend::protocol::SubscriptionManager>);

@@ -35,6 +35,14 @@ public:
     const TrackData* track_get(std::string_view id) const override;
     std::vector<const TrackData*> track_list() const override;
 
+    bool track_set_name(std::string_view id, std::string_view name) override;
+    bool track_set_volume(std::string_view id, float volume) override;
+    bool track_set_pan(std::string_view id, float pan) override;
+    bool track_set_mute(std::string_view id, bool mute) override;
+    bool track_set_solo(std::string_view id, bool solo) override;
+    bool track_set_arm(std::string_view id, bool arm) override;
+    bool track_set_color(std::string_view id, uint32_t color) override;
+
     // ── Clip ────────────────────────────────────────────────────────────────
     std::string clip_add(std::string_view track_id, ClipType type,
                          uint64_t start_tick, uint64_t length_ticks) override;
@@ -43,6 +51,11 @@ public:
     const ClipData* clip_get(std::string_view id) const override;
     std::vector<const ClipData*> clip_list(std::string_view track_id) const override;
     std::string clip_split(std::string_view id, uint64_t split_tick) override;
+    bool clip_move(std::string_view id, std::string_view track_id,
+                   uint64_t start_tick) override;
+    bool clip_resize(std::string_view id, uint64_t length_ticks) override;
+    bool clip_set_loop(std::string_view id, uint64_t loop_start,
+                       uint64_t loop_end) override;
 
     // ── Note ────────────────────────────────────────────────────────────────
     std::string note_add(std::string_view clip_id, uint8_t key,
@@ -51,12 +64,19 @@ public:
     bool        note_remove(std::string_view id) override;
     NoteData*   note_get(std::string_view id) override;
     std::vector<const NoteData*> note_list(std::string_view clip_id) const override;
+    bool note_move(std::string_view id, uint8_t key, uint64_t start_tick) override;
+    bool note_set_length(std::string_view id, uint64_t length_ticks) override;
+    bool note_set_velocity(std::string_view id, uint8_t velocity) override;
 
     // ── Mixer ───────────────────────────────────────────────────────────────
     std::string channel_add(std::string_view name) override;
     bool        channel_remove(std::string_view id) override;
     MixerChannelData* channel_get(std::string_view id) override;
     std::vector<const MixerChannelData*> channel_list() const override;
+    bool channel_set_volume(std::string_view id, float volume) override;
+    bool channel_set_pan(std::string_view id, float pan) override;
+    bool channel_set_route(std::string_view src_id, std::string_view dst_id,
+                           float gain) override;
 
     // ── Plugin ──────────────────────────────────────────────────────────────
     void plugin_set(const std::string& id, const std::string& name,
@@ -103,6 +123,8 @@ public:
     const HybridClipData* hybrid_get(std::string_view clip_id) const override;
     void hybrid_ensure(std::string_view clip_id) override;
     void hybrid_remove(std::string_view clip_id) override;
+
+    bool project_save(std::string_view path) override;
 
     // ── UUID ────────────────────────────────────────────────────────────────
     static std::string uuid();

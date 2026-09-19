@@ -35,16 +35,19 @@ void register_project_handlers(
 
     r.register_handler("project.save", [s](uint32_t, auto& req, auto& resp) {
         auto* pr = flatbuffers::GetRoot<rmms::ProjectSaveRequest>(req.payload()->data());
-        if (pr && pr->file_path()->size()) s->project().file_path = pr->file_path()->str();
-        s->project().modified = false;
-        resp.Finish(rmms::CreateProjectSaveResponse(resp, ok(resp)));
+        bool ok = s->project_save(pr ? pr->file_path()->string_view()
+                                     : std::string_view{});
+        resp.Finish(rmms::CreateProjectSaveResponse(resp, ok ? ::ok(resp) :
+            rmms::CreateStatusResponse(resp, false, resp.CreateString("SAVE_FAILED"),
+                                       resp.CreateString("save failed"))));
     });
 
     r.register_handler("project.save_as", [s](uint32_t, auto& req, auto& resp) {
         auto* pr = flatbuffers::GetRoot<rmms::ProjectSaveAsRequest>(req.payload()->data());
-        if (pr) s->project().file_path = pr->file_path()->str();
-        s->project().modified = false;
-        resp.Finish(rmms::CreateProjectSaveAsResponse(resp, ok(resp)));
+        bool ok = pr && s->project_save(pr->file_path()->string_view());
+        resp.Finish(rmms::CreateProjectSaveAsResponse(resp, ok ? ::ok(resp) :
+            rmms::CreateStatusResponse(resp, false, resp.CreateString("SAVE_FAILED"),
+                                       resp.CreateString("save failed"))));
     });
 
     r.register_handler("project.close", [s](uint32_t, auto&, auto& resp) {

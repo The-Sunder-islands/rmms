@@ -35,19 +35,28 @@ void register_mixer_handlers(
 
     r.register_handler("mixer.set_volume", [s](uint32_t, auto& req, auto& resp) {
         auto* mr = flatbuffers::GetRoot<rmms::MixerSetVolumeRequest>(req.payload()->data());
-        if (mr && s->channel_get(mr->channel_id()->string_view()))
-            s->channel_get(mr->channel_id()->string_view())->volume = mr->volume();
-        resp.Finish(rmms::CreateMixerSetVolumeResponse(resp, ok(resp)));
+        bool ok = mr && s->channel_set_volume(mr->channel_id()->string_view(),
+                                              mr->volume());
+        resp.Finish(rmms::CreateMixerSetVolumeResponse(resp, ok ? ::ok(resp) :
+            rmms::CreateStatusResponse(resp, false, resp.CreateString("NOT_FOUND"),
+                                       resp.CreateString("channel not found"))));
     });
 
     r.register_handler("mixer.set_pan", [s](uint32_t, auto& req, auto& resp) {
         auto* mr = flatbuffers::GetRoot<rmms::MixerSetPanRequest>(req.payload()->data());
-        if (mr && s->channel_get(mr->channel_id()->string_view()))
-            s->channel_get(mr->channel_id()->string_view())->pan = mr->pan();
-        resp.Finish(rmms::CreateMixerSetPanResponse(resp, ok(resp)));
+        bool ok = mr && s->channel_set_pan(mr->channel_id()->string_view(), mr->pan());
+        resp.Finish(rmms::CreateMixerSetPanResponse(resp, ok ? ::ok(resp) :
+            rmms::CreateStatusResponse(resp, false, resp.CreateString("NOT_FOUND"),
+                                       resp.CreateString("channel not found"))));
     });
 
-    r.register_handler("mixer.set_route", [s](uint32_t, auto&, auto& resp) {
-        resp.Finish(rmms::CreateMixerSetRouteResponse(resp, ok(resp)));
+    r.register_handler("mixer.set_route", [s](uint32_t, auto& req, auto& resp) {
+        auto* mr = flatbuffers::GetRoot<rmms::MixerSetRouteRequest>(req.payload()->data());
+        bool ok = mr && s->channel_set_route(mr->src_channel_id()->string_view(),
+                                             mr->dst_channel_id()->string_view(),
+                                             mr->gain());
+        resp.Finish(rmms::CreateMixerSetRouteResponse(resp, ok ? ::ok(resp) :
+            rmms::CreateStatusResponse(resp, false, resp.CreateString("NOT_FOUND"),
+                                       resp.CreateString("channel not found"))));
     });
 }

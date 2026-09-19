@@ -33,24 +33,23 @@ void register_note_handlers(
 
     r.register_handler("note.move", [s](uint32_t, auto& req, auto& resp) {
         auto* nr = flatbuffers::GetRoot<rmms::NoteMoveRequest>(req.payload()->data());
-        auto* n = nr ? s->note_get(nr->note_id()->string_view()) : nullptr;
-        bool found = n;
-        if (found) { n->key = nr->key(); n->start_tick = nr->start_tick(); }
+        bool found = nr && s->note_move(nr->note_id()->string_view(),
+                                        nr->key(), nr->start_tick());
         resp.Finish(rmms::CreateNoteMoveResponse(resp, found ? ok(resp) : nf(resp)));
     });
 
     r.register_handler("note.set_length", [s](uint32_t, auto& req, auto& resp) {
         auto* nr = flatbuffers::GetRoot<rmms::NoteSetLengthRequest>(req.payload()->data());
-        auto* n = nr ? s->note_get(nr->note_id()->string_view()) : nullptr;
-        if (n) n->length_ticks = nr->length_ticks();
-        resp.Finish(rmms::CreateNoteSetLengthResponse(resp, n ? ok(resp) : nf(resp)));
+        bool found = nr && s->note_set_length(nr->note_id()->string_view(),
+                                              nr->length_ticks());
+        resp.Finish(rmms::CreateNoteSetLengthResponse(resp, found ? ok(resp) : nf(resp)));
     });
 
     r.register_handler("note.set_velocity", [s](uint32_t, auto& req, auto& resp) {
         auto* nr = flatbuffers::GetRoot<rmms::NoteSetVelocityRequest>(req.payload()->data());
-        auto* n = nr ? s->note_get(nr->note_id()->string_view()) : nullptr;
-        if (n) n->velocity = nr->velocity();
-        resp.Finish(rmms::CreateNoteSetVelocityResponse(resp, n ? ok(resp) : nf(resp)));
+        bool found = nr && s->note_set_velocity(nr->note_id()->string_view(),
+                                                nr->velocity());
+        resp.Finish(rmms::CreateNoteSetVelocityResponse(resp, found ? ok(resp) : nf(resp)));
     });
 
     r.register_handler("note.list", [s](uint32_t, auto& req, auto& resp) {
