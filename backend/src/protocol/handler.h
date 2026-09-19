@@ -26,6 +26,10 @@ public:
 
     void register_handler(std::string_view method, HandlerFunc func);
 
+    // Removes a method (no-op if absent). Used by embedders that expose only a
+    // subset of the protocol, e.g. the LMMS bridge during staged bring-up.
+    void unregister_handler(std::string_view method);
+
     const HandlerFunc* find_handler(std::string_view method) const;
 
     bool has_handler(std::string_view method) const;

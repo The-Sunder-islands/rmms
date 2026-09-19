@@ -744,6 +744,13 @@ include(CompileCache)
 
 # make sub-directories
 ADD_SUBDIRECTORY(cmake)
+
+# RMMS agent control-plane bridge (protocol + AI client) linked into lmms.
+OPTION(WANT_RMMS "Build the RMMS control-plane bridge into lmms" ON)
+IF(WANT_RMMS)
+	ADD_SUBDIRECTORY(backend)
+ENDIF()
+
 ADD_SUBDIRECTORY(src)
 ADD_SUBDIRECTORY(plugins)
 ADD_SUBDIRECTORY(tests)

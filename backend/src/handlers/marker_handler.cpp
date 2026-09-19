@@ -1,10 +1,10 @@
 #include "protocol/handler.h"
-#include "core/project_state.h"
+#include "core/iproject_state.h"
 #include "rmms_generated.h"
 #include <flatbuffers/flatbuffers.h>
 #include <memory>
 
-using State = std::shared_ptr<rmms::backend::core::ProjectState>;
+using State = std::shared_ptr<rmms::backend::core::IProjectState>;
 namespace c = rmms::backend::core;
 
 static auto ok(flatbuffers::FlatBufferBuilder& fbb) { return rmms::CreateStatusResponse(fbb, true); }

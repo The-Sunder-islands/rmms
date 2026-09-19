@@ -24,6 +24,13 @@ SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 # Enable C++20
 SET(CMAKE_CXX_STANDARD 20)
 
+IF(WANT_RMMS)
+	LIST(APPEND LMMS_SRCS
+		rmms/lmms_project_state.cpp
+		rmms/rmms_server.cpp
+	)
+ENDIF()
+
 IF(LMMS_BUILD_APPLE AND CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
 ENDIF()
@@ -47,6 +54,7 @@ INCLUDE_DIRECTORIES(
 	"${CMAKE_BINARY_DIR}/include"
 	"${CMAKE_SOURCE_DIR}"
 	"${CMAKE_SOURCE_DIR}/include"
+	"${CMAKE_CURRENT_SOURCE_DIR}"
 )
 
 IF(WIN32 AND MSVC)
@@ -197,6 +205,13 @@ SET(LMMS_REQUIRED_LIBS ${LMMS_REQUIRED_LIBS}
 target_link_libraries(lmmsobjs
 	${LMMS_REQUIRED_LIBS}
 )
+
+IF(WANT_RMMS)
+	TARGET_COMPILE_DEFINITIONS(lmmsobjs PRIVATE LMMS_HAVE_RMMS=1)
+	# main.cpp lives in the lmms executable target, not lmmsobjs.
+	TARGET_COMPILE_DEFINITIONS(lmms PRIVATE LMMS_HAVE_RMMS=1)
+	target_link_libraries(lmmsobjs rmms_backend)
+ENDIF()
 target_static_libraries(lmmsobjs ringbuffer)
 
 set_target_properties(lmms PROPERTIES

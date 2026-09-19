@@ -1,4 +1,4 @@
-#include "core/project_state.h"
+#include "core/in_memory_project_state.h"
 #include "protocol/handler.h"
 #include "protocol/server.h"
 #include "protocol/subscription.h"
@@ -15,18 +15,18 @@ using namespace rmms::backend;
 using namespace rmms;
 
 // Forward declarations for handler registration (defined in respective .cpp)
-extern void register_transport_handlers(protocol::HandlerRegistry&, std::shared_ptr<core::ProjectState>);
-extern void register_track_handlers(protocol::HandlerRegistry&, std::shared_ptr<core::ProjectState>);
-extern void register_clip_handlers(protocol::HandlerRegistry&, std::shared_ptr<core::ProjectState>);
-extern void register_note_handlers(protocol::HandlerRegistry&, std::shared_ptr<core::ProjectState>);
-extern void register_mixer_handlers(protocol::HandlerRegistry&, std::shared_ptr<core::ProjectState>);
-extern void register_project_handlers(protocol::HandlerRegistry&, std::shared_ptr<core::ProjectState>);
-extern void register_plugin_handlers(protocol::HandlerRegistry&, std::shared_ptr<core::ProjectState>);
-extern void register_hybrid_handlers(protocol::HandlerRegistry&, std::shared_ptr<core::ProjectState>);
-extern void register_chord_handlers(protocol::HandlerRegistry&, std::shared_ptr<core::ProjectState>);
-extern void register_arranger_handlers(protocol::HandlerRegistry&, std::shared_ptr<core::ProjectState>);
-extern void register_marker_handlers(protocol::HandlerRegistry&, std::shared_ptr<core::ProjectState>);
-extern void register_tempo_handlers(protocol::HandlerRegistry&, std::shared_ptr<core::ProjectState>);
+extern void register_transport_handlers(protocol::HandlerRegistry&, std::shared_ptr<core::IProjectState>);
+extern void register_track_handlers(protocol::HandlerRegistry&, std::shared_ptr<core::IProjectState>);
+extern void register_clip_handlers(protocol::HandlerRegistry&, std::shared_ptr<core::IProjectState>);
+extern void register_note_handlers(protocol::HandlerRegistry&, std::shared_ptr<core::IProjectState>);
+extern void register_mixer_handlers(protocol::HandlerRegistry&, std::shared_ptr<core::IProjectState>);
+extern void register_project_handlers(protocol::HandlerRegistry&, std::shared_ptr<core::IProjectState>);
+extern void register_plugin_handlers(protocol::HandlerRegistry&, std::shared_ptr<core::IProjectState>);
+extern void register_hybrid_handlers(protocol::HandlerRegistry&, std::shared_ptr<core::IProjectState>);
+extern void register_chord_handlers(protocol::HandlerRegistry&, std::shared_ptr<core::IProjectState>);
+extern void register_arranger_handlers(protocol::HandlerRegistry&, std::shared_ptr<core::IProjectState>);
+extern void register_marker_handlers(protocol::HandlerRegistry&, std::shared_ptr<core::IProjectState>);
+extern void register_tempo_handlers(protocol::HandlerRegistry&, std::shared_ptr<core::IProjectState>);
 extern void register_subscription_handlers(protocol::HandlerRegistry&, std::shared_ptr<protocol::SubscriptionManager>);
 
 static std::atomic<bool> g_running(true);
@@ -38,7 +38,7 @@ static void signal_handler(int) {
         g_server->signal_stop();
 }
 
-static void add_mock_data(std::shared_ptr<core::ProjectState> s) {
+static void add_mock_data(std::shared_ptr<core::InMemoryProjectState> s) {
     auto t1 = s->track_add(TrackType_INSTRUMENT, "Synth Lead");
     auto t2 = s->track_add(TrackType_AUDIO, "Drums");
     auto t3 = s->track_add(TrackType_CHORD, "Chords");
@@ -60,16 +60,16 @@ static void add_mock_data(std::shared_ptr<core::ProjectState> s) {
     s->plugin_set("rmms.eq.1", "4-Band EQ", PluginCategory_EMBED, "/usr/lib/rmms/eq.so", "eq_entry");
     s->plugin_set("rmms.comp.1", "Compressor", PluginCategory_EMBED, "/usr/lib/rmms/comp.so", "comp_entry");
 
-    s->transport.bpm = 128.0f;
-    s->project.name = "Mock Project";
-    s->project.sample_rate = 44100.0f;
+    s->transport().bpm = 128.0f;
+    s->project().name = "Mock Project";
+    s->project().sample_rate = 44100.0f;
 }
 
 int main() {
     signal(SIGINT, signal_handler);
     signal(SIGTERM, signal_handler);
 
-    auto state = std::make_shared<core::ProjectState>();
+    auto state = std::make_shared<core::InMemoryProjectState>();
     auto subs = std::make_shared<protocol::SubscriptionManager>();
     auto registry = std::make_shared<protocol::HandlerRegistry>();
 

@@ -1,5 +1,5 @@
 #include "mock/mock_engine.h"
-#include "core/project_state.h"
+#include "core/iproject_state.h"
 #include "protocol/server.h"
 #include "rmms_generated.h"
 #include <flatbuffers/flatbuffers.h>
@@ -8,7 +8,7 @@
 
 namespace rmms::backend::mock {
 
-MockEngine::MockEngine(std::shared_ptr<core::ProjectState> state,
+MockEngine::MockEngine(std::shared_ptr<core::IProjectState> state,
                        protocol::ProtocolServer* server)
     : m_state(std::move(state))
     , m_server(server)
@@ -38,7 +38,7 @@ void MockEngine::run() {
     while (m_running) {
         auto start = std::chrono::steady_clock::now();
 
-        if (m_state->transport.state == TransportState_PLAYING) {
+        if (m_state->transport().state == TransportState_PLAYING) {
             tick_position();
             if (++level_counter >= level_every) {
                 tick_levels();
@@ -55,11 +55,11 @@ void MockEngine::run() {
 
 void MockEngine::tick_position() {
     static constexpr uint64_t kTicksPerBeat = 960;
-    float beats_per_tick = (m_state->transport.bpm / 60.0f) / kPositionHz;
-    m_state->transport.position += static_cast<uint64_t>(beats_per_tick * kTicksPerBeat);
+    float beats_per_tick = (m_state->transport().bpm / 60.0f) / kPositionHz;
+    m_state->transport().position += static_cast<uint64_t>(beats_per_tick * kTicksPerBeat);
 
     flatbuffers::FlatBufferBuilder fbb(32);
-    auto event = CreateEventPositionChanged(fbb, m_state->transport.position);
+    auto event = CreateEventPositionChanged(fbb, m_state->transport().position);
     fbb.Finish(event);
     m_server->push_event("transport.position_changed",
                          fbb.GetBufferPointer(), fbb.GetSize());

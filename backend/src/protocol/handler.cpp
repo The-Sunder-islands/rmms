@@ -7,6 +7,10 @@ void HandlerRegistry::register_handler(std::string_view method, HandlerFunc func
     m_handlers[std::string(method)] = std::move(func);
 }
 
+void HandlerRegistry::unregister_handler(std::string_view method) {
+    m_handlers.erase(std::string(method));
+}
+
 const HandlerRegistry::HandlerFunc* HandlerRegistry::find_handler(
     std::string_view method) const
 {

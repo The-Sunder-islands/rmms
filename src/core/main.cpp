@@ -71,6 +71,10 @@
 #include "RenderManager.h"
 #include "Song.h"
 
+#ifdef LMMS_HAVE_RMMS
+#include "rmms/rmms_server.h"
+#endif
+
 #ifdef LMMS_DEBUG_FPE
 #include <fenv.h> // For feenableexcept
 #include <execinfo.h> // For backtrace and backtrace_symbols_fd
@@ -253,6 +257,7 @@ int main( int argc, char * * argv )
 	bool allowRoot = false;
 	bool renderLoop = false;
 	bool renderTracks = false;
+	bool rmmsServer = false;
 	QString fileToLoad, fileToImport, renderOut, profilerOutputFile, configFile;
 
 	// first of two command-line parsing stages
@@ -283,6 +288,14 @@ int main( int argc, char * * argv )
 		{
 			allowRoot = true;
 		}
+#ifdef LMMS_HAVE_RMMS
+		else if (arg == "--rmms-server")
+		{
+			// Headless session exposing the RMMS control-plane socket.
+			coreOnly = true;
+			rmmsServer = true;
+		}
+#endif
 		else if (arg == "--geometry" || arg == "-geometry")
 		{
 			if (arg == "--geometry") { argv[i]++; } // Delete the first "-" so Qt recognize the option
@@ -649,6 +662,12 @@ int main( int argc, char * * argv )
 
 			configFile = QString::fromLocal8Bit( argv[i] );
 		}
+#ifdef LMMS_HAVE_RMMS
+		else if( arg == "--rmms-server" )
+		{
+			// Already processed in the first parsing stage.
+		}
+#endif
 		else
 		{
 			if( argv[i][0] == '-' )
@@ -761,6 +780,26 @@ int main( int argc, char * * argv )
 			r->renderProject();
 		}
 	}
+#ifdef LMMS_HAVE_RMMS
+	else if( rmmsServer )
+	{
+		// Headless agent-controlled session: real engine (dummy audio device
+		// via renderOnly), no GUI, protocol server on a background thread.
+		Engine::init( true );
+		destroyEngine = true;
+
+		if( !fileToLoad.isEmpty() )
+		{
+			Engine::getSong()->loadProject( fileToLoad );
+		}
+		else
+		{
+			Engine::getSong()->createNewProject();
+		}
+
+		rmms::startServer();
+	}
+#endif
 	else // otherwise, start the GUI
 	{
 		using namespace lmms::gui;
@@ -917,6 +956,14 @@ int main( int argc, char * * argv )
 	}
 
 	const int ret = app->exec();
+
+#ifdef LMMS_HAVE_RMMS
+	if( rmmsServer )
+	{
+		rmms::stopServer();
+	}
+#endif
+
 	delete app;
 
 	if( destroyEngine )

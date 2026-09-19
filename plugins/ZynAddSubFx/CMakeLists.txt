@@ -49,6 +49,18 @@ include_directories(SYSTEM
 	"${FLTK_INCLUDE_DIR}"
 	${FFTW3F_INCLUDE_DIRS}
 )
+
+# FLTK builds with cairo support make Fl_Cairo.H include <cairo.h>, which on
+# some distributions (e.g. Arch) lives in a cairo/ subdirectory that only
+# fltk-config exposes. Add the flags ourselves so the plugin builds regardless
+# of how FLTK was found.
+find_package(PkgConfig QUIET)
+if(PkgConfig_FOUND)
+	pkg_check_modules(CAIRO QUIET cairo)
+	if(CAIRO_FOUND)
+		include_directories(SYSTEM ${CAIRO_INCLUDE_DIRS})
+	endif()
+endif()
 include_directories(
 	"${CMAKE_CURRENT_SOURCE_DIR}"
 	"${CMAKE_CURRENT_BINARY_DIR}"

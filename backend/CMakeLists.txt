@@ -117,11 +117,13 @@ set(MOCK_HEADERS
 )
 
 set(CORE_SOURCES
-    src/core/project_state.cpp
+    src/core/in_memory_project_state.cpp
 )
 
 set(CORE_HEADERS
-    src/core/project_state.h
+    src/core/iproject_state.h
+    src/core/project_types.h
+    src/core/in_memory_project_state.h
 )
 
 set(HANDLER_SOURCES

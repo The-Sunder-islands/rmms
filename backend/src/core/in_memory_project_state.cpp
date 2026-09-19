@@ -1,4 +1,4 @@
-#include "core/project_state.h"
+#include "core/in_memory_project_state.h"
 
 #include <algorithm>
 #include <array>
@@ -9,7 +9,27 @@
 
 namespace rmms::backend::core {
 
-std::string ProjectState::uuid() {
+void InMemoryProjectState::transport_play() {
+    m_transport.state = rmms::TransportState_PLAYING;
+}
+
+void InMemoryProjectState::transport_stop() {
+    m_transport.state = rmms::TransportState_STOPPED;
+}
+
+void InMemoryProjectState::transport_pause() {
+    m_transport.state = rmms::TransportState_PAUSED;
+}
+
+void InMemoryProjectState::transport_set_position(uint64_t tick) {
+    m_transport.position = tick;
+}
+
+void InMemoryProjectState::transport_set_tempo(float bpm) {
+    m_transport.bpm = bpm;
+}
+
+std::string InMemoryProjectState::uuid() {
     static thread_local std::random_device rd;
     static thread_local std::mt19937_64 gen(rd());
     static thread_local std::uniform_int_distribution<uint64_t> dis;
@@ -89,34 +109,34 @@ flatbuffers::Offset<TempoPoint> build_tempo_point(flatbuffers::FlatBufferBuilder
 }
 
 // Track
-std::string ProjectState::track_add(TrackType type, std::string_view name) {
+std::string InMemoryProjectState::track_add(TrackType type, std::string_view name) {
     auto t = std::make_unique<TrackData>();
     t->id = uuid(); t->name = std::string(name); t->type = type;
     auto id = t->id;
     m_tracks[id] = std::move(t);
     return id;
 }
-bool ProjectState::track_remove(std::string_view id) {
+bool InMemoryProjectState::track_remove(std::string_view id) {
     std::string sid(id);
     m_clips.erase(sid); m_notes.erase(sid);
     return m_tracks.erase(sid) > 0;
 }
-TrackData* ProjectState::track_get(std::string_view id) {
+TrackData* InMemoryProjectState::track_get(std::string_view id) {
     auto it = m_tracks.find(std::string(id));
     return it != m_tracks.end() ? it->second.get() : nullptr;
 }
-const TrackData* ProjectState::track_get(std::string_view id) const {
+const TrackData* InMemoryProjectState::track_get(std::string_view id) const {
     auto it = m_tracks.find(std::string(id));
     return it != m_tracks.end() ? it->second.get() : nullptr;
 }
-std::vector<const TrackData*> ProjectState::track_list() const {
+std::vector<const TrackData*> InMemoryProjectState::track_list() const {
     std::vector<const TrackData*> list;
     for (auto& [id, t] : m_tracks) list.push_back(t.get());
     return list;
 }
 
 // Clip
-std::string ProjectState::clip_add(std::string_view track_id, ClipType type,
+std::string InMemoryProjectState::clip_add(std::string_view track_id, ClipType type,
                                    uint64_t start_tick, uint64_t length_ticks) {
     if (!track_get(track_id)) return {};
     auto c = std::make_unique<ClipData>();
@@ -126,26 +146,26 @@ std::string ProjectState::clip_add(std::string_view track_id, ClipType type,
     m_clips[id] = std::move(c);
     return id;
 }
-bool ProjectState::clip_remove(std::string_view id) {
+bool InMemoryProjectState::clip_remove(std::string_view id) {
     std::string sid(id);
     m_notes.erase(sid); m_hybrids.erase(sid);
     return m_clips.erase(sid) > 0;
 }
-ClipData* ProjectState::clip_get(std::string_view id) {
+ClipData* InMemoryProjectState::clip_get(std::string_view id) {
     auto it = m_clips.find(std::string(id));
     return it != m_clips.end() ? it->second.get() : nullptr;
 }
-const ClipData* ProjectState::clip_get(std::string_view id) const {
+const ClipData* InMemoryProjectState::clip_get(std::string_view id) const {
     auto it = m_clips.find(std::string(id));
     return it != m_clips.end() ? it->second.get() : nullptr;
 }
-std::vector<const ClipData*> ProjectState::clip_list(std::string_view track_id) const {
+std::vector<const ClipData*> InMemoryProjectState::clip_list(std::string_view track_id) const {
     std::vector<const ClipData*> list;
     for (auto& [id, c] : m_clips)
         if (c->track_id == track_id) list.push_back(c.get());
     return list;
 }
-std::string ProjectState::clip_split(std::string_view id, uint64_t split_tick) {
+std::string InMemoryProjectState::clip_split(std::string_view id, uint64_t split_tick) {
     auto* c = clip_get(id);
     if (!c || split_tick <= c->start_tick ||
         split_tick >= c->start_tick + c->length_ticks) return {};
@@ -161,7 +181,7 @@ std::string ProjectState::clip_split(std::string_view id, uint64_t split_tick) {
 }
 
 // Note
-std::string ProjectState::note_add(std::string_view clip_id, uint8_t key,
+std::string InMemoryProjectState::note_add(std::string_view clip_id, uint8_t key,
                                    uint64_t start_tick, uint64_t length_ticks,
                                    uint8_t velocity, uint8_t pan) {
     if (!clip_get(clip_id)) return {};
@@ -173,38 +193,38 @@ std::string ProjectState::note_add(std::string_view clip_id, uint8_t key,
     m_notes[id] = std::move(n);
     return id;
 }
-bool ProjectState::note_remove(std::string_view id) { return m_notes.erase(std::string(id)) > 0; }
-NoteData* ProjectState::note_get(std::string_view id) {
+bool InMemoryProjectState::note_remove(std::string_view id) { return m_notes.erase(std::string(id)) > 0; }
+NoteData* InMemoryProjectState::note_get(std::string_view id) {
     auto it = m_notes.find(std::string(id));
     return it != m_notes.end() ? it->second.get() : nullptr;
 }
-std::vector<const NoteData*> ProjectState::note_list(std::string_view clip_id) const {
+std::vector<const NoteData*> InMemoryProjectState::note_list(std::string_view clip_id) const {
     std::vector<const NoteData*> list;
     for (auto& [id, n] : m_notes) if (n->clip_id == clip_id) list.push_back(n.get());
     return list;
 }
 
 // Mixer
-std::string ProjectState::channel_add(std::string_view name) {
+std::string InMemoryProjectState::channel_add(std::string_view name) {
     auto ch = std::make_unique<MixerChannelData>();
     ch->id = uuid(); ch->name = std::string(name);
     auto id = ch->id;
     m_channels[id] = std::move(ch);
     return id;
 }
-bool ProjectState::channel_remove(std::string_view id) { return m_channels.erase(std::string(id)) > 0; }
-MixerChannelData* ProjectState::channel_get(std::string_view id) {
+bool InMemoryProjectState::channel_remove(std::string_view id) { return m_channels.erase(std::string(id)) > 0; }
+MixerChannelData* InMemoryProjectState::channel_get(std::string_view id) {
     auto it = m_channels.find(std::string(id));
     return it != m_channels.end() ? it->second.get() : nullptr;
 }
-std::vector<const MixerChannelData*> ProjectState::channel_list() const {
+std::vector<const MixerChannelData*> InMemoryProjectState::channel_list() const {
     std::vector<const MixerChannelData*> list;
     for (auto& [id, ch] : m_channels) list.push_back(ch.get());
     return list;
 }
 
 // Plugin
-void ProjectState::plugin_set(const std::string& id, const std::string& name,
+void InMemoryProjectState::plugin_set(const std::string& id, const std::string& name,
                               PluginCategory category, const std::string& path,
                               const std::string& entry) {
     auto p = std::make_unique<PluginData>();
@@ -212,19 +232,19 @@ void ProjectState::plugin_set(const std::string& id, const std::string& name,
     p->path = path; p->entry = entry;
     m_plugins[id] = std::move(p);
 }
-std::vector<const PluginData*> ProjectState::plugin_list() const {
+std::vector<const PluginData*> InMemoryProjectState::plugin_list() const {
     std::vector<const PluginData*> list;
     for (auto& [id, p] : m_plugins) list.push_back(p.get());
     return list;
 }
-const PluginData* ProjectState::plugin_get(std::string_view id) const {
+const PluginData* InMemoryProjectState::plugin_get(std::string_view id) const {
     auto it = m_plugins.find(std::string(id));
     return it != m_plugins.end() ? it->second.get() : nullptr;
 }
-void ProjectState::plugin_set_param(std::string_view id, std::string_view key, std::string_view val) {
+void InMemoryProjectState::plugin_set_param(std::string_view id, std::string_view key, std::string_view val) {
     m_plugin_params[std::string(id)][std::string(key)] = std::string(val);
 }
-std::string ProjectState::plugin_get_params(std::string_view id) const {
+std::string InMemoryProjectState::plugin_get_params(std::string_view id) const {
     auto it = m_plugin_params.find(std::string(id));
     if (it == m_plugin_params.end()) return "{}";
     std::string json = "{"; bool first = true;
@@ -235,14 +255,14 @@ std::string ProjectState::plugin_get_params(std::string_view id) const {
     }
     json += "}"; return json;
 }
-void ProjectState::plugin_set_enabled(std::string_view id, bool e) { m_plugin_enabled[std::string(id)] = e; }
-bool ProjectState::plugin_is_enabled(std::string_view id) const {
+void InMemoryProjectState::plugin_set_enabled(std::string_view id, bool e) { m_plugin_enabled[std::string(id)] = e; }
+bool InMemoryProjectState::plugin_is_enabled(std::string_view id) const {
     auto it = m_plugin_enabled.find(std::string(id));
     return it != m_plugin_enabled.end() ? it->second : false;
 }
 
 // Chord
-std::string ProjectState::chord_add(std::string_view track_id, uint64_t tick,
+std::string InMemoryProjectState::chord_add(std::string_view track_id, uint64_t tick,
                                     uint8_t root, ChordType type, uint64_t duration) {
     if (!track_get(track_id)) return {};
     auto cd = std::make_unique<ChordData>();
@@ -252,19 +272,19 @@ std::string ProjectState::chord_add(std::string_view track_id, uint64_t tick,
     m_chords[id] = std::move(cd);
     return id;
 }
-bool ProjectState::chord_remove(std::string_view id) { return m_chords.erase(std::string(id)) > 0; }
-ChordData* ProjectState::chord_get(std::string_view id) {
+bool InMemoryProjectState::chord_remove(std::string_view id) { return m_chords.erase(std::string(id)) > 0; }
+ChordData* InMemoryProjectState::chord_get(std::string_view id) {
     auto it = m_chords.find(std::string(id));
     return it != m_chords.end() ? it->second.get() : nullptr;
 }
-std::vector<const ChordData*> ProjectState::chord_list() const {
+std::vector<const ChordData*> InMemoryProjectState::chord_list() const {
     std::vector<const ChordData*> list;
     for (auto& [id, cd] : m_chords) list.push_back(cd.get());
     return list;
 }
 
 // Arranger
-std::string ProjectState::arranger_add(std::string_view track_id, std::string_view name,
+std::string InMemoryProjectState::arranger_add(std::string_view track_id, std::string_view name,
                                        uint64_t start_tick, uint64_t length_ticks,
                                        uint32_t color, uint32_t repeat_count) {
     if (!track_get(track_id)) return {};
@@ -276,19 +296,19 @@ std::string ProjectState::arranger_add(std::string_view track_id, std::string_vi
     m_arrangers[id] = std::move(a);
     return id;
 }
-bool ProjectState::arranger_remove(std::string_view id) { return m_arrangers.erase(std::string(id)) > 0; }
-ArrangerSectionData* ProjectState::arranger_get(std::string_view id) {
+bool InMemoryProjectState::arranger_remove(std::string_view id) { return m_arrangers.erase(std::string(id)) > 0; }
+ArrangerSectionData* InMemoryProjectState::arranger_get(std::string_view id) {
     auto it = m_arrangers.find(std::string(id));
     return it != m_arrangers.end() ? it->second.get() : nullptr;
 }
-std::vector<const ArrangerSectionData*> ProjectState::arranger_list() const {
+std::vector<const ArrangerSectionData*> InMemoryProjectState::arranger_list() const {
     std::vector<const ArrangerSectionData*> list;
     for (auto& [id, a] : m_arrangers) list.push_back(a.get());
     return list;
 }
 
 // Marker
-std::string ProjectState::marker_add(std::string_view track_id, std::string_view name,
+std::string InMemoryProjectState::marker_add(std::string_view track_id, std::string_view name,
                                      uint64_t tick, MarkerType type) {
     if (!track_get(track_id)) return {};
     auto m = std::make_unique<MarkerData>();
@@ -298,19 +318,19 @@ std::string ProjectState::marker_add(std::string_view track_id, std::string_view
     m_markers[id] = std::move(m);
     return id;
 }
-bool ProjectState::marker_remove(std::string_view id) { return m_markers.erase(std::string(id)) > 0; }
-MarkerData* ProjectState::marker_get(std::string_view id) {
+bool InMemoryProjectState::marker_remove(std::string_view id) { return m_markers.erase(std::string(id)) > 0; }
+MarkerData* InMemoryProjectState::marker_get(std::string_view id) {
     auto it = m_markers.find(std::string(id));
     return it != m_markers.end() ? it->second.get() : nullptr;
 }
-std::vector<const MarkerData*> ProjectState::marker_list() const {
+std::vector<const MarkerData*> InMemoryProjectState::marker_list() const {
     std::vector<const MarkerData*> list;
     for (auto& [id, m] : m_markers) list.push_back(m.get());
     return list;
 }
 
 // Tempo
-std::string ProjectState::tempo_add(std::string_view track_id, uint64_t tick, float bpm) {
+std::string InMemoryProjectState::tempo_add(std::string_view track_id, uint64_t tick, float bpm) {
     if (!track_get(track_id)) return {};
     auto tp = std::make_unique<TempoPointData>();
     tp->id = uuid(); tp->tick = tick; tp->bpm = bpm;
@@ -318,27 +338,27 @@ std::string ProjectState::tempo_add(std::string_view track_id, uint64_t tick, fl
     m_tempos[id] = std::move(tp);
     return id;
 }
-bool ProjectState::tempo_remove(std::string_view id) { return m_tempos.erase(std::string(id)) > 0; }
-TempoPointData* ProjectState::tempo_get(std::string_view id) {
+bool InMemoryProjectState::tempo_remove(std::string_view id) { return m_tempos.erase(std::string(id)) > 0; }
+TempoPointData* InMemoryProjectState::tempo_get(std::string_view id) {
     auto it = m_tempos.find(std::string(id));
     return it != m_tempos.end() ? it->second.get() : nullptr;
 }
-std::vector<const TempoPointData*> ProjectState::tempo_list() const {
+std::vector<const TempoPointData*> InMemoryProjectState::tempo_list() const {
     std::vector<const TempoPointData*> list;
     for (auto& [id, tp] : m_tempos) list.push_back(tp.get());
     return list;
 }
 
 // Hybrid
-HybridClipData* ProjectState::hybrid_get(std::string_view clip_id) {
+HybridClipData* InMemoryProjectState::hybrid_get(std::string_view clip_id) {
     auto it = m_hybrids.find(std::string(clip_id));
     return it != m_hybrids.end() ? it->second.get() : nullptr;
 }
-const HybridClipData* ProjectState::hybrid_get(std::string_view clip_id) const {
+const HybridClipData* InMemoryProjectState::hybrid_get(std::string_view clip_id) const {
     auto it = m_hybrids.find(std::string(clip_id));
     return it != m_hybrids.end() ? it->second.get() : nullptr;
 }
-void ProjectState::hybrid_ensure(std::string_view clip_id) {
+void InMemoryProjectState::hybrid_ensure(std::string_view clip_id) {
     std::string sid(clip_id);
     if (!m_hybrids.count(sid)) {
         auto h = std::make_unique<HybridClipData>();
@@ -346,6 +366,6 @@ void ProjectState::hybrid_ensure(std::string_view clip_id) {
         m_hybrids[sid] = std::move(h);
     }
 }
-void ProjectState::hybrid_remove(std::string_view clip_id) { m_hybrids.erase(std::string(clip_id)); }
+void InMemoryProjectState::hybrid_remove(std::string_view clip_id) { m_hybrids.erase(std::string(clip_id)); }
 
 }  // namespace rmms::backend::core

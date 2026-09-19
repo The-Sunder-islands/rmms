@@ -10,14 +10,14 @@
 
 #include <flatbuffers/flatbuffers.h>
 
-namespace rmms::backend::core { class ProjectState; }
+namespace rmms::backend::core { class IProjectState; }
 namespace rmms::backend::protocol { class ProtocolServer; }
 
 namespace rmms::backend::mock {
 
 class MockEngine {
 public:
-    MockEngine(std::shared_ptr<core::ProjectState> state,
+    MockEngine(std::shared_ptr<core::IProjectState> state,
                protocol::ProtocolServer* server);
     ~MockEngine();
 
@@ -32,7 +32,7 @@ private:
     void tick_position();
     void tick_levels();
 
-    std::shared_ptr<core::ProjectState> m_state;
+    std::shared_ptr<core::IProjectState> m_state;
     protocol::ProtocolServer*           m_server;
     std::thread                         m_thread;
     std::atomic<bool>                   m_running;
