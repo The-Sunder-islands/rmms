@@ -24,3 +24,7 @@ rmms-ai-server-copy/
 
 # ripx/rip reference (local only)
 ripx_rip_ref/
+
+# Python
+__pycache__/
+*.pyc

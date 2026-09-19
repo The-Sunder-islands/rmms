@@ -3,6 +3,7 @@
 #include "protocol/server.h"
 #include "protocol/subscription.h"
 #include "mock/mock_engine.h"
+#include "handlers/ai_bridge_handler.h"
 #include "rmms_generated.h"
 
 #include <flatbuffers/flatbuffers.h>
@@ -90,18 +91,23 @@ int main() {
 
     protocol::ProtocolServer server("/tmp/rmms.sock", registry, subs);
     mock::MockEngine engine(state, &server);
+    handlers::AiBridge ai_bridge(&server);
 
     g_server = &server;
+
+    register_ai_bridge_handlers(*registry, ai_bridge);
 
     printf("RMMS Mock Backend listening on /tmp/rmms.sock\n");
     printf("  Methods registered: %zu\n", registry->registered_methods().size());
     printf("  Mock data: 4 tracks, 3 clips, 4 notes, 3 channels, 2 plugins\n");
     printf("  Press Ctrl+C to stop\n");
 
+    ai_bridge.start();
     engine.start();
     server.start();
 
     engine.stop();
+    ai_bridge.stop();
     printf("Shutting down.\n");
     return 0;
 }

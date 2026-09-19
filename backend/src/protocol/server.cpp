@@ -63,14 +63,15 @@ void ProtocolServer::push_event(std::string_view event_name,
     }
 
     for (uint32_t client_id : m_subscriptions->subscribers(event_name))
-        send_event(client_id, event_name, payload, payload_size);
+        send_event(client_id, 0, event_name, payload, payload_size);
 }
 
 void ProtocolServer::push_event_to(uint32_t client_id, std::string_view event_name,
-                                   const uint8_t* payload, size_t payload_size)
+                                   const uint8_t* payload, size_t payload_size,
+                                   uint32_t seq_id)
 {
     if (!is_running()) return;
-    send_event(client_id, event_name, payload, payload_size);
+    send_event(client_id, seq_id, event_name, payload, payload_size);
 }
 
 void ProtocolServer::handle_message(uint32_t client_id, const std::vector<uint8_t>& frame) {
@@ -120,10 +121,11 @@ void ProtocolServer::send_response(uint32_t client_id, uint32_t seq_id,
                                  payload, payload_size));
 }
 
-void ProtocolServer::send_event(uint32_t client_id, std::string_view event_name,
+void ProtocolServer::send_event(uint32_t client_id, uint32_t seq_id,
+                                std::string_view event_name,
                                 const uint8_t* payload, size_t payload_size)
 {
-    m_socket.send(client_id, build_envelope(rmms::MsgType_EVENT, 0,
+    m_socket.send(client_id, build_envelope(rmms::MsgType_EVENT, seq_id,
                                             event_name, payload, payload_size));
 }
 

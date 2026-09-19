@@ -69,6 +69,21 @@ add_custom_target(flatbuffers_generated
     DEPENDS "${GEN_DIR}/rmms_generated.h"
 )
 
+# ── Codegen: rmms.fbs → Python bindings (for the e2e tests) ────────────────
+set(GEN_PY_DIR "${CMAKE_CURRENT_BINARY_DIR}/py")
+
+add_custom_command(
+    OUTPUT "${GEN_PY_DIR}/rmms/Envelope.py"
+    COMMAND ${FLATC_EXECUTABLE} --python -o "${GEN_PY_DIR}" "${FBS_SCHEMA}"
+    DEPENDS "${FBS_SCHEMA}"
+    COMMENT "Generating FlatBuffers Python bindings"
+    VERBATIM
+)
+
+add_custom_target(flatbuffers_python
+    DEPENDS "${GEN_PY_DIR}/rmms/Envelope.py"
+)
+
 # ── Source file lists ───────────────────────────────────────────────────────
 set(TRANSPORT_SOURCES
     src/transport/unix_socket.cpp
@@ -123,6 +138,13 @@ set(HANDLER_SOURCES
     src/handlers/marker_handler.cpp
     src/handlers/tempo_handler.cpp
     src/handlers/subscription_handler.cpp
+    src/handlers/ai_bridge_handler.cpp
+)
+
+set(AI_CLIENT_SOURCES
+    src/ai_client/rest_client.cpp
+    src/ai_client/sse_client.cpp
+    src/ai_client/pipeline_translator.cpp
 )
 
 # ── Backend library ─────────────────────────────────────────────────────────
@@ -134,6 +156,7 @@ add_library(rmms_backend STATIC
     ${CORE_SOURCES}
     ${CORE_HEADERS}
     ${HANDLER_SOURCES}
+    ${AI_CLIENT_SOURCES}
     ${MOCK_SOURCES}
     ${MOCK_HEADERS}
 )
@@ -158,3 +181,30 @@ target_compile_options(rmms_backend PRIVATE
 # ── Mock backend executable ─────────────────────────────────────────────────
 add_executable(rmms_mock_backend main.cpp)
 target_link_libraries(rmms_mock_backend PRIVATE rmms_backend)
+
+# ── Python end-to-end tests (CTest) ─────────────────────────────────────────
+# `ctest --test-dir build` runs test_mock.py + test_ai.py against a backend
+# instance started by run_tests.py.
+enable_testing()
+
+find_package(Python3 COMPONENTS Interpreter QUIET)
+if(Python3_Interpreter_FOUND)
+    execute_process(
+        COMMAND ${Python3_EXECUTABLE} -c "import flatbuffers"
+        RESULT_VARIABLE RMMS_FLATBUFFERS_PY_STATUS
+        OUTPUT_QUIET ERROR_QUIET
+    )
+    if(RMMS_FLATBUFFERS_PY_STATUS EQUAL 0)
+        add_dependencies(rmms_mock_backend flatbuffers_python)
+        add_test(NAME rmms_backend_e2e
+                 COMMAND ${Python3_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/run_tests.py")
+        set_tests_properties(rmms_backend_e2e PROPERTIES
+            ENVIRONMENT "RMMS_PY_BINDINGS=${GEN_PY_DIR};RMMS_BACKEND_BIN=$<TARGET_FILE:rmms_mock_backend>"
+            RUN_SERIAL TRUE
+            TIMEOUT 240)
+    else()
+        message(STATUS "python 'flatbuffers' package missing - e2e tests disabled")
+    endif()
+else()
+    message(STATUS "python3 not found - e2e tests disabled")
+endif()

@@ -40,8 +40,10 @@ public:
                     const uint8_t* payload, size_t payload_size);
 
     // Push an event to a single client regardless of subscription.
+    // seq_id is echoed into the event Envelope (0 for unsolicited pushes).
     void push_event_to(uint32_t client_id, std::string_view event_name,
-                       const uint8_t* payload, size_t payload_size);
+                       const uint8_t* payload, size_t payload_size,
+                       uint32_t seq_id = 0);
 
     bool is_running() const;
 
@@ -52,7 +54,7 @@ private:
     void on_client_disconnect(uint32_t client_id);
     void send_response(uint32_t client_id, uint32_t seq_id, std::string_view method,
                        const uint8_t* payload, size_t payload_size);
-    void send_event(uint32_t client_id, std::string_view event_name,
+    void send_event(uint32_t client_id, uint32_t seq_id, std::string_view event_name,
                     const uint8_t* payload, size_t payload_size);
     void send_event_broadcast(std::string_view event_name,
                               const uint8_t* payload, size_t payload_size);

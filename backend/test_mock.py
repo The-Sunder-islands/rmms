@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Test RMMS mock backend via Unix socket + FlatBuffers."""
 import os, socket, struct, sys
-sys.path.insert(0, "/tmp/fb/py")
+sys.path.insert(0, os.environ.get("RMMS_PY_BINDINGS", "/tmp/fb/py"))
 
 import flatbuffers
 
