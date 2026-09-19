@@ -15,11 +15,12 @@
 
 #include "ai_client/rest_client.h"
 #include "ai_client/sse_client.h"
+#include "core/iproject_state.h"
 
 namespace rmms::backend::protocol {
 class HandlerRegistry;
 class ProtocolServer;
-} // namespace rmms::backend::protocol
+}  // namespace rmms::backend::protocol
 
 namespace rmms::backend::handlers {
 
@@ -40,9 +41,10 @@ namespace rmms::backend::handlers {
 class AiBridge
 {
 public:
-	AiBridge(protocol::ProtocolServer* server, std::string_view base_url = "http://127.0.0.1:8420");
-	~AiBridge();
-
+    AiBridge(protocol::ProtocolServer* server,
+             std::shared_ptr<core::IProjectState> state,
+             std::string_view base_url = "http://127.0.0.1:8420");
+    ~AiBridge();
 	AiBridge(const AiBridge&) = delete;
 	AiBridge& operator=(const AiBridge&) = delete;
 
@@ -60,6 +62,7 @@ private:
 		std::string http_method; // "GET" | "POST" | "DELETE"
 		std::string path;		 // REST path
 		std::string body;		 // POST body (empty otherwise)
+		std::string import_dir;  // ai.import_results target directory (empty = temp)
 	};
 
 	// One active SSE session per task. The session is owned by m_sse while the
@@ -77,6 +80,11 @@ private:
 	void worker_loop();
 	void handle_rest_result(const PendingRequest& req, const ai_client::HttpResponse& resp);
 
+	// ai.import_results: download task result URLs and add them to the project.
+	bool import_results(const std::string& task_json, const std::string& import_dir,
+						std::vector<std::string>& created_tracks,
+						std::vector<std::string>& imported_files);
+
 	void start_sse(uint32_t client_id, std::string task_id);
 	void sse_loop(
 		uint32_t client_id, std::string task_id, std::shared_ptr<ai_client::SseClient> client, SseSession* session);
@@ -86,8 +94,9 @@ private:
 	// an SSE thread.
 	void drain_retired();
 
-	protocol::ProtocolServer* m_server;
-	ai_client::RestClient m_rest;
+    protocol::ProtocolServer* m_server;
+    std::shared_ptr<core::IProjectState> m_state;
+    ai_client::RestClient     m_rest;
 
 	std::mutex m_queue_mutex;
 	std::condition_variable m_queue_cv;

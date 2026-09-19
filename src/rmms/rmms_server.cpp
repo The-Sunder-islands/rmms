@@ -22,6 +22,8 @@
 #include "Track.h"
 #include "TrackContainer.h"
 #include "core/main_thread_dispatcher.h"
+#include "handlers/ai_bridge_handler.h"
+#include "handlers/ai_bridge_handler.h"
 #include "handlers/handlers.h"
 #include "protocol/handler.h"
 #include "protocol/server.h"
@@ -125,6 +127,7 @@ private:
 std::shared_ptr<QtDispatcher> g_dispatcher;
 std::shared_ptr<LmmsProjectState> g_state;
 std::unique_ptr<RmmsEventBridge> g_events;
+std::unique_ptr<backend::handlers::AiBridge> g_ai_bridge;
 std::shared_ptr<backend::protocol::ProtocolServer> g_server;
 std::thread g_thread;
 
@@ -171,10 +174,18 @@ void startServer() {
     const std::string path = socketPath();
     g_server = std::make_shared<backend::protocol::ProtocolServer>(
         path, registry, subs);
+
+    // AI bridge (REST/SSE client to the Python AI server) so the DAW-side
+    // ai.* methods (submit/import results) are available in the real session.
+    // Created after the server because it pushes events through it.
+    g_ai_bridge = std::make_unique<backend::handlers::AiBridge>(g_server.get(), state);
+    register_ai_bridge_handlers(*registry, *g_ai_bridge);
+
     g_thread = std::thread([] { g_server->start(); });
 
     g_state = state;
     g_events = std::make_unique<RmmsEventBridge>(g_server.get(), state);
+    g_ai_bridge->start();
 
     std::fprintf(stderr, "[rmms] control server listening on %s (%zu methods)\n",
                  path.c_str(), registry->registered_methods().size());
@@ -184,6 +195,11 @@ void stopServer() {
     if (g_server == nullptr) return;
 
     g_events.reset();  // stop the position timer before tearing down the server
+    if (g_ai_bridge)
+    {
+        g_ai_bridge->stop();
+        g_ai_bridge.reset();
+    }
 
     // Protocol threads may be blocked in QtDispatcher::call waiting for the
     // GUI thread. Stop on a helper thread while pumping the event loop here,

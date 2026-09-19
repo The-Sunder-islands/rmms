@@ -56,6 +56,7 @@ public:
     bool clip_resize(std::string_view id, uint64_t length_ticks) override;
     bool clip_set_loop(std::string_view id, uint64_t loop_start,
                        uint64_t loop_end) override;
+    bool clip_set_audio_url(std::string_view id, std::string_view path) override;
 
     // ── Note ────────────────────────────────────────────────────────────────
     std::string note_add(std::string_view clip_id, uint8_t key,

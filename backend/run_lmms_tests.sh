@@ -13,7 +13,7 @@ set -u
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 LMMS_BIN="${LMMS_BIN:-$ROOT/build-clang/lmms}"
-PY_BINDINGS="${RMMS_PY_BINDINGS:-$ROOT/build-clang/py}"
+PY_BINDINGS="${RMMS_PY_BINDINGS:-$ROOT/build-clang/backend/py}"
 SOCKET="${RMMS_SOCKET:-/tmp/rmms-test.sock}"
 M1_PROJECT="${M1_PROJECT:-$ROOT/data/projects/demos/DnB.mmpz}"
 M2_SAVE_PATH="${M2_SAVE_PATH:-/tmp/rmms-m2.mmpz}"
@@ -64,6 +64,32 @@ echo "=== M2: render the saved project and check it is audible ==="
 timeout 300 "$LMMS_BIN" render "$M2_SAVE_PATH" -o "$RENDER_OUT" > /tmp/rmms-render.log 2>&1 \
     || { tail -20 /tmp/rmms-render.log; fail "render"; }
 python3 - "$RENDER_OUT" <<'PY' || exit 1
+import array, sys, wave
+w = wave.open(sys.argv[1], 'rb')
+frames = w.getnframes()
+data = w.readframes(min(frames, w.getframerate()))
+peak = max((abs(x) for x in array.array('h', data)), default=0)
+print(f"WAV frames={frames} channels={w.getnchannels()} peak={peak}")
+sys.exit(0 if peak > 100 else 1)
+PY
+
+echo
+echo "=== M3: AI result import + save ==="
+M3_SAVE="${M3_SAVE_PATH:-/tmp/rmms-m3.mmpz}"
+M3_RENDER="${M3_SAVE%.*}.wav"
+rm -f "$M3_SAVE" "$M3_RENDER"
+run_server "" || fail "LMMS did not open $SOCKET"
+RMMS_IMPORT_DIR="${M3_IMPORT_DIR:-/tmp/rmms-m3-import}" RMMS_SAVE_AFTER="$M3_SAVE" \
+    python3 "$ROOT/backend/test_ai_import.py" || { stop_server; fail "M3 checks"; }
+stop_server
+
+[ -f "$M3_SAVE" ] || fail "saved project missing: $M3_SAVE"
+
+echo
+echo "=== M3: render the imported stems and check they are audible ==="
+timeout 300 "$LMMS_BIN" render "$M3_SAVE" -o "$M3_RENDER" > /tmp/rmms-render-m3.log 2>&1 \
+    || { tail -20 /tmp/rmms-render-m3.log; fail "render"; }
+python3 - "$M3_RENDER" <<'PY' || exit 1
 import array, sys, wave
 w = wave.open(sys.argv[1], 'rb')
 frames = w.getnframes()

@@ -239,6 +239,8 @@ std::vector<const core::ClipData*> LmmsProjectState::clip_list(
             d.type = mapClipType(clip);
             d.start_tick = static_cast<uint64_t>(clip->startPosition().getTicks());
             d.length_ticks = static_cast<uint64_t>(clip->length().getTicks());
+            if (auto* sc = dynamic_cast<SampleClip*>(clip))
+                d.audio_url = toStd(sc->sampleFile());
 
             m_clip_ptrs[d.id] = clip;
             m_clip_order.push_back(d.id);
@@ -271,6 +273,8 @@ const core::ClipData* LmmsProjectState::clip_get(std::string_view id) const {
                 d.type = mapClipType(clip);
                 d.start_tick = static_cast<uint64_t>(clip->startPosition().getTicks());
                 d.length_ticks = static_cast<uint64_t>(clip->length().getTicks());
+                if (auto* sc = dynamic_cast<SampleClip*>(clip))
+                    d.audio_url = toStd(sc->sampleFile());
                 m_clip_ptrs[d.id] = clip;
                 m_clip_order.push_back(d.id);
                 m_clips[d.id] = std::move(d);
@@ -604,6 +608,17 @@ bool LmmsProjectState::clip_resize(std::string_view id, uint64_t length_ticks) {
     if (clip == nullptr) return false;
     m_dispatch->call([&] {
         clip->changeLength(TimePos(static_cast<int>(length_ticks)));
+    });
+    return true;
+}
+
+bool LmmsProjectState::clip_set_audio_url(std::string_view id, std::string_view path) {
+    auto* clip = dynamic_cast<SampleClip*>(resolveClip(id));
+    if (clip == nullptr) return false;
+    const QString file = QString::fromUtf8(path.data(), static_cast<int>(path.size()));
+    m_dispatch->call([&] {
+        // Loads the buffer synchronously and resizes the clip to the sample.
+        clip->setSampleFile(file);
     });
     return true;
 }

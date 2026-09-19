@@ -85,6 +85,8 @@ public:
     virtual bool clip_resize(std::string_view id, uint64_t length_ticks) = 0;
     virtual bool clip_set_loop(std::string_view id, uint64_t loop_start,
                                uint64_t loop_end) = 0;
+    // Loads an audio file into an audio clip (AI result import, drag & drop).
+    virtual bool clip_set_audio_url(std::string_view id, std::string_view path) = 0;
 
     // ── Note ────────────────────────────────────────────────────────────────
     virtual std::string note_add(std::string_view clip_id, uint8_t key,

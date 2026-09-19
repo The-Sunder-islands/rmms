@@ -50,6 +50,11 @@ public:
     static bool final_result_to_fb(std::string_view json,
                                    flatbuffers::FlatBufferBuilder& fbb);
 
+    // Raw JSON accessors used by the bridge (e.g. AI result import).
+    static std::string json_get_array(std::string_view json, const char* key);
+    static std::vector<std::string> json_array_strings(std::string_view arr);
+    static std::vector<std::string> json_array_objects(std::string_view arr);
+
 private:
     static std::string json_escape(std::string_view s);
     static std::string json_get_string(std::string_view json, const char* key);
@@ -58,11 +63,8 @@ private:
     static int64_t json_get_int64(std::string_view json, const char* key, int64_t default_val = 0);
     static bool json_get_bool(std::string_view json, const char* key, bool default_val = false);
     static std::string json_get_object(std::string_view json, const char* key);
-    static std::string json_get_array(std::string_view json, const char* key);
     // All string elements of a JSON array (returns empty list on parse error).
-    static std::vector<std::string> json_array_strings(std::string_view arr);
     // All object elements of a JSON array, kept as raw JSON strings.
-    static std::vector<std::string> json_array_objects(std::string_view arr);
 
     static int param_type_from_string(std::string_view s);
     static int device_type_from_string(std::string_view s);

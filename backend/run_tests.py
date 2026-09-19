@@ -75,7 +75,9 @@ def main():
             print("Backend did not open /tmp/rmms.sock")
             return 1
 
-        for name, script in (("test_mock", "test_mock.py"), ("test_ai", "test_ai.py")):
+        for name, script in (("test_mock", "test_mock.py"),
+                             ("test_ai", "test_ai.py"),
+                             ("test_ai_import", "test_ai_import.py")):
             print(f"\n{'=' * 70}\n{name}: {script}\n{'=' * 70}")
             rc = subprocess.call([sys.executable, os.path.join(ROOT, script)], env=env)
             results[name] = rc

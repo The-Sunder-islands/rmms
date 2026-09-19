@@ -1,10 +1,14 @@
 #include "ai_client/rest_client.h"
 
+#include <atomic>
 #include <cerrno>
+#include <cstdio>
+#include <cstdlib>
 #include <cstring>
-#include <netdb.h>
 #include <sstream>
 #include <stdexcept>
+
+#include <netdb.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -273,8 +277,128 @@ HttpResponse RestClient::get(std::string_view path, const std::unordered_map<std
 HttpResponse RestClient::post(std::string_view path, std::string_view body, std::string_view content_type,
 	const std::unordered_map<std::string, std::string>& headers)
 { return request("POST", path, body, content_type, headers); }
+HttpResponse RestClient::del(std::string_view path,
+                              const std::unordered_map<std::string, std::string>& headers) {
+    return request("DELETE", path, "", "", headers);
+}
 
-HttpResponse RestClient::del(std::string_view path, const std::unordered_map<std::string, std::string>& headers)
-{ return request("DELETE", path, "", "", headers); }
+HttpResponse RestClient::post_file(std::string_view path, std::string_view field,
+                                   std::string_view file_path,
+                                   std::string_view content_type)
+{
+    std::FILE* f = std::fopen(std::string(file_path).c_str(), "rb");
+    if (f == nullptr) {
+        return HttpResponse{-1, "cannot open file", {}};
+    }
+    std::string data;
+    char buf[8192];
+    size_t n = 0;
+    while ((n = std::fread(buf, 1, sizeof(buf), f)) > 0)
+        data.append(buf, n);
+    std::fclose(f);
 
+    // Unique enough for a single request; the field is only used for framing.
+    static std::atomic<unsigned> counter{0};
+    const std::string boundary =
+        "----rmmsformboundary" + std::to_string(counter.fetch_add(1));
+
+    std::string basename(file_path);
+    if (auto slash = basename.find_last_of('/'); slash != std::string::npos)
+        basename = basename.substr(slash + 1);
+
+    std::string body;
+    body.reserve(data.size() + 512);
+    body += "--" + boundary + "\r\n";
+    body += "Content-Disposition: form-data; name=\"" + std::string(field) +
+            "\"; filename=\"" + basename + "\"\r\n";
+    body += "Content-Type: " + std::string(content_type) + "\r\n\r\n";
+    body += data;
+    body += "\r\n--" + boundary + "--\r\n";
+
+    return request("POST", path, body,
+                   "multipart/form-data; boundary=" + boundary, {});
+}
+
+bool RestClient::download(std::string_view path, std::string_view dest_path) {
+    int fd = connect_to_server();
+    if (fd < 0) return false;
+
+    const std::string full_path = m_url.path_prefix.empty()
+        ? std::string(path)
+        : (m_url.path_prefix + std::string(path));
+
+    std::string req;
+    req += "GET " + full_path + " HTTP/1.1\r\n";
+    req += "Host: " + m_url.host;
+    if (m_url.port != 80 && m_url.port != 443)
+        req += ":" + std::to_string(m_url.port);
+    req += "\r\nConnection: close\r\n\r\n";
+
+    size_t sent = 0;
+    while (sent < req.size()) {
+        ssize_t w = send(fd, req.data() + sent, req.size() - sent, MSG_NOSIGNAL);
+        if (w <= 0) {
+            close(fd);
+            return false;
+        }
+        sent += static_cast<size_t>(w);
+    }
+
+    // Read the response head.
+    std::string head;
+    char buf[8192];
+    while (head.find("\r\n\r\n") == std::string::npos) {
+        ssize_t r = recv(fd, buf, sizeof(buf), 0);
+        if (r <= 0) {
+            close(fd);
+            return false;
+        }
+        head.append(buf, static_cast<size_t>(r));
+        if (head.size() > 65536) {
+            close(fd);
+            return false;
+        }
+    }
+    const auto head_end = head.find("\r\n\r\n");
+    const std::string headers = head.substr(0, head_end);
+    const std::string body_prefix = head.substr(head_end + 4);
+
+    const auto status_pos = headers.find(' ');
+    if (status_pos == std::string::npos) {
+        close(fd);
+        return false;
+    }
+    const int status = std::atoi(headers.c_str() + status_pos + 1);
+    if (status != 200) {
+        close(fd);
+        return false;
+    }
+    if (headers.find("transfer-encoding: chunked") != std::string::npos) {
+        close(fd);
+        return false;  // not needed for the AI server's FileResponse
+    }
+
+    std::FILE* out = std::fopen(std::string(dest_path).c_str(), "wb");
+    if (out == nullptr) {
+        close(fd);
+        return false;
+    }
+
+    bool ok = body_prefix.empty() ||
+              std::fwrite(body_prefix.data(), 1, body_prefix.size(), out) ==
+                  body_prefix.size();
+    while (ok) {
+        ssize_t r = recv(fd, buf, sizeof(buf), 0);
+        if (r == 0) break;
+        if (r < 0) {
+            ok = false;
+            break;
+        }
+        ok = std::fwrite(buf, 1, static_cast<size_t>(r), out) ==
+             static_cast<size_t>(r);
+    }
+    std::fclose(out);
+    close(fd);
+    return ok;
+}
 } // namespace rmms::backend::ai_client

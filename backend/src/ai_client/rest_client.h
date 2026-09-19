@@ -40,6 +40,15 @@ public:
     HttpResponse del(std::string_view path,
                      const std::unordered_map<std::string, std::string>& headers = {});
 
+    // multipart/form-data upload of a single file (AI input upload).
+    HttpResponse post_file(std::string_view path, std::string_view field,
+                           std::string_view file_path,
+                           std::string_view content_type = "application/octet-stream");
+
+    // GETs path and streams the body into dest_path (AI result download).
+    // Returns true on HTTP 200. Chunked responses are not supported.
+    bool download(std::string_view path, std::string_view dest_path);
+
     void set_timeout(int seconds);
 
 private:

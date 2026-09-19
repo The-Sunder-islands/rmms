@@ -86,6 +86,7 @@ public:
     bool clip_move(std::string_view id, std::string_view track_id,
                    uint64_t start_tick) override;
     bool clip_resize(std::string_view id, uint64_t length_ticks) override;
+    bool clip_set_audio_url(std::string_view id, std::string_view path) override;
 
     std::string note_add(std::string_view clip_id, uint8_t key,
                          uint64_t start_tick, uint64_t length_ticks,

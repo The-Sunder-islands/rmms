@@ -29,6 +29,7 @@ struct ClipData {
     uint64_t    length_ticks = 0;
     uint64_t    loop_start = 0;
     uint64_t    loop_end = 0;
+    std::string audio_url;   // audio clips: sample path
     std::vector<NoteData> notes;
 };
 

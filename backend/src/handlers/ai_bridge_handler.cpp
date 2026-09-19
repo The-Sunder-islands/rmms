@@ -1,6 +1,7 @@
 #include "handlers/ai_bridge_handler.h"
 
 #include <chrono>
+#include <filesystem>
 #include <flatbuffers/flatbuffers.h>
 #include <string>
 #include <utility>
@@ -48,8 +49,10 @@ const ai_client::HttpResponse kQueueFull{503, "", {}};
 
 } // namespace
 
-AiBridge::AiBridge(protocol::ProtocolServer* server, std::string_view base_url)
+AiBridge::AiBridge(protocol::ProtocolServer* server,
+				   std::shared_ptr<core::IProjectState> state, std::string_view base_url)
 	: m_server(server)
+	, m_state(std::move(state))
 	, m_rest(base_url)
 	, m_running(false)
 {
@@ -133,6 +136,18 @@ void AiBridge::register_handlers(HandlerRegistry& registry)
 		resp.Finish(rmms::CreateAIListTasksResponse(resp, ok_status(resp), 0, 0));
 
 		PendingRequest pr{client_id, req.seq_id(), "ai.list_tasks", "GET", std::move(path), ""};
+		if (!enqueue(pr)) handle_rest_result(pr, kQueueFull);
+	});
+
+	// ── ai.import_results ──────────────────────────────────────────────────
+	registry.register_handler("ai.import_results", [this](uint32_t client_id, auto& req, auto& resp) {
+		auto* q = flatbuffers::GetRoot<rmms::AIImportResultsRequest>(req.payload()->data());
+		const std::string task_id = (q && q->task_id()) ? q->task_id()->str() : "";
+		const std::string import_dir = (q && q->import_dir()) ? q->import_dir()->str() : "";
+		resp.Finish(rmms::CreateAIImportResultsResponse(resp, ok_status(resp), 0, 0));
+
+		PendingRequest pr{client_id, req.seq_id(), "ai.import_results", "GET",
+						  "/api/v1/tasks/" + task_id, "", import_dir};
 		if (!enqueue(pr)) handle_rest_result(pr, kQueueFull);
 	});
 }
@@ -290,6 +305,34 @@ void AiBridge::handle_rest_result(const PendingRequest& req, const ai_client::Ht
 			fbb.Finish(rmms::CreateAIListTasksResponse(fbb, status, 0, 0));
 		}
 	}
+	else if (req.method == "ai.import_results")
+	{
+		if (ok && m_state)
+		{
+			std::vector<std::string> tracks;
+			std::vector<std::string> files;
+			if (import_results(resp.body, req.import_dir, tracks, files))
+			{
+				std::vector<flatbuffers::Offset<flatbuffers::String>> track_offs;
+				std::vector<flatbuffers::Offset<flatbuffers::String>> file_offs;
+				for (const auto& t : tracks) track_offs.push_back(fbb.CreateString(t));
+				for (const auto& f : files) file_offs.push_back(fbb.CreateString(f));
+				fbb.Finish(rmms::CreateAIImportResultsResponse(
+					fbb, ok_status(fbb), fbb.CreateVector(track_offs),
+					fbb.CreateVector(file_offs)));
+			}
+			else
+			{
+				auto status = err_status(fbb, "IMPORT_FAILED", "no downloadable results");
+				fbb.Finish(rmms::CreateAIImportResultsResponse(fbb, status, 0, 0));
+			}
+		}
+		else
+		{
+			auto status = err_status(fbb, err_code, resp.body.substr(0, 256));
+			fbb.Finish(rmms::CreateAIImportResultsResponse(fbb, status, 0, 0));
+		}
+	}
 	else
 	{
 		return;
@@ -416,6 +459,69 @@ void AiBridge::drain_retired()
 	// Join outside the lock: every retired session's thread has already
 	// returned or is about to return without touching the session again.
 	retired.clear();
+}
+
+bool AiBridge::import_results(const std::string& task_json, const std::string& import_dir,
+							  std::vector<std::string>& created_tracks,
+							  std::vector<std::string>& imported_files)
+{
+	using namespace ai_client;
+
+	// GET /tasks/{id} -> completed_urls: [ { step_type, urls: [url, ...] } ]
+	std::vector<std::string> urls;
+	const auto step_objs = PipelineTranslator::json_array_objects(
+		PipelineTranslator::json_get_array(task_json, "completed_urls"));
+	for (const auto& step : step_objs)
+	{
+		for (const auto& u : PipelineTranslator::json_array_strings(
+				 PipelineTranslator::json_get_array(step, "urls")))
+		{
+			if (!u.empty()) urls.push_back(u);
+		}
+	}
+	if (urls.empty()) return false;
+
+	std::string dir = import_dir;
+	if (dir.empty())
+	{
+		const std::string task_id = PipelineTranslator::get_json_string(task_json, "task_id");
+		dir = "/tmp/rmms-import/" + (task_id.empty() ? std::string("task") : task_id);
+	}
+	std::error_code ec;
+	std::filesystem::create_directories(dir, ec);
+	if (ec) return false;
+
+	for (const auto& url : urls)
+	{
+		// Strip scheme://host so RestClient (which owns host/port) can fetch it.
+		std::string path = url;
+		if (const auto scheme = path.find("://"); scheme != std::string::npos)
+		{
+			const auto slash = path.find('/', scheme + 3);
+			path = (slash == std::string::npos) ? "/" : path.substr(slash);
+		}
+		std::string name = path;
+		if (const auto slash = name.find_last_of('/'); slash != std::string::npos)
+			name = name.substr(slash + 1);
+		if (name.empty()) continue;
+
+		const std::string dest = dir + "/" + name;
+		if (!m_rest.download(path, dest)) continue;
+
+		std::string stem = name;
+		if (const auto dot = stem.find_last_of('.'); dot != std::string::npos)
+			stem = stem.substr(0, dot);
+
+		const std::string track_id = m_state->track_add(rmms::TrackType_AUDIO, stem);
+		if (track_id.empty()) continue;
+		const std::string clip_id = m_state->clip_add(track_id, rmms::ClipType_AUDIO, 0, 0);
+		if (clip_id.empty()) continue;
+		m_state->clip_set_audio_url(clip_id, dest);
+
+		created_tracks.push_back(track_id);
+		imported_files.push_back(dest);
+	}
+	return !created_tracks.empty();
 }
 
 } // namespace rmms::backend::handlers

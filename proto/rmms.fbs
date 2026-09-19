@@ -182,6 +182,7 @@ table Clip {
     length_ticks:uint64;
     loop_start:  uint64;       // 0 = no loop
     loop_end:    uint64;
+    audio_url:   string;       // audio clips: sample path/URL (local path for now)
 }
 
 table Note {
@@ -1144,6 +1145,21 @@ table AIListTasksResponse {
     status: StatusResponse;
     tasks:  [string];         // JSON-encoded TaskSummary array
     total:  int32;
+}
+
+// Method: "ai.import_results"
+// Downloads every completed result URL of a task from the AI server and
+// imports the files into the project (audio files become Audio tracks with a
+// clip per file). Async like the other ai.* methods: the completion event is
+// "ai.import_results.result".
+table AIImportResultsRequest {
+    task_id:    string;
+    import_dir: string;       // empty = /tmp/rmms-import/<task_id>
+}
+table AIImportResultsResponse {
+    status:         StatusResponse;
+    created_tracks: [string]; // track ids created by the import
+    imported_files: [string]; // local paths of the downloaded files
 }
 
 // --- AI SSE → FlatBuffers event translation ---

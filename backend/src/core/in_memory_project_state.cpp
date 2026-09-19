@@ -60,8 +60,10 @@ flatbuffers::Offset<Track> build_track(flatbuffers::FlatBufferBuilder& fbb, cons
 flatbuffers::Offset<Clip> build_clip(flatbuffers::FlatBufferBuilder& fbb, const ClipData& c) {
     auto id = fbb.CreateString(c.id);
     auto track_id = fbb.CreateString(c.track_id);
+    auto audio_url = fbb.CreateString(c.audio_url);
     return CreateClip(fbb, id, track_id, c.type,
-                      c.start_tick, c.length_ticks, c.loop_start, c.loop_end);
+                      c.start_tick, c.length_ticks, c.loop_start, c.loop_end,
+                      audio_url);
 }
 
 flatbuffers::Offset<Note> build_note(flatbuffers::FlatBufferBuilder& fbb, const NoteData& n) {
@@ -441,6 +443,13 @@ bool InMemoryProjectState::clip_set_loop(std::string_view id, uint64_t loop_star
     if (!c) return false;
     c->loop_start = loop_start;
     c->loop_end = loop_end;
+    return true;
+}
+
+bool InMemoryProjectState::clip_set_audio_url(std::string_view id, std::string_view path) {
+    auto* c = clip_get(id);
+    if (!c) return false;
+    c->audio_url = std::string(path);
     return true;
 }
 

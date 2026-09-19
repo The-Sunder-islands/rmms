@@ -91,7 +91,7 @@ int main() {
 
     protocol::ProtocolServer server("/tmp/rmms.sock", registry, subs);
     mock::MockEngine engine(state, &server);
-    handlers::AiBridge ai_bridge(&server);
+    handlers::AiBridge ai_bridge(&server, state);
 
     g_server = &server;
 
