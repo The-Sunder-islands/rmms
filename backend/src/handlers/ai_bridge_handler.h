@@ -10,6 +10,7 @@
 #include <mutex>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <thread>
 #include <vector>
 
@@ -63,6 +64,8 @@ private:
 		std::string path;		 // REST path
 		std::string body;		 // POST body (empty otherwise)
 		std::string import_dir;  // ai.import_results target directory (empty = temp)
+		std::string file_path;   // UPLOAD: local file to send
+		std::vector<std::pair<std::string, std::string>> fields; // UPLOAD: form fields
 	};
 
 	// One active SSE session per task. The session is owned by m_sse while the

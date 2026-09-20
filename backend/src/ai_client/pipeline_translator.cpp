@@ -482,6 +482,42 @@ bool PipelineTranslator::list_tasks_to_fb(std::string_view json,
 
 // ── Translation: AISubmitPipelineRequest (FlatBuffers) → JSON ──────────────
 
+// JSON array of pipeline steps. Shared by the JSON body and the multipart form
+// (the AI server expects the bare steps array in the form field "pipeline").
+static std::string steps_array_json(const rmms::AISubmitPipelineRequest& req)
+{
+    std::ostringstream json;
+    json << "[";
+    if (req.pipeline()) {
+        auto* steps = req.pipeline()->steps();
+        if (steps) {
+            for (size_t i = 0; i < steps->size(); ++i) {
+                if (i > 0) json << ",";
+                auto* step = steps->Get(i);
+                json << "{";
+                if (step->type())
+                    json << "\"capability\":\"" << PipelineTranslator::json_escape(step->type()->string_view()) << "\"";
+                if (step->model())
+                    json << ",\"model\":\"" << PipelineTranslator::json_escape(step->model()->string_view()) << "\"";
+                if (step->params())
+                    json << ",\"params\":" << step->params()->string_view();
+                if (step->model_params())
+                    json << ",\"model_params\":" << step->model_params()->string_view();
+                if (step->input()) {
+                    json << ",\"input\":{";
+                    json << "\"from_step\":" << step->input()->from_step();
+                    if (step->input()->stem())
+                        json << ",\"stem\":\"" << PipelineTranslator::json_escape(step->input()->stem()->string_view()) << "\"";
+                    json << "}";
+                }
+                json << "}";
+            }
+        }
+    }
+    json << "]";
+    return json.str();
+}
+
 std::string PipelineTranslator::submit_pipeline_request_to_json(
     const rmms::AISubmitPipelineRequest& req)
 {
@@ -492,34 +528,7 @@ std::string PipelineTranslator::submit_pipeline_request_to_json(
         json << "\"input_url\":\"" << json_escape(req.input_url()->string_view()) << "\",";
 
     // pipeline
-    json << "\"pipeline\":{\"steps\":[";
-    if (req.pipeline()) {
-        auto* steps = req.pipeline()->steps();
-        if (steps) {
-            for (size_t i = 0; i < steps->size(); ++i) {
-                if (i > 0) json << ",";
-                auto* step = steps->Get(i);
-                json << "{";
-                if (step->type())
-                    json << "\"capability\":\"" << json_escape(step->type()->string_view()) << "\"";
-                if (step->model())
-                    json << ",\"model\":\"" << json_escape(step->model()->string_view()) << "\"";
-                if (step->params())
-                    json << ",\"params\":" << step->params()->string_view();
-                if (step->model_params())
-                    json << ",\"model_params\":" << step->model_params()->string_view();
-                if (step->input()) {
-                    json << ",\"input\":{";
-                    json << "\"from_step\":" << step->input()->from_step();
-                    if (step->input()->stem())
-                        json << ",\"stem\":\"" << json_escape(step->input()->stem()->string_view()) << "\"";
-                    json << "}";
-                }
-                json << "}";
-            }
-        }
-    }
-    json << "]},";
+    json << "\"pipeline\":{\"steps\":" << steps_array_json(req) << "},";
 
     if (req.device_pref())
         json << "\"device_preference\":\"" << json_escape(req.device_pref()->string_view()) << "\",";
@@ -533,6 +542,22 @@ std::string PipelineTranslator::submit_pipeline_request_to_json(
 
     json << "}";
     return json.str();
+}
+
+PipelineTranslator::SubmitForm PipelineTranslator::submit_pipeline_form(
+    const rmms::AISubmitPipelineRequest& req)
+{
+    SubmitForm form;
+    form.steps_json = steps_array_json(req);
+    if (req.device_pref())
+        form.device_preference = std::string(req.device_pref()->string_view());
+    form.priority = std::to_string(req.priority());
+    if (req.output_format())
+        form.output_format = std::string(req.output_format()->string_view());
+    if (req.output_package())
+        form.output_package = std::string(req.output_package()->string_view());
+    form.force_refresh = req.force_refresh() ? "true" : "false";
+    return form;
 }
 
 // ── Translation: SSE JSON events → FlatBuffers ─────────────────────────────

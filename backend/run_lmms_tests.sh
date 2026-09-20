@@ -51,6 +51,12 @@ python3 "$ROOT/backend/test_lmms_e2e.py" || { stop_server; fail "M1 checks"; }
 stop_server
 
 echo
+echo "=== M1b: AI bridge (capabilities/upload/SSE) against the real session ==="
+run_server "" || fail "LMMS did not open $SOCKET"
+python3 "$ROOT/backend/test_ai.py" || { stop_server; fail "AI bridge checks"; }
+stop_server
+
+echo
 echo "=== M2: write path + events + save ==="
 rm -f "$M2_SAVE_PATH" "$RENDER_OUT"
 run_server "" || fail "LMMS did not open $SOCKET"

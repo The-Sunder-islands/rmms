@@ -30,6 +30,7 @@ flatbuffers::Offset<rmms::StatusResponse> err_status(
 
 std::string error_code_from_http(int status)
 {
+	if (status == -2) return "FILE_NOT_FOUND";
 	if (status <= 0) return "AI_SERVER_UNREACHABLE";
 	if (status == 404) return "AI_NOT_FOUND";
 	if (status == 429) return "AI_QUOTA_EXCEEDED";
@@ -75,11 +76,50 @@ void AiBridge::register_handlers(HandlerRegistry& registry)
 	// ── ai.submit_pipeline ─────────────────────────────────────────────────
 	registry.register_handler("ai.submit_pipeline", [this](uint32_t client_id, auto& req, auto& resp) {
 		auto* q = flatbuffers::GetRoot<rmms::AISubmitPipelineRequest>(req.payload()->data());
-		std::string body;
-		if (q) body = ai_client::PipelineTranslator::submit_pipeline_request_to_json(*q);
 		auto empty = resp.CreateString("");
 		resp.Finish(rmms::CreateAISubmitPipelineResponse(resp, ok_status(resp), empty, false, rmms::TaskStatus_QUEUED));
 
+		// Local file input -> multipart upload; http(s) URL -> JSON body and
+		// the AI server fetches it itself.
+		std::string input = (q && q->input_url()) ? q->input_url()->str() : "";
+		const bool is_url = input.rfind("http://", 0) == 0 || input.rfind("https://", 0) == 0;
+		std::string file_path;
+		if (!input.empty() && !is_url)
+		{
+			file_path = input;
+			if (file_path.rfind("file://", 0) == 0)
+				file_path = file_path.substr(7);
+		}
+
+		if (!file_path.empty() && q)
+		{
+			if (!std::filesystem::exists(file_path))
+			{
+				handle_rest_result(PendingRequest{client_id, req.seq_id(), "ai.submit_pipeline",
+												  "POST", "/api/v1/tasks", ""},
+								   ai_client::HttpResponse{-2, "local input file not found", {}});
+				return;
+			}
+			const auto form = ai_client::PipelineTranslator::submit_pipeline_form(*q);
+			std::vector<std::pair<std::string, std::string>> fields;
+			fields.emplace_back("pipeline", form.steps_json);
+			if (!form.device_preference.empty())
+				fields.emplace_back("device_preference", form.device_preference);
+			fields.emplace_back("priority", form.priority);
+			if (!form.output_format.empty())
+				fields.emplace_back("output_format", form.output_format);
+			if (!form.output_package.empty())
+				fields.emplace_back("output_package", form.output_package);
+			fields.emplace_back("force_refresh", form.force_refresh);
+
+			PendingRequest pr{client_id, req.seq_id(), "ai.submit_pipeline", "UPLOAD",
+							  "/api/v1/tasks", "", "", file_path, std::move(fields)};
+			if (!enqueue(pr)) handle_rest_result(pr, kQueueFull);
+			return;
+		}
+
+		std::string body;
+		if (q) body = ai_client::PipelineTranslator::submit_pipeline_request_to_json(*q);
 		PendingRequest pr{client_id, req.seq_id(), "ai.submit_pipeline", "POST", "/api/v1/tasks", std::move(body)};
 		if (!enqueue(pr)) handle_rest_result(pr, kQueueFull);
 	});
@@ -220,7 +260,10 @@ void AiBridge::worker_loop()
 		}
 
 		ai_client::HttpResponse resp;
-		if (req.http_method == "POST") resp = m_rest.post(req.path, req.body);
+		if (req.http_method == "POST")
+			resp = m_rest.post(req.path, req.body);
+		else if (req.http_method == "UPLOAD")
+			resp = m_rest.post_form(req.path, req.fields, "file", req.file_path);
 		else if (req.http_method == "DELETE")
 			resp = m_rest.del(req.path);
 		else
@@ -235,7 +278,7 @@ void AiBridge::handle_rest_result(const PendingRequest& req, const ai_client::Ht
 	using namespace ai_client;
 	flatbuffers::FlatBufferBuilder fbb(4096);
 
-	bool ok = resp.status == 200;
+	bool ok = resp.status == 200 || resp.status == 201;
 	auto err_code = error_code_from_http(resp.status);
 
 	if (req.method == "ai.get_capabilities")

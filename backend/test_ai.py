@@ -19,6 +19,7 @@ Requires rmms_mock_backend to be running (see run_tests.py).
 import http.server
 import json
 import os
+import re
 import socket
 import struct
 import sys
@@ -48,7 +49,7 @@ import rmms.AIEventProgress
 import rmms.AIEventPartialResult
 import rmms.AIEventFinalResult
 
-SOCKET = "/tmp/rmms.sock"
+SOCKET = os.environ.get("RMMS_SOCKET", "/tmp/rmms.sock")
 FAKE_HOST, FAKE_PORT = "127.0.0.1", 8420
 TASK_POST = "task-123"
 TASK_GET = "task-456"
@@ -76,6 +77,7 @@ CAPABILITIES = {
 }
 
 FAILURES = []
+LAST_UPLOAD = {}
 
 
 def check(cond, msg):
@@ -133,6 +135,10 @@ class FakeAIHandler(http.server.BaseHTTPRequestHandler):
         if self.path != "/api/v1/tasks":
             self._json(404, {"detail": f"no route {self.path}"})
             return
+        ctype = self.headers.get("Content-Type", "")
+        if ctype.startswith("multipart/form-data"):
+            self._handle_multipart(ctype)
+            return
         body = self._read_body()
         try:
             parsed = json.loads(body or b"{}")
@@ -144,6 +150,44 @@ class FakeAIHandler(http.server.BaseHTTPRequestHandler):
             return
         task_id = TASK_HOLD if "hold" in parsed.get("input_url", "") else TASK_POST
         self._json(200, {"task_id": task_id, "cached": False, "status": "queued"})
+
+    def _handle_multipart(self, ctype):
+        boundary = ctype.split("boundary=", 1)[1].strip().strip('"').encode()
+        n = int(self.headers.get("Content-Length", "0") or 0)
+        raw = self.rfile.read(n)
+        parts = raw.split(b"--" + boundary)
+        fields = {}
+        for part in parts:
+            if part.startswith(b"\r\n"):
+                part = part[2:]
+            if not part or part.startswith(b"--"):
+                continue
+            head, sep, data = part.partition(b"\r\n\r\n")
+            if not sep:
+                continue
+            data = data.rstrip(b"\r\n")
+            m = re.search(rb'name="([^"]+)"', head)
+            if not m:
+                continue
+            fname = re.search(rb'filename="([^"]*)"', head)
+            fields[m.group(1).decode()] = (fname.group(1).decode() if fname else None, data)
+
+        pipeline_raw = fields.get("pipeline", (None, b""))[1]
+        file_name, file_data = fields.get("file", (None, b""))
+        try:
+            steps = json.loads(pipeline_raw or b"[]")
+        except ValueError:
+            steps = []
+        if not isinstance(steps, list) or not steps or steps[0].get("capability") != "split":
+            self._json(400, {"detail": "missing pipeline step"})
+            return
+        if not file_data:
+            self._json(400, {"detail": "missing file"})
+            return
+        LAST_UPLOAD.clear()
+        LAST_UPLOAD.update({"filename": file_name, "size": len(file_data),
+                            "magic": file_data[:4], "pipeline": steps})
+        self._json(201, {"task_id": TASK_POST, "cached": False, "status": "queued"})
 
     def do_DELETE(self):
         if self.path in (f"/api/v1/tasks/{TASK_POST}", f"/api/v1/tasks/{TASK_HOLD}"):
@@ -494,6 +538,50 @@ def main():
                   "cancel-while-streaming result success")
             check(elapsed < 5.0,
                   f"cancel did not hang on the SSE thread ({elapsed:.2f}s)")
+
+        # 7b. multipart upload for local file input
+        print("\n7b. ai.submit_pipeline (multipart upload)")
+        upload_path = "/tmp/rmms-upload-test.wav"
+        with open(upload_path, "wb") as fh:
+            fh.write(b"RIFF" + b"\x00" * 1024)
+        c.send("ai.submit_pipeline", build_submit_request(input_url=upload_path), 50)
+        entry = None
+        deadline = time.time() + 10
+        while time.time() < deadline and entry is None:
+            c.pump(0.5)
+            for e in c.events.get("ai.submit_pipeline.result", []):
+                if e[0] == 50:
+                    entry = e
+                    break
+        if check(entry is not None, "multipart submit result received"):
+            sub = rmms.AISubmitPipelineResponse.AISubmitPipelineResponse.GetRootAs(entry[1], 0)
+            check(sub.Status() is not None and sub.Status().Success(),
+                  "multipart submit success (HTTP 201)")
+            check(sub.TaskId() is not None and sub.TaskId().decode() == TASK_POST,
+                  "multipart submit task id")
+        check(LAST_UPLOAD.get("filename") == os.path.basename(upload_path),
+              f"server received the file name ({LAST_UPLOAD.get('filename')})")
+        check(LAST_UPLOAD.get("size") == 1028,
+              f"server received the whole file ({LAST_UPLOAD.get('size')} bytes)")
+        check(LAST_UPLOAD.get("magic") == b"RIFF", "uploaded bytes are the WAV header")
+
+        # 7c. local file input that does not exist
+        print("\n7c. ai.submit_pipeline (missing local file)")
+        c.send("ai.submit_pipeline",
+               build_submit_request(input_url="/tmp/rmms-no-such-file.wav"), 51)
+        entry = None
+        deadline = time.time() + 10
+        while time.time() < deadline and entry is None:
+            c.pump(0.5)
+            for e in c.events.get("ai.submit_pipeline.result", []):
+                if e[0] == 51:
+                    entry = e
+                    break
+        if check(entry is not None, "missing-file result received"):
+            sub = rmms.AISubmitPipelineResponse.AISubmitPipelineResponse.GetRootAs(entry[1], 0)
+            code = sub.Status().ErrorCode().decode() if sub.Status() and sub.Status().ErrorCode() else ""
+            check(not sub.Status().Success() and code == "FILE_NOT_FOUND",
+                  f"error_code == FILE_NOT_FOUND (got '{code}')")
 
         # 8. unreachable AI server error mapping
         print("\n8. AI server unreachable -> AI_SERVER_UNREACHABLE")

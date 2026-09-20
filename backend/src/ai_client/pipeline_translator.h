@@ -23,6 +23,19 @@ public:
     static std::string submit_pipeline_request_to_json(
         const rmms::AISubmitPipelineRequest& req);
 
+    // Fields for the AI server's multipart/form-data upload endpoint.
+    struct SubmitForm {
+        std::string steps_json;      // bare pipeline steps array JSON
+        std::string device_preference;
+        std::string priority;        // decimal string
+        std::string output_format;
+        std::string output_package;
+        std::string force_refresh;   // "true" | "false"
+    };
+    static SubmitForm submit_pipeline_form(const rmms::AISubmitPipelineRequest& req);
+
+    static std::string json_escape(std::string_view s);
+
     // JSON from GET /api/v1/capabilities → full AIGetCapabilitiesResponse
     // table (fbb finished). On failure (or ok=false) builds an error-status
     // response with no capabilities.
@@ -56,7 +69,6 @@ public:
     static std::vector<std::string> json_array_objects(std::string_view arr);
 
 private:
-    static std::string json_escape(std::string_view s);
     static std::string json_get_string(std::string_view json, const char* key);
     static int json_get_int(std::string_view json, const char* key, int default_val = 0);
     static double json_get_double(std::string_view json, const char* key, double default_val = 0.0);

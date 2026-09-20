@@ -5,6 +5,7 @@
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 namespace rmms::backend::ai_client {
@@ -43,6 +44,13 @@ public:
     // multipart/form-data upload of a single file (AI input upload).
     HttpResponse post_file(std::string_view path, std::string_view field,
                            std::string_view file_path,
+                           std::string_view content_type = "application/octet-stream");
+
+    // multipart/form-data with text fields plus one file part (AI server's
+    // upload endpoint expects e.g. "pipeline" + "file").
+    HttpResponse post_form(std::string_view path,
+                           const std::vector<std::pair<std::string, std::string>>& fields,
+                           std::string_view file_field, std::string_view file_path,
                            std::string_view content_type = "application/octet-stream");
 
     // GETs path and streams the body into dest_path (AI result download).

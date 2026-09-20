@@ -286,6 +286,15 @@ HttpResponse RestClient::post_file(std::string_view path, std::string_view field
                                    std::string_view file_path,
                                    std::string_view content_type)
 {
+    return post_form(path, {}, field, file_path, content_type);
+}
+
+HttpResponse RestClient::post_form(
+    std::string_view path,
+    const std::vector<std::pair<std::string, std::string>>& fields,
+    std::string_view file_field, std::string_view file_path,
+    std::string_view content_type)
+{
     std::FILE* f = std::fopen(std::string(file_path).c_str(), "rb");
     if (f == nullptr) {
         return HttpResponse{-1, "cannot open file", {}};
@@ -308,8 +317,14 @@ HttpResponse RestClient::post_file(std::string_view path, std::string_view field
 
     std::string body;
     body.reserve(data.size() + 512);
+    for (const auto& [key, value] : fields) {
+        body += "--" + boundary + "\r\n";
+        body += "Content-Disposition: form-data; name=\"" + key + "\"\r\n\r\n";
+        body += value;
+        body += "\r\n";
+    }
     body += "--" + boundary + "\r\n";
-    body += "Content-Disposition: form-data; name=\"" + std::string(field) +
+    body += "Content-Disposition: form-data; name=\"" + std::string(file_field) +
             "\"; filename=\"" + basename + "\"\r\n";
     body += "Content-Type: " + std::string(content_type) + "\r\n\r\n";
     body += data;
